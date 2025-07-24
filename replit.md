@@ -110,11 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes (January 2025)
 
-1. **PDF Export System**: Replaced JSON export with PDF generation using jsPDF and html2canvas
+1. **PDF Export System**: Replaced JSON export with PDF generation using jsPDF and html2canvas, now includes chart capture
 2. **Enhanced Strategic Alerts**: Added 8 different alert types including specific alerts for unanswered elements
 3. **Gauge Chart Visualizations**: Implemented circular gauge charts showing risk level, impact, and urgency metrics for each alert
 4. **Form Validation**: Added visual indicators for absent elements with red highlighting and warning labels
 5. **Completion Requirements**: Gráficos and alerts now require complete evaluation before displaying content
+6. **Exercise and Group Codes**: Added optional fields for organizing evaluations by exercise and group identifiers
+7. **Random Testing Tool**: Implemented "Completar Aleatoriamente" button for automated testing of evaluation forms
+8. **Structure Editing**: Added full editing capabilities for criteria and elements with add/remove functionality
+9. **Custom Model Support**: Evaluations can now use custom-modified structures stored with the evaluation data
 
 ### Key Architectural Decisions
 

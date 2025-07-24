@@ -87,7 +87,8 @@ export default function Home() {
     currentModel.dimensions.forEach((dimension: any, dimIndex: number) => {
       dimension.criteria.forEach((criterion: any, critIndex: number) => {
         criterion.elements.forEach((element: any, elemIndex: number) => {
-          const elementId = `${dimIndex}-${critIndex}-${elemIndex}`;
+          // Use the actual element ID from the data structure
+          const elementId = element.id;
           // Random response: 70% chance of 1, 30% chance of 0
           newResponses[elementId] = Math.random() > 0.3 ? 1 : 0;
         });

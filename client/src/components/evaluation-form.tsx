@@ -82,7 +82,7 @@ export default function EvaluationForm({
     if (!onModelChange || !isEditMode) return;
     
     const updatedModel = { ...model };
-    updatedModel.dimensions[dimIndex].criteria[critIndex].elements[elemIndex] = newText;
+    updatedModel.dimensions[dimIndex].criteria[critIndex].elements[elemIndex].text = newText;
     onModelChange(updatedModel);
   };
 
@@ -91,6 +91,49 @@ export default function EvaluationForm({
     
     const updatedModel = { ...model };
     updatedModel.dimensions[dimIndex].criteria[critIndex].name = newText;
+    onModelChange(updatedModel);
+  };
+
+  const handleAddElement = (dimIndex: number, critIndex: number) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    const newElementId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newElement = {
+      id: newElementId,
+      text: "Nuevo elemento"
+    };
+    updatedModel.dimensions[dimIndex].criteria[critIndex].elements.push(newElement);
+    onModelChange(updatedModel);
+  };
+
+  const handleRemoveElement = (dimIndex: number, critIndex: number, elemIndex: number) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    updatedModel.dimensions[dimIndex].criteria[critIndex].elements.splice(elemIndex, 1);
+    onModelChange(updatedModel);
+  };
+
+  const handleAddCriterion = (dimIndex: number) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    const newCriterionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newCriterion = {
+      id: newCriterionId,
+      name: "Nuevo criterio",
+      elements: []
+    };
+    updatedModel.dimensions[dimIndex].criteria.push(newCriterion);
+    onModelChange(updatedModel);
+  };
+
+  const handleRemoveCriterion = (dimIndex: number, critIndex: number) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    updatedModel.dimensions[dimIndex].criteria.splice(critIndex, 1);
     onModelChange(updatedModel);
   };
 
@@ -131,12 +174,20 @@ export default function EvaluationForm({
                   <Card key={criterion.id} className="bg-white shadow-sm">
                     <CardContent className="p-4">
                       {isEditMode ? (
-                        <div className="mb-3">
+                        <div className="mb-3 flex items-center justify-between">
                           <Input
                             value={criterion.name}
                             onChange={(e) => handleCriterionEdit(dimIndex, critIndex, e.target.value)}
-                            className="font-semibold text-gray-800"
+                            className="font-semibold text-gray-800 flex-1 mr-2"
                           />
+                          <Button
+                            onClick={() => handleRemoveCriterion(dimIndex, critIndex)}
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
                       ) : (
                         <h4 className="font-semibold text-gray-800 mb-3">
@@ -159,11 +210,21 @@ export default function EvaluationForm({
                                   </span>
                                 )}
                                 {isEditMode ? (
-                                  <Input
-                                    value={element.text}
-                                    onChange={(e) => handleElementEdit(dimIndex, critIndex, elemIndex, e.target.value)}
-                                    className="text-sm"
-                                  />
+                                  <div className="flex items-center space-x-2 flex-1">
+                                    <Input
+                                      value={element.text}
+                                      onChange={(e) => handleElementEdit(dimIndex, critIndex, elemIndex, e.target.value)}
+                                      className="text-sm flex-1"
+                                    />
+                                    <Button
+                                      onClick={() => handleRemoveElement(dimIndex, critIndex, elemIndex)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-red-600 border-red-300 hover:bg-red-50"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 ) : (
                                   <span className={`text-sm ${isAbsent ? 'text-red-700' : 'text-gray-700'}`}>{element.text}</span>
                                 )}
@@ -226,21 +287,52 @@ export default function EvaluationForm({
                         })}
                       </div>
 
-                      <div className="mt-3 p-2 bg-blue-100 rounded text-center">
-                        <span className="text-sm font-medium text-blue-700">
-                          Puntuación del criterio: {getCriterionScore(dimIndex, critIndex)}%
-                        </span>
-                      </div>
+                      {isEditMode && (
+                        <div className="mt-3 flex justify-center">
+                          <Button
+                            onClick={() => handleAddElement(dimIndex, critIndex)}
+                            variant="outline"
+                            size="sm"
+                            className="text-green-600 border-green-300 hover:bg-green-50"
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Agregar Elemento
+                          </Button>
+                        </div>
+                      )}
+
+                      {!isEditMode && (
+                        <div className="mt-3 p-2 bg-blue-100 rounded text-center">
+                          <span className="text-sm font-medium text-blue-700">
+                            Puntuación del criterio: {getCriterionScore(dimIndex, critIndex)}%
+                          </span>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
-              <div className="mt-4 p-4 bg-gray-800 text-white rounded-lg text-center">
-                <h4 className="font-semibold">
-                  Puntuación {dimension.name}: {getDimensionScore(dimIndex)}%
-                </h4>
-              </div>
+              {isEditMode && (
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    onClick={() => handleAddCriterion(dimIndex)}
+                    variant="outline"
+                    className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Criterio
+                  </Button>
+                </div>
+              )}
+
+              {!isEditMode && (
+                <div className="mt-4 p-4 bg-gray-800 text-white rounded-lg text-center">
+                  <h4 className="font-semibold">
+                    Puntuación {dimension.name}: {getDimensionScore(dimIndex)}%
+                  </h4>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
