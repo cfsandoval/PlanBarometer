@@ -108,6 +108,14 @@ Preferred communication style: Simple, everyday language.
 - **NODE_ENV**: Environment detection for development/production modes
 - **Session Configuration**: Secure session management with PostgreSQL persistence
 
+### Recent Changes (January 2025)
+
+1. **PDF Export System**: Replaced JSON export with PDF generation using jsPDF and html2canvas
+2. **Enhanced Strategic Alerts**: Added 8 different alert types including specific alerts for unanswered elements
+3. **Gauge Chart Visualizations**: Implemented circular gauge charts showing risk level, impact, and urgency metrics for each alert
+4. **Form Validation**: Added visual indicators for absent elements with red highlighting and warning labels
+5. **Completion Requirements**: Gráficos and alerts now require complete evaluation before displaying content
+
 ### Key Architectural Decisions
 
 1. **Full-Stack TypeScript**: Ensures type safety across client-server boundary with shared schema definitions
@@ -115,3 +123,4 @@ Preferred communication style: Simple, everyday language.
 3. **Component-Based UI**: Modular React components with shadcn/ui for consistent design system
 4. **Real-Time Calculations**: Client-side scoring engine for immediate feedback during assessments
 5. **Progressive Enhancement**: Works with basic functionality, enhanced with JavaScript for rich interactions
+6. **PDF Export Integration**: Comprehensive reporting system with chart capture and detailed analysis
