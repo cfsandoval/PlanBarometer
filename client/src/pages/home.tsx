@@ -12,12 +12,13 @@ import ModelSelector from "@/components/model-selector";
 import EvaluationForm from "@/components/evaluation-form";
 import ResultsCharts from "@/components/results-charts";
 import StrategicAlerts from "@/components/strategic-alerts";
+import CustomAlertsEditor from "@/components/custom-alerts-editor";
 
 import { MODELS } from "@/lib/planbarometro-data";
 import { calculateScores } from "@/lib/scoring-engine";
 import { generateStrategicAlerts } from "@/lib/alerts-engine";
 import { apiRequest } from "@/lib/queryClient";
-import { EvaluationResponse, EvaluationJustifications, EvaluationData } from "@/types/planbarometro";
+import { EvaluationResponse, EvaluationJustifications, EvaluationData, StrategicAlert, Model } from "@/types/planbarometro";
 
 export default function Home() {
   const [selectedModel, setSelectedModel] = useState("topp");
@@ -29,6 +30,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("evaluation");
   const [isEditMode, setIsEditMode] = useState(false);
   const [customModel, setCustomModel] = useState<any>(null);
+  const [customAlerts, setCustomAlerts] = useState<StrategicAlert[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,11 +55,12 @@ export default function Home() {
     return calculateScores(responses, currentModel);
   }, [responses, currentModel]);
 
-  // Generate alerts
+  // Generate alerts (automatic + custom)
   const alerts = useMemo(() => {
     if (!isEvaluationComplete) return [];
-    return generateStrategicAlerts(scores, selectedModel, responses);
-  }, [scores, selectedModel, responses, isEvaluationComplete]);
+    const automaticAlerts = generateStrategicAlerts(scores, selectedModel, responses);
+    return [...automaticAlerts, ...customAlerts];
+  }, [scores, selectedModel, responses, isEvaluationComplete, customAlerts]);
 
   // Fetch evaluations
   const { data: evaluations } = useQuery({
@@ -228,53 +231,45 @@ export default function Home() {
       yPosition += 10;
       
       // Capture charts if evaluation is complete
-      try {
-        const chartContainer = document.querySelector('[data-chart-container]');
-        if (chartContainer) {
-          const canvas = await html2canvas(chartContainer as HTMLElement, {
-            scale: 2,
-            backgroundColor: '#ffffff'
-          });
-          
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = pageWidth - 40;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
-          // Add new page if needed
-          if (yPosition + imgHeight > pageHeight - 20) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          
-          pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
-          yPosition += imgHeight + 10;
-        }
-      } catch (chartError) {
-        console.warn('Error capturing charts:', chartError);
-      }
-      
-      // Try to capture charts if available
-      const chartsElement = document.querySelector('[data-chart-container]');
-      if (chartsElement) {
+      if (isEvaluationComplete) {
         try {
-          const canvas = await html2canvas(chartsElement as HTMLElement, {
-            scale: 1,
-            useCORS: true
-          });
+          // Wait for charts to render completely
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = pageWidth - 40;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
-          if (yPosition + imgHeight > pageHeight - 20) {
-            pdf.addPage();
-            yPosition = 20;
+          const chartContainer = document.querySelector('[data-chart-container]') as HTMLElement;
+          if (chartContainer) {
+            const canvas = await html2canvas(chartContainer, {
+              scale: 2,
+              backgroundColor: '#ffffff',
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              width: chartContainer.scrollWidth,
+              height: chartContainer.scrollHeight
+            });
+            
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            const imgWidth = pageWidth - 40;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Add new page if needed
+            if (yPosition + imgHeight + 20 > pageHeight - 20) {
+              pdf.addPage();
+              yPosition = 20;
+            }
+            
+            pdf.setFontSize(14);
+            pdf.text('Gráficos de Resultados', 20, yPosition);
+            yPosition += 15;
+            
+            pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
+            yPosition += imgHeight + 15;
           }
-          
-          pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
-          yPosition += imgHeight + 10;
-        } catch (error) {
-          console.log('Could not capture charts:', error);
+        } catch (chartError) {
+          console.warn('Error capturing charts:', chartError);
+          pdf.setFontSize(12);
+          pdf.text('(Los gráficos no pudieron ser incluidos en esta exportación)', 20, yPosition);
+          yPosition += 15;
         }
       }
       
@@ -511,7 +506,7 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div data-chart-container>
+                <div data-chart-container id="results-charts">
                   <ResultsCharts scores={scores} model={currentModel} />
                 </div>
               )}
@@ -534,7 +529,15 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <StrategicAlerts alerts={alerts} />
+                <div className="space-y-8">
+                  <StrategicAlerts alerts={alerts} />
+                  <CustomAlertsEditor 
+                    customAlerts={customAlerts}
+                    onUpdateCustomAlerts={setCustomAlerts}
+                    scores={scores}
+                    model={currentModel as Model}
+                  />
+                </div>
               )}
             </TabsContent>
           </Tabs>
