@@ -3,6 +3,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StrategicAlert } from "@/types/planbarometro";
 import { generateStrategicAlerts, getAlertSeverityColor, getAlertIcon } from "@/lib/alerts-engine";
 import { AlertTriangle, AlertCircle, Info, CheckCircle } from "lucide-react";
+import GaugeChart from "./gauge-chart";
 
 interface StrategicAlertsProps {
   alerts: StrategicAlert[];
@@ -58,11 +59,11 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
           {alerts.map((alert) => (
             <Card key={alert.id} className={`border-l-4 ${getAlertSeverityColor(alert.severity).split(' ')[0]} shadow-md`}>
               <CardContent className="p-6">
-                <div className="flex items-start">
+                <div className="flex items-start gap-6">
                   <div className={`flex-shrink-0 ${getAlertSeverityColor(alert.severity).split(' ')[1]}`}>
                     {getIcon(alert.severity)}
                   </div>
-                  <div className="ml-4 flex-1">
+                  <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className={`text-lg font-semibold ${getAlertSeverityColor(alert.severity).split(' ')[1]}`}>
                         {alert.title}
@@ -81,6 +82,35 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
                       </Alert>
                     )}
                   </div>
+                  
+                  {/* Gauge Charts Section */}
+                  {alert.metrics && (
+                    <div className="flex-shrink-0">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-3 text-center">Indicadores de Alerta</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          <GaugeChart
+                            value={alert.metrics.riskLevel}
+                            label="Nivel de Riesgo"
+                            size={100}
+                            severity={alert.severity}
+                          />
+                          <GaugeChart
+                            value={alert.metrics.impactLevel}
+                            label="Impacto"
+                            size={100}
+                            severity={alert.severity}
+                          />
+                          <GaugeChart
+                            value={alert.metrics.urgencyLevel}
+                            label="Urgencia"
+                            size={100}
+                            severity={alert.severity}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

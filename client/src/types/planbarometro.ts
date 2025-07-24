@@ -59,6 +59,11 @@ export interface StrategicAlert {
   severity: 'high' | 'medium' | 'low';
   criteria: string[];
   recommendation?: string;
+  metrics?: {
+    riskLevel: number; // 0-100, where 100 is highest risk
+    impactLevel: number; // 0-100, impact on planning effectiveness
+    urgencyLevel: number; // 0-100, how urgent is attention needed
+  };
 }
 
 export interface EvaluationData {
