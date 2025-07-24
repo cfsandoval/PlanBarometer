@@ -57,6 +57,7 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const evaluation: Evaluation = { 
       ...insertEvaluation, 
+      justifications: insertEvaluation.justifications || {},
       id,
       createdAt: now,
       updatedAt: now

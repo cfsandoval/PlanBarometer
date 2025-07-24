@@ -13,6 +13,7 @@ export const evaluations = pgTable("evaluations", {
   title: text("title").notNull(),
   model: text("model").notNull(), // 'topp', 'nacional', 'subnacional'
   responses: json("responses").notNull(), // JSON object with element responses
+  justifications: json("justifications").notNull().default({}), // JSON object with element justifications
   scores: json("scores"), // Calculated scores by criteria/dimensions
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -27,6 +28,7 @@ export const insertEvaluationSchema = createInsertSchema(evaluations).pick({
   title: true,
   model: true,
   responses: true,
+  justifications: true,
   scores: true,
 });
 

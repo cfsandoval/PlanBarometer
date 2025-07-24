@@ -1,18 +1,24 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
-import { Model, EvaluationResponse } from "@/types/planbarometro";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Model, EvaluationResponse, EvaluationJustifications } from "@/types/planbarometro";
 import { calculateScores } from "@/lib/scoring-engine";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 
 interface EvaluationFormProps {
   model: Model;
   responses: EvaluationResponse;
+  justifications: EvaluationJustifications;
   onResponseChange: (elementId: string, value: 0 | 1) => void;
+  onJustificationChange: (elementId: string, justification: string) => void;
 }
 
-export default function EvaluationForm({ model, responses, onResponseChange }: EvaluationFormProps) {
+export default function EvaluationForm({ model, responses, justifications, onResponseChange, onJustificationChange }: EvaluationFormProps) {
   const scores = useMemo(() => calculateScores(responses, model), [responses, model]);
+  const [expandedJustifications, setExpandedJustifications] = useState<Set<string>>(new Set());
   
   const totalElements = model.dimensions.reduce((acc, dim) => 
     acc + dim.criteria.reduce((critAcc, crit) => critAcc + crit.elements.length, 0), 0
@@ -47,6 +53,18 @@ export default function EvaluationForm({ model, responses, onResponseChange }: E
 
   const getDimensionScore = (dimensionIndex: number) => {
     return scores.dimensions[dimensionIndex]?.percentage || 0;
+  };
+
+  const toggleJustification = (elementId: string) => {
+    setExpandedJustifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(elementId)) {
+        newSet.delete(elementId);
+      } else {
+        newSet.add(elementId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -84,32 +102,60 @@ export default function EvaluationForm({ model, responses, onResponseChange }: E
                       
                       <div className="space-y-3">
                         {criterion.elements.map((element) => (
-                          <div key={element.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                            <span className="text-sm flex-1 mr-4">{element.text}</span>
-                            <div className="flex space-x-2">
-                              <Label className="flex items-center cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name={element.id}
-                                  value="1"
-                                  checked={responses[element.id] === 1}
-                                  onChange={() => onResponseChange(element.id, 1)}
-                                  className="mr-2"
-                                />
-                                <span className="text-green-600 font-medium">P</span>
-                              </Label>
-                              <Label className="flex items-center cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name={element.id}
-                                  value="0"
-                                  checked={responses[element.id] === 0}
-                                  onChange={() => onResponseChange(element.id, 0)}
-                                  className="mr-2"
-                                />
-                                <span className="text-red-600 font-medium">A</span>
-                              </Label>
+                          <div key={element.id} className="bg-gray-50 rounded">
+                            <div className="flex items-center justify-between p-3">
+                              <span className="text-sm flex-1 mr-4">{element.text}</span>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleJustification(element.id)}
+                                  className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
+                                  title="Agregar justificación"
+                                >
+                                  <MessageSquare className="h-4 w-4" />
+                                </Button>
+                                <div className="flex space-x-2">
+                                  <Label className="flex items-center cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={element.id}
+                                      value="1"
+                                      checked={responses[element.id] === 1}
+                                      onChange={() => onResponseChange(element.id, 1)}
+                                      className="mr-2"
+                                    />
+                                    <span className="text-green-600 font-medium">P</span>
+                                  </Label>
+                                  <Label className="flex items-center cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={element.id}
+                                      value="0"
+                                      checked={responses[element.id] === 0}
+                                      onChange={() => onResponseChange(element.id, 0)}
+                                      className="mr-2"
+                                    />
+                                    <span className="text-red-600 font-medium">A</span>
+                                  </Label>
+                                </div>
+                              </div>
                             </div>
+                            
+                            {expandedJustifications.has(element.id) && (
+                              <div className="px-3 pb-3 border-t border-gray-200">
+                                <Label className="text-sm text-gray-600 mb-2 block">
+                                  Justificación de la respuesta:
+                                </Label>
+                                <Textarea
+                                  value={justifications[element.id] || ""}
+                                  onChange={(e) => onJustificationChange(element.id, e.target.value)}
+                                  placeholder="Describa la evidencia o razones que justifican su respuesta..."
+                                  className="min-h-[80px]"
+                                />
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

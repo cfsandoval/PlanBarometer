@@ -30,6 +30,10 @@ export interface EvaluationResponse {
   [elementId: string]: 0 | 1; // 0 = Absent, 1 = Present
 }
 
+export interface EvaluationJustifications {
+  [elementId: string]: string; // Justification text for each element
+}
+
 export interface CriterionScore {
   criterionId: string;
   score: number;
@@ -62,6 +66,7 @@ export interface EvaluationData {
   title: string;
   model: string;
   responses: EvaluationResponse;
+  justifications?: EvaluationJustifications;
   scores?: EvaluationScores;
   createdAt?: Date;
   updatedAt?: Date;

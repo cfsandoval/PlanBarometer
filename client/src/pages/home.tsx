@@ -17,11 +17,12 @@ import { MODELS } from "@/lib/planbarometro-data";
 import { calculateScores } from "@/lib/scoring-engine";
 import { generateStrategicAlerts } from "@/lib/alerts-engine";
 import { apiRequest } from "@/lib/queryClient";
-import { EvaluationResponse, EvaluationData } from "@/types/planbarometro";
+import { EvaluationResponse, EvaluationJustifications, EvaluationData } from "@/types/planbarometro";
 
 export default function Home() {
   const [selectedModel, setSelectedModel] = useState("topp");
   const [responses, setResponses] = useState<EvaluationResponse>({});
+  const [justifications, setJustifications] = useState<EvaluationJustifications>({});
   const [evaluationTitle, setEvaluationTitle] = useState("");
   const [activeTab, setActiveTab] = useState("evaluation");
 
@@ -47,9 +48,22 @@ export default function Home() {
     queryKey: ["/api/evaluations"],
   });
 
+  // Generate automatic title
+  const generateAutomaticTitle = () => {
+    const modelName = MODELS.find(m => m.id === selectedModel)?.name || selectedModel;
+    const timestamp = new Date().toLocaleDateString('es-ES', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    return `Evaluación ${modelName} - ${timestamp}`;
+  };
+
   // Save evaluation mutation
   const saveEvaluationMutation = useMutation({
-    mutationFn: async (data: { title: string; model: string; responses: EvaluationResponse; scores: any }) => {
+    mutationFn: async (data: { title: string; model: string; responses: EvaluationResponse; justifications: EvaluationJustifications; scores: any }) => {
       return apiRequest("POST", "/api/evaluations", data);
     },
     onSuccess: () => {
@@ -64,6 +78,7 @@ export default function Home() {
   const handleModelSelect = (modelId: string) => {
     setSelectedModel(modelId);
     setResponses({});
+    setJustifications({});
   };
 
   const handleResponseChange = (elementId: string, value: 0 | 1) => {
@@ -73,26 +88,32 @@ export default function Home() {
     }));
   };
 
+  const handleJustificationChange = (elementId: string, justification: string) => {
+    setJustifications(prev => ({
+      ...prev,
+      [elementId]: justification
+    }));
+  };
+
   const handleSaveEvaluation = () => {
-    if (!evaluationTitle.trim()) {
-      toast({ title: "Por favor ingrese un título para la evaluación", variant: "destructive" });
-      return;
-    }
+    const finalTitle = evaluationTitle.trim() || generateAutomaticTitle();
 
     saveEvaluationMutation.mutate({
-      title: evaluationTitle,
+      title: finalTitle,
       model: selectedModel,
       responses,
+      justifications,
       scores
     });
   };
 
   const handleExportData = () => {
     const data = {
-      title: evaluationTitle || `Evaluación ${selectedModel}`,
+      title: evaluationTitle || generateAutomaticTitle(),
       model: selectedModel,
       timestamp: new Date().toISOString(),
       responses,
+      justifications,
       scores
     };
 
@@ -122,6 +143,7 @@ export default function Home() {
             const data = JSON.parse(e.target?.result as string);
             setSelectedModel(data.model);
             setResponses(data.responses);
+            setJustifications(data.justifications || {});
             setEvaluationTitle(data.title || "");
             toast({ title: "Datos importados exitosamente" });
           } catch (error) {
@@ -158,7 +180,7 @@ export default function Home() {
                   id="title"
                   value={evaluationTitle}
                   onChange={(e) => setEvaluationTitle(e.target.value)}
-                  placeholder="Nombre de la evaluación"
+                  placeholder="Opcional - Se generará automáticamente"
                   className="bg-white text-gray-900"
                 />
               </div>
@@ -219,7 +241,9 @@ export default function Home() {
               <EvaluationForm
                 model={currentModel}
                 responses={responses}
+                justifications={justifications}
                 onResponseChange={handleResponseChange}
+                onJustificationChange={handleJustificationChange}
               />
             </TabsContent>
 
