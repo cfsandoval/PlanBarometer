@@ -1,0 +1,117 @@
+# Planbarómetro - Government Planning Capacity Assessment Tool
+
+## Overview
+
+This is a full-stack web application for evaluating government planning capacities using the TOPP (Technical, Operational, Political, Prospective) framework. The system allows users to assess planning capabilities across multiple dimensions and generate strategic insights and alerts based on evaluation patterns.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Routing**: Wouter for lightweight client-side routing
+- **UI Components**: shadcn/ui component library with Radix UI primitives
+- **Styling**: Tailwind CSS with custom CSS variables for theming
+- **State Management**: TanStack Query for server state, React hooks for local state
+- **Charts**: Recharts for data visualization (radar charts, bar charts)
+- **Build Tool**: Vite with React plugin
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js
+- **Language**: TypeScript with ES modules
+- **API Style**: RESTful JSON API
+- **Database ORM**: Drizzle ORM configured for PostgreSQL
+- **Database Provider**: Neon Database (serverless PostgreSQL)
+- **Session Storage**: PostgreSQL-based sessions with connect-pg-simple
+- **Development**: In-memory storage fallback for development
+
+### Database Schema
+- **users**: Basic user authentication (id, username, password)
+- **evaluations**: Evaluation records with JSON storage for responses and scores
+- **Schema Management**: Drizzle Kit for migrations and schema management
+
+## Key Components
+
+### Data Models
+1. **Evaluation Framework**:
+   - Multiple assessment models (TOPP, Nacional, Subnacional)
+   - Hierarchical structure: Models → Dimensions → Criteria → Elements
+   - Binary scoring system (0 = Absent, 1 = Present)
+
+2. **Scoring Engine**:
+   - Calculates percentages at criterion, dimension, and overall levels
+   - Generates comparative scores across dimensions
+   - Real-time score updates as users respond
+
+3. **Strategic Alerts System**:
+   - Pattern recognition for identifying governance risks
+   - Severity-based categorization (high, medium, low)
+   - Automated recommendations for capacity building
+
+### Core Features
+1. **Model Selection**: Choose between different evaluation frameworks
+2. **Interactive Assessment**: Progressive evaluation with real-time scoring
+3. **Data Visualization**: Radar charts and bar charts for results analysis
+4. **Strategic Insights**: Automated alert generation and recommendations
+5. **Persistence**: Save and load evaluations with PostgreSQL storage
+
+## Data Flow
+
+1. **Assessment Flow**:
+   - User selects evaluation model → Interactive form renders dimensions/criteria → User provides binary responses → Real-time score calculation → Strategic alerts generation
+
+2. **Storage Flow**:
+   - Evaluation data serialized to JSON → Stored in PostgreSQL via Drizzle ORM → Retrieved for analysis and continuation
+
+3. **Visualization Flow**:
+   - Scores calculated from responses → Data transformed for charts → Recharts renders radar and bar visualizations
+
+## External Dependencies
+
+### Core Framework Dependencies
+- **React Ecosystem**: React 18, React DOM, TypeScript
+- **UI Components**: Radix UI primitives, shadcn/ui components
+- **Styling**: Tailwind CSS, PostCSS, Autoprefixer
+- **State Management**: TanStack React Query
+- **Forms**: React Hook Form with Zod validation
+
+### Backend Dependencies
+- **Server**: Express.js, Node.js
+- **Database**: Drizzle ORM, Neon Database client, PostgreSQL
+- **Validation**: Zod schema validation
+- **Session Management**: Express sessions with PostgreSQL store
+
+### Development Dependencies
+- **Build Tools**: Vite, esbuild
+- **Development**: tsx for TypeScript execution
+- **Linting/Typing**: TypeScript compiler
+- **Replit Integration**: Cartographer and error overlay plugins
+
+## Deployment Strategy
+
+### Development Environment
+- **Local Development**: Vite dev server with HMR
+- **Database**: In-memory storage with fallback to PostgreSQL
+- **Session Management**: Memory store for development
+
+### Production Build
+- **Frontend**: Vite builds static assets to `dist/public`
+- **Backend**: esbuild bundles server code to `dist/index.js`
+- **Database**: Full PostgreSQL with Neon Database
+- **Deployment**: Single process serving both API and static files
+
+### Environment Configuration
+- **DATABASE_URL**: PostgreSQL connection string for production
+- **NODE_ENV**: Environment detection for development/production modes
+- **Session Configuration**: Secure session management with PostgreSQL persistence
+
+### Key Architectural Decisions
+
+1. **Full-Stack TypeScript**: Ensures type safety across client-server boundary with shared schema definitions
+2. **JSON Storage for Flexible Data**: Evaluation responses and scores stored as JSON for schema flexibility
+3. **Component-Based UI**: Modular React components with shadcn/ui for consistent design system
+4. **Real-Time Calculations**: Client-side scoring engine for immediate feedback during assessments
+5. **Progressive Enhancement**: Works with basic functionality, enhanced with JavaScript for rich interactions
