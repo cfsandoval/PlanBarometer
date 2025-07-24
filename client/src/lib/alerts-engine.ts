@@ -42,7 +42,7 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
   }
 
   // "Implementación sin dirección estratégica"
-  if (operational >= 60 && prospective < 40) {
+  if (operational >= 50 && prospective < 50) {
     const riskLevel = Math.min(100, (operational - prospective) * 1.2);
     alerts.push({
       id: "implementation_without_strategic_direction",
@@ -79,7 +79,7 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
 
   // "Desequilibrio general"
   const maxDiff = Math.max(technical, operational, political, prospective) - Math.min(technical, operational, political, prospective);
-  if (maxDiff > 50) {
+  if (maxDiff > 30) {
     alerts.push({
       id: "general_imbalance",
       title: "Desequilibrio entre capacidades",
@@ -148,7 +148,7 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
   }
 
   // Alert for weak prospective capabilities
-  if (prospective < 25) {
+  if (prospective < 45) {
     alerts.push({
       id: "weak_prospective_capabilities",
       title: "Capacidades prospectivas críticas",
@@ -218,7 +218,7 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
   // Alert for excellent isolated capacity
   const maxCapacity = Math.max(technical, operational, political, prospective);
   const avgOthers = (technical + operational + political + prospective - maxCapacity) / 3;
-  if (maxCapacity > 80 && avgOthers < 40) {
+  if (maxCapacity > 75 && avgOthers < 50) {
     const excellentDimension = 
       technical === maxCapacity ? "técnica" :
       operational === maxCapacity ? "operativa" :
