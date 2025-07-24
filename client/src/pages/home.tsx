@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Download, Upload, BarChart3 } from "lucide-react";
+import { Save, Download, Upload, BarChart3, Shuffle, Edit, Copy } from "lucide-react";
 
 import ModelSelector from "@/components/model-selector";
 import EvaluationForm from "@/components/evaluation-form";
@@ -24,19 +24,23 @@ export default function Home() {
   const [responses, setResponses] = useState<EvaluationResponse>({});
   const [justifications, setJustifications] = useState<EvaluationJustifications>({});
   const [evaluationTitle, setEvaluationTitle] = useState("");
+  const [exerciseCode, setExerciseCode] = useState("");
+  const [groupCode, setGroupCode] = useState("");
   const [activeTab, setActiveTab] = useState("evaluation");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [customModel, setCustomModel] = useState<any>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Get current model data
-  const currentModel = MODELS.find(m => m.id === selectedModel);
+  const currentModel = customModel || MODELS.find(m => m.id === selectedModel);
   
   // Check if evaluation is complete
   const totalElements = useMemo(() => {
     if (!currentModel) return 0;
-    return currentModel.dimensions.reduce((total, dim) => 
-      total + dim.criteria.reduce((critTotal, crit) => critTotal + crit.elements.length, 0), 0
+    return currentModel.dimensions.reduce((total: number, dim: any) => 
+      total + dim.criteria.reduce((critTotal: number, crit: any) => critTotal + crit.elements.length, 0), 0
     );
   }, [currentModel]);
   
@@ -70,12 +74,63 @@ export default function Home() {
       hour: '2-digit',
       minute: '2-digit'
     });
-    return `Evaluación ${modelName} - ${timestamp}`;
+    const codeInfo = exerciseCode ? ` - Ejercicio ${exerciseCode}` : '';
+    const groupInfo = groupCode ? ` - Grupo ${groupCode}` : '';
+    return `Evaluación ${modelName}${codeInfo}${groupInfo} - ${timestamp}`;
+  };
+
+  // Complete evaluation randomly for testing
+  const handleRandomComplete = () => {
+    if (!currentModel) return;
+    
+    const newResponses: EvaluationResponse = {};
+    currentModel.dimensions.forEach((dimension: any, dimIndex: number) => {
+      dimension.criteria.forEach((criterion: any, critIndex: number) => {
+        criterion.elements.forEach((element: any, elemIndex: number) => {
+          const elementId = `${dimIndex}-${critIndex}-${elemIndex}`;
+          // Random response: 70% chance of 1, 30% chance of 0
+          newResponses[elementId] = Math.random() > 0.3 ? 1 : 0;
+        });
+      });
+    });
+    
+    setResponses(newResponses);
+    toast({
+      title: "Evaluación completada",
+      description: "Se han generado respuestas aleatorias para testing",
+    });
+  };
+
+  // Toggle edit mode and create custom model copy
+  const handleToggleEditMode = () => {
+    if (!isEditMode && currentModel) {
+      // Create a deep copy for editing
+      setCustomModel(JSON.parse(JSON.stringify(currentModel)));
+    }
+    setIsEditMode(!isEditMode);
+  };
+
+  // Save custom model changes
+  const handleSaveCustomModel = () => {
+    setIsEditMode(false);
+    toast({
+      title: "Cambios guardados",
+      description: "La estructura personalizada ha sido guardada",
+    });
   };
 
   // Save evaluation mutation
   const saveEvaluationMutation = useMutation({
-    mutationFn: async (data: { title: string; model: string; responses: EvaluationResponse; justifications: EvaluationJustifications; scores: any }) => {
+    mutationFn: async (data: { 
+      title: string; 
+      model: string; 
+      exerciseCode?: string;
+      groupCode?: string;
+      responses: EvaluationResponse; 
+      justifications: EvaluationJustifications; 
+      scores: any;
+      customStructure?: any;
+    }) => {
       return apiRequest("POST", "/api/evaluations", data);
     },
     onSuccess: () => {
@@ -113,13 +168,25 @@ export default function Home() {
     saveEvaluationMutation.mutate({
       title: finalTitle,
       model: selectedModel,
+      exerciseCode: exerciseCode || undefined,
+      groupCode: groupCode || undefined,
       responses,
       justifications,
-      scores
+      scores,
+      customStructure: customModel || undefined
     });
   };
 
   const handleExportPDF = async () => {
+    if (!isEvaluationComplete) {
+      toast({
+        title: "Evaluación incompleta",
+        description: "Complete la evaluación antes de exportar a PDF",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
       const { jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
@@ -137,9 +204,11 @@ export default function Home() {
       pdf.setFontSize(12);
       pdf.text('Reporte de Evaluación Planbarómetro', pageWidth / 2, 30, { align: 'center' });
       pdf.text(`Modelo: ${currentModel?.name}`, pageWidth / 2, 40, { align: 'center' });
-      pdf.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, 50, { align: 'center' });
+      if (exerciseCode) pdf.text(`Ejercicio: ${exerciseCode}`, pageWidth / 2, 50, { align: 'center' });
+      if (groupCode) pdf.text(`Grupo: ${groupCode}`, pageWidth / 2, 60, { align: 'center' });
+      pdf.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, 70, { align: 'center' });
       
-      let yPosition = 60;
+      let yPosition = 80;
       
       // Summary scores
       pdf.setFontSize(14);
@@ -156,6 +225,32 @@ export default function Home() {
       });
       
       yPosition += 10;
+      
+      // Capture charts if evaluation is complete
+      try {
+        const chartContainer = document.querySelector('[data-chart-container]');
+        if (chartContainer) {
+          const canvas = await html2canvas(chartContainer as HTMLElement, {
+            scale: 2,
+            backgroundColor: '#ffffff'
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          const imgWidth = pageWidth - 40;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          
+          // Add new page if needed
+          if (yPosition + imgHeight > pageHeight - 20) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
+          yPosition += imgHeight + 10;
+        }
+      } catch (chartError) {
+        console.warn('Error capturing charts:', chartError);
+      }
       
       // Try to capture charts if available
       const chartsElement = document.querySelector('[data-chart-container]');
@@ -273,6 +368,26 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
+                <Label htmlFor="exercise-code" className="text-white">Ejercicio:</Label>
+                <Input
+                  id="exercise-code"
+                  value={exerciseCode}
+                  onChange={(e) => setExerciseCode(e.target.value)}
+                  placeholder="Código opcional"
+                  className="bg-white text-gray-900 w-32"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="group-code" className="text-white">Grupo:</Label>
+                <Input
+                  id="group-code"
+                  value={groupCode}
+                  onChange={(e) => setGroupCode(e.target.value)}
+                  placeholder="Código opcional"
+                  className="bg-white text-gray-900 w-32"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
                 <Label htmlFor="title" className="text-white">Título:</Label>
                 <Input
                   id="title"
@@ -336,12 +451,45 @@ export default function Home() {
             </div>
 
             <TabsContent value="evaluation" className="p-6">
+              <div className="mb-4 flex justify-between items-center">
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={handleToggleEditMode}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span>{isEditMode ? "Ver Modo" : "Editar Estructura"}</span>
+                  </Button>
+                  {isEditMode && (
+                    <Button
+                      onClick={handleSaveCustomModel}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Guardar Cambios
+                    </Button>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={handleRandomComplete}
+                    variant="outline"
+                    className="flex items-center space-x-2 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+                  >
+                    <Shuffle className="h-4 w-4" />
+                    <span>Completar Aleatoriamente</span>
+                  </Button>
+                </div>
+              </div>
               <EvaluationForm
                 model={currentModel}
                 responses={responses}
                 justifications={justifications}
                 onResponseChange={handleResponseChange}
                 onJustificationChange={handleJustificationChange}
+                isEditMode={isEditMode}
+                onModelChange={setCustomModel}
               />
             </TabsContent>
 

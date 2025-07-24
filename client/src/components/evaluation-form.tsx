@@ -3,10 +3,11 @@ import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Model, EvaluationResponse, EvaluationJustifications } from "@/types/planbarometro";
 import { calculateScores } from "@/lib/scoring-engine";
 import { useMemo, useState } from "react";
-import { MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
+import { MessageSquare, ChevronDown, ChevronUp, Edit, Plus, X } from "lucide-react";
 
 interface EvaluationFormProps {
   model: Model;
@@ -14,9 +15,19 @@ interface EvaluationFormProps {
   justifications: EvaluationJustifications;
   onResponseChange: (elementId: string, value: 0 | 1) => void;
   onJustificationChange: (elementId: string, justification: string) => void;
+  isEditMode?: boolean;
+  onModelChange?: (model: Model) => void;
 }
 
-export default function EvaluationForm({ model, responses, justifications, onResponseChange, onJustificationChange }: EvaluationFormProps) {
+export default function EvaluationForm({ 
+  model, 
+  responses, 
+  justifications, 
+  onResponseChange, 
+  onJustificationChange,
+  isEditMode = false,
+  onModelChange
+}: EvaluationFormProps) {
   const scores = useMemo(() => calculateScores(responses, model), [responses, model]);
   const [expandedJustifications, setExpandedJustifications] = useState<Set<string>>(new Set());
   
@@ -67,11 +78,34 @@ export default function EvaluationForm({ model, responses, justifications, onRes
     });
   };
 
+  const handleElementEdit = (dimIndex: number, critIndex: number, elemIndex: number, newText: string) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    updatedModel.dimensions[dimIndex].criteria[critIndex].elements[elemIndex] = newText;
+    onModelChange(updatedModel);
+  };
+
+  const handleCriterionEdit = (dimIndex: number, critIndex: number, newText: string) => {
+    if (!onModelChange || !isEditMode) return;
+    
+    const updatedModel = { ...model };
+    updatedModel.dimensions[dimIndex].criteria[critIndex].name = newText;
+    onModelChange(updatedModel);
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Formulario de Evaluación</h2>
-        <p className="text-gray-600">Evalúe cada elemento marcando Presente (P) o Ausente (A) según la realidad institucional.</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          {isEditMode ? "Editar Estructura de Evaluación" : "Formulario de Evaluación"}
+        </h2>
+        <p className="text-gray-600">
+          {isEditMode 
+            ? "Edite los criterios y elementos del modelo de evaluación"
+            : "Evalúe cada elemento marcando Presente (P) o Ausente (A) según la realidad institucional."
+          }
+        </p>
       </div>
 
       <div className="mb-6">
@@ -96,12 +130,22 @@ export default function EvaluationForm({ model, responses, justifications, onRes
                 {dimension.criteria.map((criterion, critIndex) => (
                   <Card key={criterion.id} className="bg-white shadow-sm">
                     <CardContent className="p-4">
-                      <h4 className="font-semibold text-gray-800 mb-3">
-                        {dimIndex + 1}.{critIndex + 1} {criterion.name}
-                      </h4>
+                      {isEditMode ? (
+                        <div className="mb-3">
+                          <Input
+                            value={criterion.name}
+                            onChange={(e) => handleCriterionEdit(dimIndex, critIndex, e.target.value)}
+                            className="font-semibold text-gray-800"
+                          />
+                        </div>
+                      ) : (
+                        <h4 className="font-semibold text-gray-800 mb-3">
+                          {dimIndex + 1}.{critIndex + 1} {criterion.name}
+                        </h4>
+                      )}
                       
                       <div className="space-y-3">
-                        {criterion.elements.map((element) => {
+                        {criterion.elements.map((element, elemIndex) => {
                           const isAbsent = responses[element.id] === 0;
                           const isAnswered = responses[element.id] !== undefined;
                           
@@ -109,52 +153,62 @@ export default function EvaluationForm({ model, responses, justifications, onRes
                             <div key={element.id} className={`rounded ${isAbsent ? 'bg-red-50 border border-red-200' : isAnswered ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
                             <div className="flex items-center justify-between p-3">
                               <div className="flex items-center flex-1 mr-4">
-                                {isAbsent && (
+                                {isAbsent && !isEditMode && (
                                   <span className="text-red-600 mr-2 text-sm font-medium" title="Elemento marcado como ausente">
                                     ⚠️ AUSENTE
                                   </span>
                                 )}
-                                <span className={`text-sm ${isAbsent ? 'text-red-700' : 'text-gray-700'}`}>{element.text}</span>
+                                {isEditMode ? (
+                                  <Input
+                                    value={element.text}
+                                    onChange={(e) => handleElementEdit(dimIndex, critIndex, elemIndex, e.target.value)}
+                                    className="text-sm"
+                                  />
+                                ) : (
+                                  <span className={`text-sm ${isAbsent ? 'text-red-700' : 'text-gray-700'}`}>{element.text}</span>
+                                )}
                               </div>
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleJustification(element.id)}
-                                  className={`h-8 w-8 p-0 hover:text-blue-600 ${isAbsent ? 'text-red-500' : 'text-gray-500'}`}
-                                  title="Agregar justificación"
-                                >
-                                  <MessageSquare className="h-4 w-4" />
-                                </Button>
-                                <div className="flex space-x-2">
-                                  <Label className="flex items-center cursor-pointer">
-                                    <input
-                                      type="radio"
-                                      name={element.id}
-                                      value="1"
-                                      checked={responses[element.id] === 1}
-                                      onChange={() => onResponseChange(element.id, 1)}
-                                      className="mr-2"
-                                    />
-                                    <span className="text-green-600 font-medium">P</span>
-                                  </Label>
-                                  <Label className="flex items-center cursor-pointer">
-                                    <input
-                                      type="radio"
-                                      name={element.id}
-                                      value="0"
-                                      checked={responses[element.id] === 0}
-                                      onChange={() => onResponseChange(element.id, 0)}
-                                      className="mr-2"
-                                    />
-                                    <span className="text-red-600 font-medium">A</span>
-                                  </Label>
+                              {!isEditMode && (
+                                <div className="flex items-center space-x-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => toggleJustification(element.id)}
+                                    className={`h-8 w-8 p-0 hover:text-blue-600 ${isAbsent ? 'text-red-500' : 'text-gray-500'}`}
+                                    title="Agregar justificación"
+                                  >
+                                    <MessageSquare className="h-4 w-4" />
+                                  </Button>
+                                  <div className="flex space-x-2">
+                                    <Label className="flex items-center cursor-pointer">
+                                      <input
+                                        type="radio"
+                                        name={element.id}
+                                        value="1"
+                                        checked={responses[element.id] === 1}
+                                        onChange={() => onResponseChange(element.id, 1)}
+                                        className="mr-2"
+                                      />
+                                      <span className="text-green-600 font-medium">P</span>
+                                    </Label>
+                                    <Label className="flex items-center cursor-pointer">
+                                      <input
+                                        type="radio"
+                                        name={element.id}
+                                        value="0"
+                                        checked={responses[element.id] === 0}
+                                        onChange={() => onResponseChange(element.id, 0)}
+                                        className="mr-2"
+                                      />
+                                      <span className="text-red-600 font-medium">A</span>
+                                    </Label>
+                                  </div>
                                 </div>
-                              </div>
+                              )}
                             </div>
                             
-                            {expandedJustifications.has(element.id) && (
+                            {!isEditMode && expandedJustifications.has(element.id) && (
                               <div className="px-3 pb-3 border-t border-gray-200">
                                 <Label className="text-sm text-gray-600 mb-2 block">
                                   Justificación de la respuesta:

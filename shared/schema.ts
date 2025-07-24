@@ -12,9 +12,12 @@ export const evaluations = pgTable("evaluations", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   model: text("model").notNull(), // 'topp', 'nacional', 'subnacional'
+  exerciseCode: text("exercise_code"), // Código del ejercicio para organizar evaluaciones
+  groupCode: text("group_code"), // Código del grupo que realiza la evaluación
   responses: json("responses").notNull(), // JSON object with element responses
   justifications: json("justifications").notNull().default({}), // JSON object with element justifications
   scores: json("scores"), // Calculated scores by criteria/dimensions
+  customStructure: json("custom_structure"), // Custom criteria/elements if modified
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -27,9 +30,12 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertEvaluationSchema = createInsertSchema(evaluations).pick({
   title: true,
   model: true,
+  exerciseCode: true,
+  groupCode: true,
   responses: true,
   justifications: true,
   scores: true,
+  customStructure: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
