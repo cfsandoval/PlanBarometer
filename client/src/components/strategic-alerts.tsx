@@ -47,13 +47,67 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
       </div>
 
       {alerts.length === 0 ? (
-        <Card className="bg-green-50 border-green-200">
-          <CardContent className="p-6 text-center">
-            <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-green-800 mb-2">No se detectaron alertas estratégicas</h3>
-            <p className="text-green-700">Las capacidades evaluadas muestran un balance adecuado sin riesgos significativos identificados.</p>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-6 text-center">
+              <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-green-800 mb-2">No se detectaron alertas estratégicas</h3>
+              <p className="text-green-700">Las capacidades evaluadas muestran un balance adecuado sin riesgos significativos identificados.</p>
+            </CardContent>
+          </Card>
+          
+          {/* Gráfico de bajo riesgo general */}
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="text-lg font-semibold text-green-800 mb-4 text-center">
+                Estado General de Riesgo: BAJO
+              </h4>
+              <div className="flex justify-center items-center space-x-8">
+                <div className="text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-2">
+                    <GaugeChart
+                      value={20}
+                      title="Riesgo General"
+                      color="rgb(34, 197, 94)"
+                      size={128}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">Riesgo General: 20%</p>
+                </div>
+                <div className="text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-2">
+                    <GaugeChart
+                      value={90}
+                      title="Estabilidad"
+                      color="rgb(34, 197, 94)"
+                      size={128}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">Estabilidad: 90%</p>
+                </div>
+                <div className="text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-2">
+                    <GaugeChart
+                      value={15}
+                      title="Urgencia"
+                      color="rgb(34, 197, 94)"
+                      size={128}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">Urgencia: 15%</p>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-green-100 rounded-lg">
+                <h5 className="font-semibold text-green-800 mb-2">Situación Favorable</h5>
+                <p className="text-green-700 text-sm">
+                  Los resultados de la evaluación indican un equilibrio adecuado entre las diferentes capacidades. 
+                  Se recomienda mantener los niveles actuales y continuar con el monitoreo periódico para 
+                  asegurar que se mantenga esta situación favorable.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       ) : (
         <div className="space-y-6">
           {alerts.map((alert) => (
