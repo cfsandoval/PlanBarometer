@@ -101,17 +101,28 @@ export default function EvaluationForm({ model, responses, justifications, onRes
                       </h4>
                       
                       <div className="space-y-3">
-                        {criterion.elements.map((element) => (
-                          <div key={element.id} className="bg-gray-50 rounded">
+                        {criterion.elements.map((element) => {
+                          const isAbsent = responses[element.id] === 0;
+                          const isAnswered = responses[element.id] !== undefined;
+                          
+                          return (
+                            <div key={element.id} className={`rounded ${isAbsent ? 'bg-red-50 border border-red-200' : isAnswered ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
                             <div className="flex items-center justify-between p-3">
-                              <span className="text-sm flex-1 mr-4">{element.text}</span>
+                              <div className="flex items-center flex-1 mr-4">
+                                {isAbsent && (
+                                  <span className="text-red-600 mr-2 text-sm font-medium" title="Elemento marcado como ausente">
+                                    ⚠️ AUSENTE
+                                  </span>
+                                )}
+                                <span className={`text-sm ${isAbsent ? 'text-red-700' : 'text-gray-700'}`}>{element.text}</span>
+                              </div>
                               <div className="flex items-center space-x-2">
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => toggleJustification(element.id)}
-                                  className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
+                                  className={`h-8 w-8 p-0 hover:text-blue-600 ${isAbsent ? 'text-red-500' : 'text-gray-500'}`}
                                   title="Agregar justificación"
                                 >
                                   <MessageSquare className="h-4 w-4" />
@@ -156,8 +167,9 @@ export default function EvaluationForm({ model, responses, justifications, onRes
                                 />
                               </div>
                             )}
-                          </div>
-                        ))}
+                            </div>
+                          );
+                        })}
                       </div>
 
                       <div className="mt-3 p-2 bg-blue-100 rounded text-center">

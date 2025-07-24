@@ -40,8 +40,8 @@ export default function Home() {
 
   // Generate alerts
   const alerts = useMemo(() => {
-    return generateStrategicAlerts(scores, selectedModel);
-  }, [scores, selectedModel]);
+    return generateStrategicAlerts(scores, selectedModel, responses);
+  }, [scores, selectedModel, responses]);
 
   // Fetch evaluations
   const { data: evaluations } = useQuery({
