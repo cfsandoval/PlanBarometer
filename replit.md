@@ -119,6 +119,8 @@ Preferred communication style: Simple, everyday language.
 7. **Random Testing Tool**: Implemented "Completar Aleatoriamente" button for automated testing of evaluation forms
 8. **Structure Editing**: Added full editing capabilities for criteria and elements with add/remove functionality
 9. **Custom Model Support**: Evaluations can now use custom-modified structures stored with the evaluation data
+10. **Custom Alerts System**: Implemented editor for creating custom alerts based on specific criteria thresholds
+11. **Low-Risk Visualization**: Added gauge charts showing favorable conditions when no alerts are detected
 
 ### Key Architectural Decisions
 

@@ -67,8 +67,8 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
                   <div className="relative w-32 h-32 mx-auto mb-2">
                     <GaugeChart
                       value={20}
-                      title="Riesgo General"
-                      color="rgb(34, 197, 94)"
+                      label="Riesgo General"
+                      severity="low"
                       size={128}
                     />
                   </div>
@@ -78,8 +78,8 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
                   <div className="relative w-32 h-32 mx-auto mb-2">
                     <GaugeChart
                       value={90}
-                      title="Estabilidad"
-                      color="rgb(34, 197, 94)"
+                      label="Estabilidad"
+                      severity="low"
                       size={128}
                     />
                   </div>
@@ -89,8 +89,8 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
                   <div className="relative w-32 h-32 mx-auto mb-2">
                     <GaugeChart
                       value={15}
-                      title="Urgencia"
-                      color="rgb(34, 197, 94)"
+                      label="Urgencia"
+                      severity="low"
                       size={128}
                     />
                   </div>
