@@ -1,4 +1,5 @@
 import { StrategicAlert, EvaluationScores } from "@/types/planbarometro";
+import { t } from "./i18n";
 
 interface AlertMetrics {
   riskLevel: number; // 0-100, where 100 is highest risk
@@ -46,11 +47,11 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
     const riskLevel = Math.min(100, (operational - prospective) * 1.2);
     alerts.push({
       id: "implementation_without_strategic_direction",
-      title: "Implementación sin dirección estratégica",
-      description: "Alta capacidad operativa pero sin visión prospectiva clara. Puede conducir a acciones fragmentadas sin coherencia estratégica.",
+      title: t('implementationWithoutDirection'),
+      description: t('implementationWithoutDirectionDesc'),
       severity: "medium",
-      criteria: ["Capacidad operativa", "Visión prospectiva"],
-      recommendation: "Desarrollar procesos de planificación estratégica y construcción de visión compartida a largo plazo.",
+      criteria: [t('operationalCapacity'), t('prospectiveCapacity')],
+      recommendation: t('implementationWithoutDirectionRec'),
       metrics: {
         riskLevel: riskLevel,
         impactLevel: 70, // Medium-high impact - inefficient resource use
@@ -64,11 +65,11 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
     const riskLevel = Math.min(100, political - Math.max(technical, operational));
     alerts.push({
       id: "government_without_governance",
-      title: "Gobierno sin gobierno",
-      description: "Alta capacidad política formal pero sin capacidades técnicas ni operativas suficientes para transformar.",
+      title: t('governmentWithoutGovernance'),
+      description: t('governmentWithoutGovernanceDesc'),
       severity: "high",
-      criteria: ["Capacidad política", "Capacidad técnica", "Capacidad operativa"],
-      recommendation: "Invertir en fortalecimiento de capacidades técnicas y estructuras operativas para materializar el respaldo político.",
+      criteria: [t('politicalCapacity'), t('technicalCapacity'), t('operationalCapacity')],
+      recommendation: t('governmentWithoutGovernanceRec'),
       metrics: {
         riskLevel: riskLevel,
         impactLevel: 90, // Very high impact - political capital wasted
@@ -81,12 +82,12 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
   const maxDiff = Math.max(technical, operational, political, prospective) - Math.min(technical, operational, political, prospective);
   if (maxDiff > 30) {
     alerts.push({
-      id: "general_imbalance",
-      title: "Desequilibrio entre capacidades",
-      description: "Existe una gran disparidad entre las diferentes capacidades institucionales, lo que puede generar ineficiencias y conflictos internos.",
+      id: "general_imbalance", 
+      title: t('generalImbalance'),
+      description: t('generalImbalanceDesc'),
       severity: "medium",
-      criteria: ["Todas las dimensiones"],
-      recommendation: "Desarrollar un plan integral de fortalecimiento institucional que equilibre todas las capacidades.",
+      criteria: ["All dimensions"],
+      recommendation: t('generalImbalanceRec'),
       metrics: {
         riskLevel: Math.min(100, maxDiff * 1.5),
         impactLevel: 65, // Medium impact - creates inefficiencies

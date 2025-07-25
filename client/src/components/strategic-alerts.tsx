@@ -4,6 +4,7 @@ import { StrategicAlert } from "@/types/planbarometro";
 import { generateStrategicAlerts, getAlertSeverityColor, getAlertIcon } from "@/lib/alerts-engine";
 import { AlertTriangle, AlertCircle, Info, CheckCircle } from "lucide-react";
 import GaugeChart from "./gauge-chart";
+import { t } from "@/lib/i18n";
 
 interface StrategicAlertsProps {
   alerts: StrategicAlert[];
@@ -27,9 +28,9 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
     };
     
     const labels = {
-      high: 'Alto Riesgo',
-      medium: 'Riesgo Medio',
-      low: 'Bajo Riesgo'
+      high: t('highRisk'),
+      medium: t('mediumRisk'),
+      low: t('lowRisk')
     };
 
     return (
@@ -42,8 +43,8 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Alertas Estratégicas</h2>
-        <p className="text-gray-600">Identificación de riesgos y situaciones problemáticas basadas en los patrones de evaluación.</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('strategicAlertsTitle')}</h2>
+        <p className="text-gray-600">{t('strategicAlertsTitle')}</p>
       </div>
 
       {alerts.length === 0 ? (
@@ -51,8 +52,8 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="p-6 text-center">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-green-800 mb-2">No se detectaron alertas estratégicas</h3>
-              <p className="text-green-700">Las capacidades evaluadas muestran un balance adecuado sin riesgos significativos identificados.</p>
+              <h3 className="text-lg font-semibold text-green-800 mb-2">{t('noAlertsMessage')}</h3>
+              <p className="text-green-700">{t('favorableSituationText')}</p>
             </CardContent>
           </Card>
           

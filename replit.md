@@ -121,6 +121,7 @@ Preferred communication style: Simple, everyday language.
 9. **Custom Model Support**: Evaluations can now use custom-modified structures stored with the evaluation data
 10. **Custom Alerts System**: Implemented editor for creating custom alerts based on specific criteria thresholds
 11. **Low-Risk Visualization**: Added gauge charts showing favorable conditions when no alerts are detected
+12. **English Translation**: Complete internationalization system with English as default language, including language selector and full UI translation
 
 ### Key Architectural Decisions
 

@@ -3,29 +3,29 @@ import { Model } from "@/types/planbarometro";
 export const MODELS: Model[] = [
   {
     id: "topp",
-    name: "Capacidades TOPP",
-    description: "Evalúa capacidades Técnicas, Operativas, Políticas y Prospectivas para gestionar transformaciones.",
+    name: "TOPP Capabilities",
+    description: "Evaluates Technical, Operational, Political and Prospective capabilities for managing transformations.",
     dimensions: [
       {
         id: "technical",
-        name: "Capacidad Técnica",
-        description: "Analizar el grado de disponibilidad y uso de evidencia, conocimiento experto y herramientas técnicas en la gestión pública.",
+        name: "Technical Capacity",
+        description: "Analyze the degree of availability and use of evidence, expert knowledge and technical tools in public management.",
         color: "bg-blue-500",
         icon: "cog",
         criteria: [
           {
             id: "t1_1",
-            name: "Diagnóstico basado en evidencia",
+            name: "Evidence-based diagnosis",
             elements: [
-              { id: "t1_1_1", text: "¿El diagnóstico parte de datos validados?" },
-              { id: "t1_1_2", text: "¿Se consultó evidencia territorializada?" }
+              { id: "t1_1_1", text: "Does the diagnosis start from validated data?" },
+              { id: "t1_1_2", text: "Was territorialized evidence consulted?" }
             ]
           },
           {
             id: "t1_2",
-            name: "Uso de herramientas analíticas",
+            name: "Use of analytical tools",
             elements: [
-              { id: "t1_2_1", text: "¿Se emplean modelos, marcos lógicos, teorías de cambio?" }
+              { id: "t1_2_1", text: "Are models, logical frameworks, theories of change employed?" }
             ]
           },
           {
@@ -47,8 +47,8 @@ export const MODELS: Model[] = [
       },
       {
         id: "operational",
-        name: "Capacidad Operativa",
-        description: "Evaluar si existen los recursos, estructuras y procesos que permiten implementar políticas públicas de manera efectiva.",
+        name: "Operational Capacity",
+        description: "Evaluate if there are resources, structures and processes that allow effective implementation of public policies.",
         color: "bg-green-500",
         icon: "tools",
         criteria: [
@@ -85,8 +85,8 @@ export const MODELS: Model[] = [
       },
       {
         id: "political",
-        name: "Capacidad Política",
-        description: "Medir la capacidad de construir legitimidad, alinear intereses, coordinar actores y sostener decisiones complejas.",
+        name: "Political Capacity", 
+        description: "Measure the capacity to build legitimacy, align interests, coordinate actors and sustain complex decisions.",
         color: "bg-purple-500",
         icon: "handshake",
         criteria: [
@@ -122,8 +122,8 @@ export const MODELS: Model[] = [
       },
       {
         id: "prospective",
-        name: "Capacidad Prospectiva",
-        description: "Examinar la capacidad de anticipar disrupciones, construir visiones compartidas y orientar el rumbo estratégico de las transformaciones.",
+        name: "Prospective Capacity",
+        description: "Examine the capacity to anticipate disruptions, build shared visions and guide the strategic direction of transformations.",
         color: "bg-orange-500",
         icon: "eye",
         criteria: [
@@ -162,14 +162,14 @@ export const MODELS: Model[] = [
   },
   {
     id: "nacional",
-    name: "Nacional",
-    description: "Enfoque en instrumentos de gobierno y administración del Estado para el desarrollo nacional.",
+    name: "National Level",
+    description: "Focus on government instruments and state administration for national development.",
     dimensions: [] // Placeholder - would be populated with nacional criteria
   },
   {
     id: "subnacional",
-    name: "Subnacional",
-    description: "Análisis de articulación entre niveles nacional y subnacional de planificación.",
+    name: "Subnational Level",
+    description: "Analysis of articulation between national and subnational levels of planning.",
     dimensions: [] // Placeholder - would be populated with subnacional criteria
   }
 ];

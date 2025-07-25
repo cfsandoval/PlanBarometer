@@ -19,6 +19,7 @@ import { calculateScores } from "@/lib/scoring-engine";
 import { generateStrategicAlerts } from "@/lib/alerts-engine";
 import { apiRequest } from "@/lib/queryClient";
 import { EvaluationResponse, EvaluationJustifications, EvaluationData, StrategicAlert, Model } from "@/types/planbarometro";
+import { t } from "@/lib/i18n";
 
 export default function Home() {
   const [selectedModel, setSelectedModel] = useState("topp");
@@ -184,8 +185,8 @@ export default function Home() {
   const handleExportPDF = async () => {
     if (!isEvaluationComplete) {
       toast({
-        title: "Evaluación incompleta",
-        description: "Complete la evaluación antes de exportar a PDF",
+        title: t('evaluationNotComplete'),
+        description: t('evaluationNotComplete'),
         variant: "destructive"
       });
       return;
@@ -206,21 +207,21 @@ export default function Home() {
       
       // Subtitle
       pdf.setFontSize(12);
-      pdf.text('Reporte de Evaluación Planbarómetro', pageWidth / 2, 30, { align: 'center' });
-      pdf.text(`Modelo: ${currentModel?.name}`, pageWidth / 2, 40, { align: 'center' });
-      if (exerciseCode) pdf.text(`Ejercicio: ${exerciseCode}`, pageWidth / 2, 50, { align: 'center' });
-      if (groupCode) pdf.text(`Grupo: ${groupCode}`, pageWidth / 2, 60, { align: 'center' });
+      pdf.text(t('appTitle'), pageWidth / 2, 30, { align: 'center' });
+      pdf.text(`${t('selectModel')}: ${currentModel?.name}`, pageWidth / 2, 40, { align: 'center' });
+      if (exerciseCode) pdf.text(`${t('exerciseCode')}: ${exerciseCode}`, pageWidth / 2, 50, { align: 'center' });
+      if (groupCode) pdf.text(`${t('groupCode')}: ${groupCode}`, pageWidth / 2, 60, { align: 'center' });
       pdf.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, 70, { align: 'center' });
       
       let yPosition = 80;
       
       // Summary scores
       pdf.setFontSize(14);
-      pdf.text('Resumen de Puntuaciones', 20, yPosition);
+      pdf.text(t('evaluationResults'), 20, yPosition);
       yPosition += 10;
       
       pdf.setFontSize(10);
-      pdf.text(`Puntuación General: ${scores.overall}%`, 20, yPosition);
+      pdf.text(`${t('overallScore')}: ${scores.overall}%`, 20, yPosition);
       yPosition += 8;
       
       scores.dimensions.forEach((dim, index) => {
@@ -259,7 +260,7 @@ export default function Home() {
             }
             
             pdf.setFontSize(14);
-            pdf.text('Gráficos de Resultados', 20, yPosition);
+            pdf.text(t('charts'), 20, yPosition);
             yPosition += 15;
             
             pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
@@ -312,10 +313,10 @@ export default function Home() {
       const fileName = `planbarometro_${selectedModel}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(fileName);
       
-      toast({ title: "PDF exportado exitosamente" });
+      toast({ title: t('pdfExportSuccess') });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast({ title: "Error al generar el PDF", variant: "destructive" });
+      toast({ title: t('pdfExportError'), variant: "destructive" });
     }
   };
 
@@ -399,7 +400,7 @@ export default function Home() {
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Save className="mr-2 h-4 w-4" />
-                Guardar
+                {t('save')}
               </Button>
               <Button 
                 onClick={handleExportPDF}
@@ -407,7 +408,7 @@ export default function Home() {
                 className="bg-white text-blue-600 border-white hover:bg-blue-50"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar PDF
+                {t('exportPdf')}
               </Button>
               <Button 
                 onClick={handleImportData}
@@ -415,7 +416,7 @@ export default function Home() {
                 className="bg-white text-blue-600 border-white hover:bg-blue-50"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Importar
+                Import
               </Button>
             </div>
           </div>
@@ -433,15 +434,15 @@ export default function Home() {
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="evaluation" className="flex items-center space-x-2">
                   <span>📝</span>
-                  <span>Evaluación</span>
+                  <span>{t('evaluation')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="results" className="flex items-center space-x-2">
                   <span>📊</span>
-                  <span>Resultados y Gráficos</span>
+                  <span>{t('results')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="alerts" className="flex items-center space-x-2">
                   <span>⚠️</span>
-                  <span>Alertas Estratégicas</span>
+                  <span>{t('strategicAlerts')}</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -455,7 +456,7 @@ export default function Home() {
                     className="flex items-center space-x-2"
                   >
                     <Edit className="h-4 w-4" />
-                    <span>{isEditMode ? "Ver Modo" : "Editar Estructura"}</span>
+                    <span>{isEditMode ? "View Mode" : t('editStructure')}</span>
                   </Button>
                   {isEditMode && (
                     <Button
@@ -463,7 +464,7 @@ export default function Home() {
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <Save className="mr-2 h-4 w-4" />
-                      Guardar Cambios
+                      {t('save')}
                     </Button>
                   )}
                 </div>
@@ -474,7 +475,7 @@ export default function Home() {
                     className="flex items-center space-x-2 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
                   >
                     <Shuffle className="h-4 w-4" />
-                    <span>Completar Aleatoriamente</span>
+                    <span>{t('completeRandomly')}</span>
                   </Button>
                 </div>
               </div>
@@ -495,13 +496,13 @@ export default function Home() {
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 max-w-md">
                     <div className="text-amber-600 text-4xl mb-4">📊</div>
                     <h3 className="text-lg font-semibold text-amber-800 mb-2">
-                      Evaluación Incompleta
+                      {t('evaluationNotComplete')}
                     </h3>
                     <p className="text-amber-700 mb-4">
-                      Los gráficos y análisis se mostrarán cuando haya completado la evaluación de todos los elementos.
+                      {t('evaluationNotComplete')}
                     </p>
                     <div className="text-sm text-amber-600">
-                      Progreso: {answeredElements}/{totalElements} elementos respondidos
+                      {t('completion')}: {answeredElements}/{totalElements}
                     </div>
                   </div>
                 </div>
@@ -518,13 +519,13 @@ export default function Home() {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 max-w-md">
                     <div className="text-blue-600 text-4xl mb-4">⚠️</div>
                     <h3 className="text-lg font-semibold text-blue-800 mb-2">
-                      Alertas No Disponibles
+                      {t('strategicAlertsTitle')}
                     </h3>
                     <p className="text-blue-700 mb-4">
-                      Las alertas estratégicas se generarán automáticamente cuando complete la evaluación de todos los elementos.
+                      {t('evaluationNotComplete')}
                     </p>
                     <div className="text-sm text-blue-600">
-                      Progreso: {answeredElements}/{totalElements} elementos respondidos
+                      {t('completion')}: {answeredElements}/{totalElements}
                     </div>
                   </div>
                 </div>
