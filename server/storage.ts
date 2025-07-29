@@ -59,6 +59,7 @@ export class MemStorage implements IStorage {
       ...insertEvaluation, 
       justifications: insertEvaluation.justifications || {},
       customAlerts: insertEvaluation.customAlerts || [],
+      scores: insertEvaluation.scores || null,
       exerciseCode: insertEvaluation.exerciseCode || null,
       groupCode: insertEvaluation.groupCode || null,
       country: insertEvaluation.country || null,
