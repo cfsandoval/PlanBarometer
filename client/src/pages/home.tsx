@@ -13,6 +13,7 @@ import EvaluationForm from "@/components/evaluation-form";
 import ResultsCharts from "@/components/results-charts";
 import StrategicAlerts from "@/components/strategic-alerts";
 import CustomAlertsEditor from "@/components/custom-alerts-editor";
+import DimensionRadarCharts from "@/components/dimension-radar-charts";
 
 import { MODELS } from "@/lib/planbarometro-data";
 import { calculateScores } from "@/lib/scoring-engine";
@@ -507,8 +508,13 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div data-chart-container id="results-charts">
-                  <ResultsCharts scores={scores} model={currentModel} />
+                <div className="space-y-8">
+                  <div data-chart-container id="results-charts">
+                    <ResultsCharts scores={scores} model={currentModel} />
+                  </div>
+                  <div data-chart-container id="dimension-radar-charts">
+                    <DimensionRadarCharts scores={scores} model={currentModel} />
+                  </div>
                 </div>
               )}
             </TabsContent>

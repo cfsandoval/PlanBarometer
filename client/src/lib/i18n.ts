@@ -44,6 +44,9 @@ export interface Translations {
   completion: string;
   exportPdf: string;
   charts: string;
+  dimensionRadarCharts: string;
+  dimensionRadarDescription: string;
+  criteriaBreakdown: string;
   
   // Strategic alerts
   strategicAlertsTitle: string;
@@ -210,6 +213,9 @@ export const translations: Record<Language, Translations> = {
     completion: "Completion",
     exportPdf: "Export PDF",
     charts: "Charts",
+    dimensionRadarCharts: "Dimension Radar Charts",
+    dimensionRadarDescription: "Individual performance analysis for each TOPP dimension showing criteria breakdown",
+    criteriaBreakdown: "Criteria Breakdown",
     
     // Strategic alerts
     strategicAlertsTitle: "Strategic Alerts",
@@ -375,6 +381,9 @@ export const translations: Record<Language, Translations> = {
     completion: "Completitud",
     exportPdf: "Exportar PDF",
     charts: "Gráficos",
+    dimensionRadarCharts: "Gráficos Radar por Dimensión",
+    dimensionRadarDescription: "Análisis individual de rendimiento para cada dimensión TOPP mostrando desglose de criterios",
+    criteriaBreakdown: "Desglose de Criterios",
     
     // Strategic alerts
     strategicAlertsTitle: "Alertas Estratégicas",
