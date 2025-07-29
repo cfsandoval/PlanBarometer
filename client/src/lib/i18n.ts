@@ -678,7 +678,7 @@ export const translations: Record<Language, Translations> = {
 };
 
 // Language context and hooks
-export let currentLanguage: Language = 'en'; // Default to English
+export let currentLanguage: Language = 'es'; // Default to Spanish for testing
 
 export function setLanguage(lang: Language) {
   currentLanguage = lang;
@@ -687,7 +687,7 @@ export function setLanguage(lang: Language) {
 
 export function getLanguage(): Language {
   const saved = localStorage.getItem('planbarometer-language');
-  return (saved as Language) || 'en';
+  return (saved as Language) || 'es';
 }
 
 export function t(key: keyof Translations): string {
