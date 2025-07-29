@@ -12,8 +12,12 @@ export interface Translations {
   selectModel: string;
   exerciseCode: string;
   groupCode: string;
+  country: string;
+  territory: string;
   exerciseCodePlaceholder: string;
   groupCodePlaceholder: string;
+  countryPlaceholder: string;
+  territoryPlaceholder: string;
   startEvaluation: string;
   continueEvaluation: string;
   newEvaluation: string;
@@ -50,6 +54,7 @@ export interface Translations {
   
   // Strategic alerts
   strategicAlertsTitle: string;
+  strategicAlertsDescription: string;
   generalRiskStatus: string;
   lowRisk: string;
   mediumRisk: string;
@@ -180,9 +185,13 @@ export const translations: Record<Language, Translations> = {
     // Evaluation form
     selectModel: "Select Evaluation Model",
     exerciseCode: "Exercise Code",
-    groupCode: "Group Code",
+    groupCode: "Group Code", 
+    country: "Country",
+    territory: "Territory",
     exerciseCodePlaceholder: "Optional exercise identifier",
     groupCodePlaceholder: "Optional group identifier",
+    countryPlaceholder: "Country where evaluation is conducted",
+    territoryPlaceholder: "Specific territory or region",
     startEvaluation: "Start Evaluation",
     continueEvaluation: "Continue Evaluation",
     newEvaluation: "New Evaluation",
@@ -219,6 +228,7 @@ export const translations: Record<Language, Translations> = {
     
     // Strategic alerts
     strategicAlertsTitle: "Strategic Alerts",
+    strategicAlertsDescription: "Risk identification and problematic situations based on evaluation patterns",
     generalRiskStatus: "General Risk Status",
     lowRisk: "LOW",
     mediumRisk: "MEDIUM", 
@@ -349,8 +359,12 @@ export const translations: Record<Language, Translations> = {
     selectModel: "Seleccionar Modelo de Evaluación",
     exerciseCode: "Código de Ejercicio",
     groupCode: "Código de Grupo",
+    country: "País",
+    territory: "Territorio", 
     exerciseCodePlaceholder: "Identificador opcional del ejercicio",
     groupCodePlaceholder: "Identificador opcional del grupo",
+    countryPlaceholder: "País donde se realiza la evaluación",
+    territoryPlaceholder: "Territorio o región específica",
     startEvaluation: "Iniciar Evaluación",
     continueEvaluation: "Continuar Evaluación",
     newEvaluation: "Nueva Evaluación",
@@ -387,6 +401,7 @@ export const translations: Record<Language, Translations> = {
     
     // Strategic alerts
     strategicAlertsTitle: "Alertas Estratégicas",
+    strategicAlertsDescription: "Identificación de riesgos y situaciones problemáticas basadas en los patrones de evaluación",
     generalRiskStatus: "Estado General de Riesgo",
     lowRisk: "BAJO",
     mediumRisk: "MEDIO",

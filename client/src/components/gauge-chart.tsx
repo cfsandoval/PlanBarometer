@@ -7,7 +7,7 @@ interface GaugeChartProps {
   severity?: 'high' | 'medium' | 'low';
 }
 
-export default function GaugeChart({ value, label, size = 120, severity = 'medium' }: GaugeChartProps) {
+export default function GaugeChart({ value, label, size = 120, severity }: GaugeChartProps) {
   // Create data for a semi-circle gauge
   const data = [
     { name: 'value', value: value },
@@ -16,7 +16,10 @@ export default function GaugeChart({ value, label, size = 120, severity = 'mediu
 
   // Colors based on severity
   const getColors = () => {
-    switch (severity) {
+    // Use severity prop, or determine from value if not provided
+    const actualSeverity = severity || (value >= 75 ? 'high' : value >= 40 ? 'medium' : 'low');
+    
+    switch (actualSeverity) {
       case 'high':
         return {
           value: '#dc2626', // red-600

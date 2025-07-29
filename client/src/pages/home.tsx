@@ -29,6 +29,8 @@ export default function Home() {
   const [evaluationTitle, setEvaluationTitle] = useState("");
   const [exerciseCode, setExerciseCode] = useState("");
   const [groupCode, setGroupCode] = useState("");
+  const [country, setCountry] = useState("");
+  const [territory, setTerritory] = useState("");
   const [activeTab, setActiveTab] = useState("evaluation");
   const [isEditMode, setIsEditMode] = useState(false);
   const [customModel, setCustomModel] = useState<any>(null);
@@ -132,10 +134,13 @@ export default function Home() {
       model: string; 
       exerciseCode?: string;
       groupCode?: string;
+      country?: string;
+      territory?: string;
       responses: EvaluationResponse; 
       justifications: EvaluationJustifications; 
       scores: any;
       customStructure?: any;
+      customAlerts?: StrategicAlert[];
     }) => {
       return apiRequest("POST", "/api/evaluations", data);
     },
@@ -176,10 +181,13 @@ export default function Home() {
       model: selectedModel,
       exerciseCode: exerciseCode || undefined,
       groupCode: groupCode || undefined,
+      country: country || undefined,
+      territory: territory || undefined,
       responses,
       justifications,
       scores,
-      customStructure: customModel || undefined
+      customStructure: customModel || undefined,
+      customAlerts: customAlerts
     });
   };
 
@@ -336,6 +344,16 @@ export default function Home() {
             setResponses(data.responses);
             setJustifications(data.justifications || {});
             setEvaluationTitle(data.title || "");
+            setExerciseCode(data.exerciseCode || "");
+            setGroupCode(data.groupCode || "");
+            setCountry(data.country || "");
+            setTerritory(data.territory || "");
+            if (data.customStructure) {
+              setCustomModel(data.customStructure);
+            }
+            if (data.customAlerts) {
+              setCustomAlerts(data.customAlerts);
+            }
             toast({ title: "Datos importados exitosamente" });
           } catch (error) {
             toast({ title: "Error al importar el archivo", variant: "destructive" });
@@ -364,35 +382,45 @@ export default function Home() {
                 <p className="text-blue-100 text-sm">Herramienta de Evaluación ILPES-CEPAL</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="exercise-code" className="text-white">Ejercicio:</Label>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <Label htmlFor="country-field" className="text-white text-sm">{t('country')}:</Label>
+                <Input
+                  id="country-field"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder={t('countryPlaceholder')}
+                  className="bg-white text-gray-900 w-24 text-sm"
+                />
+              </div>
+              <div className="flex items-center space-x-1">
+                <Label htmlFor="territory-field" className="text-white text-sm">{t('territory')}:</Label>
+                <Input
+                  id="territory-field"
+                  value={territory}
+                  onChange={(e) => setTerritory(e.target.value)}
+                  placeholder={t('territoryPlaceholder')}
+                  className="bg-white text-gray-900 w-24 text-sm"
+                />
+              </div>
+              <div className="flex items-center space-x-1">
+                <Label htmlFor="exercise-code" className="text-white text-sm">{t('exerciseCode')}:</Label>
                 <Input
                   id="exercise-code"
                   value={exerciseCode}
                   onChange={(e) => setExerciseCode(e.target.value)}
-                  placeholder="Código opcional"
-                  className="bg-white text-gray-900 w-32"
+                  placeholder={t('exerciseCodePlaceholder')}
+                  className="bg-white text-gray-900 w-24 text-sm"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="group-code" className="text-white">Grupo:</Label>
+              <div className="flex items-center space-x-1">
+                <Label htmlFor="group-code" className="text-white text-sm">{t('groupCode')}:</Label>
                 <Input
                   id="group-code"
                   value={groupCode}
                   onChange={(e) => setGroupCode(e.target.value)}
-                  placeholder="Código opcional"
-                  className="bg-white text-gray-900 w-32"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="title" className="text-white">Título:</Label>
-                <Input
-                  id="title"
-                  value={evaluationTitle}
-                  onChange={(e) => setEvaluationTitle(e.target.value)}
-                  placeholder="Opcional - Se generará automáticamente"
-                  className="bg-white text-gray-900"
+                  placeholder={t('groupCodePlaceholder')}
+                  className="bg-white text-gray-900 w-24 text-sm"
                 />
               </div>
               <Button 
@@ -427,6 +455,15 @@ export default function Home() {
       <div className="container mx-auto px-4 py-6">
         {/* Model Selection */}
         <ModelSelector selectedModel={selectedModel} onModelSelect={handleModelSelect} />
+
+        {/* Evaluation Title - Centered */}
+        {evaluationTitle && (
+          <Card className="mb-4">
+            <CardContent className="py-4">
+              <h2 className="text-xl font-bold text-center text-gray-800">{evaluationTitle}</h2>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Content with Tabs */}
         <Card>
