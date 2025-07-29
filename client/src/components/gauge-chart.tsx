@@ -14,10 +14,15 @@ export default function GaugeChart({ value, label, size = 120, severity }: Gauge
     { name: 'remaining', value: 100 - value }
   ];
 
-  // Colors based on severity
+  // Colors based on value or severity
   const getColors = () => {
-    // Use severity prop, or determine from value if not provided
-    const actualSeverity = severity || (value >= 75 ? 'high' : value >= 40 ? 'medium' : 'low');
+    // Determine severity from value if not provided
+    let actualSeverity = severity;
+    if (!actualSeverity) {
+      if (value >= 75) actualSeverity = 'low';      // Alto valor = bajo riesgo
+      else if (value >= 40) actualSeverity = 'medium';
+      else actualSeverity = 'high';                 // Bajo valor = alto riesgo
+    }
     
     switch (actualSeverity) {
       case 'high':

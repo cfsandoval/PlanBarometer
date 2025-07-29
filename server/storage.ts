@@ -59,6 +59,10 @@ export class MemStorage implements IStorage {
       ...insertEvaluation, 
       justifications: insertEvaluation.justifications || {},
       customAlerts: insertEvaluation.customAlerts || [],
+      exerciseCode: insertEvaluation.exerciseCode || null,
+      groupCode: insertEvaluation.groupCode || null,
+      country: insertEvaluation.country || null,
+      territory: insertEvaluation.territory || null,
       id,
       createdAt: now,
       updatedAt: now
@@ -74,6 +78,10 @@ export class MemStorage implements IStorage {
     const updated: Evaluation = {
       ...existing,
       ...updateData,
+      exerciseCode: updateData.exerciseCode || existing.exerciseCode,
+      groupCode: updateData.groupCode || existing.groupCode,
+      country: updateData.country || existing.country,
+      territory: updateData.territory || existing.territory,
       updatedAt: new Date()
     };
     this.evaluations.set(id, updated);
