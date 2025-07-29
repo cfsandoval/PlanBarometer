@@ -122,6 +122,9 @@ Preferred communication style: Simple, everyday language.
 10. **Custom Alerts System**: Implemented editor for creating custom alerts based on specific criteria thresholds
 11. **Low-Risk Visualization**: Added gauge charts showing favorable conditions when no alerts are detected
 12. **English Translation**: Complete internationalization system with English as default language, including language selector and full UI translation
+13. **Real-time Collaborative Workshops**: Full WebSocket-based collaboration system with participant tracking and live response synchronization
+14. **Radar Chart Corrections**: Fixed calculation logic to properly compute criterion scores based on individual element responses with 100% maximum axis values
+15. **Contextual Interpretations**: Added comprehensive interpretation sections under each dimension radar chart with performance analysis and specific recommendations
 
 ### Key Architectural Decisions
 

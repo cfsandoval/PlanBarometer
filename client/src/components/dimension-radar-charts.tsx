@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 import { Model } from "@/types/planbarometro";
-import { t } from "@/lib/i18n";
+import { t, currentLanguage } from "@/lib/i18n";
 
 interface DimensionRadarChartsProps {
   model: Model;
@@ -218,9 +218,9 @@ export default function DimensionRadarCharts({ model, scores, responses }: Dimen
 
     // Recommendations based on performance pattern
     if (weakCriteria.length > strongCriteria.length) {
-      interpretation += `${t('improvementRecommendation')} `;
+      interpretation += t('improvementRecommendation') + " ";
     } else if (strongCriteria.length > 0 && moderateCriteria.length > 0) {
-      interpretation += `${t('leverageStrengthsRecommendation')} `;
+      interpretation += t('leverageStrengthsRecommendation') + " ";
     }
 
     // Specific dimension recommendations
