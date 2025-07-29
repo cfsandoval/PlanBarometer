@@ -697,4 +697,10 @@ export function t(key: keyof Translations): string {
 // Initialize language from localStorage on app start
 if (typeof window !== 'undefined') {
   currentLanguage = getLanguage();
+  // Force update on language change
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'planbarometer-language') {
+      currentLanguage = getLanguage();
+    }
+  });
 }

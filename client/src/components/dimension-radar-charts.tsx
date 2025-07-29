@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 import { Model } from "@/types/planbarometro";
-import { t, currentLanguage } from "@/lib/i18n";
+import { t, currentLanguage, setLanguage } from "@/lib/i18n";
 
 interface DimensionRadarChartsProps {
   model: Model;
@@ -10,6 +11,17 @@ interface DimensionRadarChartsProps {
 }
 
 export default function DimensionRadarCharts({ model, scores, responses }: DimensionRadarChartsProps) {
+  const [language, setCurrentLanguage] = useState(currentLanguage);
+  
+  useEffect(() => {
+    // Force Spanish for testing interpretations
+    if (currentLanguage !== 'es') {
+      setLanguage('es');
+      setCurrentLanguage('es');
+    }
+  }, []);
+  
+  // Force re-render when language changes by using t() directly
   // Calculate criterion score based on individual element responses  
   const calculateCriterionScore = (criterion: any) => {
     let totalScore = 0;
