@@ -584,7 +584,11 @@ export default function Home() {
               ) : (
                 <div className="space-y-8">
                   <div data-chart-container id="dimension-radar-charts">
-                    <DimensionRadarCharts scores={scores} model={currentModel as Model} />
+                    <DimensionRadarCharts 
+                      scores={scores} 
+                      model={currentModel as Model} 
+                      responses={responses}
+                    />
                   </div>
                   <div data-chart-container id="results-charts">
                     <ResultsCharts scores={scores} model={currentModel} />

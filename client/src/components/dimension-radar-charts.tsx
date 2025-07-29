@@ -6,19 +6,36 @@ import { t } from "@/lib/i18n";
 interface DimensionRadarChartsProps {
   model: Model;
   scores: Record<string, number>;
+  responses: Record<string, number>;
 }
 
-export default function DimensionRadarCharts({ model, scores }: DimensionRadarChartsProps) {
+export default function DimensionRadarCharts({ model, scores, responses }: DimensionRadarChartsProps) {
+  // Calculate criterion score based on individual element responses  
+  const calculateCriterionScore = (criterion: any) => {
+    let totalScore = 0;
+    let totalElements = 0;
+    
+    criterion.elements.forEach((element: any) => {
+      const response = responses[element.id];
+      if (response !== undefined) {
+        totalScore += response;
+        totalElements++;
+      }
+    });
+    
+    return totalElements > 0 ? (totalScore / totalElements) * 100 : 0;
+  };
+
   // Generate data for each dimension's radar chart
   const generateDimensionData = (dimensionId: string) => {
     const dimension = model.dimensions.find(d => d.id === dimensionId);
     if (!dimension) return [];
 
     return dimension.criteria.map(criterion => {
-      const criterionScore = scores[criterion.id] || 0;
+      const criterionScore = calculateCriterionScore(criterion);
       return {
         criterion: criterion.name,
-        score: criterionScore * 100, // Convert to percentage
+        score: criterionScore, // Already as percentage
         fullMark: 100
       };
     });
@@ -59,7 +76,22 @@ export default function DimensionRadarCharts({ model, scores }: DimensionRadarCh
           if (!dimension) return null;
 
           const data = generateDimensionData(dimensionId);
-          const dimensionScore = scores[dimensionId] || 0;
+          
+          // Calculate dimension score as average of all criterion scores
+          let dimensionTotalScore = 0;
+          let dimensionTotalElements = 0;
+          
+          dimension.criteria.forEach(criterion => {
+            criterion.elements.forEach((element: any) => {
+              const response = responses[element.id];
+              if (response !== undefined) {
+                dimensionTotalScore += response;
+                dimensionTotalElements++;
+              }
+            });
+          });
+          
+          const dimensionScore = dimensionTotalElements > 0 ? dimensionTotalScore / dimensionTotalElements : 0;
           const color = getDimensionColor(dimensionId);
 
           return (
@@ -113,7 +145,7 @@ export default function DimensionRadarCharts({ model, scores }: DimensionRadarCh
                   <h4 className="font-medium text-gray-800 text-sm">{t('criteriaBreakdown')}:</h4>
                   <div className="grid gap-2">
                     {dimension.criteria.map(criterion => {
-                      const criterionScore = scores[criterion.id] || 0;
+                      const criterionScore = calculateCriterionScore(criterion);
                       return (
                         <div key={criterion.id} className="flex justify-between items-center text-sm">
                           <span className="text-gray-600 flex-1 mr-2">{criterion.name}</span>
@@ -122,13 +154,13 @@ export default function DimensionRadarCharts({ model, scores }: DimensionRadarCh
                               <div 
                                 className="h-2 rounded-full"
                                 style={{ 
-                                  width: `${criterionScore * 100}%`,
+                                  width: `${criterionScore}%`,
                                   backgroundColor: color 
                                 }}
                               />
                             </div>
                             <span className="font-medium text-gray-800 w-12 text-right">
-                              {Math.round(criterionScore * 100)}%
+                              {Math.round(criterionScore)}%
                             </span>
                           </div>
                         </div>
