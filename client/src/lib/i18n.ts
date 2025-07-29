@@ -182,6 +182,31 @@ export interface Translations {
   fillAllFields: string;
   success: string;
   
+  // Interpretation section
+  interpretation: string;
+  excellentPerformance: string;
+  goodPerformance: string;
+  moderatePerformance: string;
+  poorPerformance: string;
+  strongCriteria: string;
+  weakCriteria: string;
+  improvementRecommendation: string;
+  leverageStrengthsRecommendation: string;
+  
+  // Dimension-specific recommendations
+  technicalLowRecommendation: string;
+  technicalMediumRecommendation: string;
+  technicalHighRecommendation: string;
+  operationalLowRecommendation: string;
+  operationalMediumRecommendation: string;
+  operationalHighRecommendation: string;
+  politicalLowRecommendation: string;
+  politicalMediumRecommendation: string;
+  politicalHighRecommendation: string;
+  prospectiveLowRecommendation: string;
+  prospectiveMediumRecommendation: string;
+  prospectiveHighRecommendation: string;
+  
   // Severity levels
   low: string;
   medium: string;
@@ -399,6 +424,31 @@ export const translations: Record<Language, Translations> = {
     connectionError: "Connection Error",
     websocketConnectionFailed: "Failed to connect to workshop",
     fillAllFields: "Please fill all fields",
+    
+    // Interpretation section
+    interpretation: "Interpretation",
+    excellentPerformance: "This dimension shows excellent performance",
+    goodPerformance: "This dimension shows good performance",
+    moderatePerformance: "This dimension shows moderate performance",
+    poorPerformance: "This dimension shows poor performance and requires urgent attention",
+    strongCriteria: "Strong criteria",
+    weakCriteria: "Criteria requiring improvement",
+    improvementRecommendation: "Priority should be given to strengthening the weakest criteria to achieve better balance.",
+    leverageStrengthsRecommendation: "Leverage existing strengths to enhance moderate criteria and maintain current performance levels.",
+    
+    // Dimension-specific recommendations  
+    technicalLowRecommendation: "Focus on building analytical capabilities, data systems, and technical expertise through training and technology investments.",
+    technicalMediumRecommendation: "Strengthen diagnostic tools and analytical methodologies while maintaining current technical standards.",
+    technicalHighRecommendation: "Maintain technical excellence and consider sharing expertise with other dimensions to achieve integrated planning.",
+    operationalLowRecommendation: "Develop institutional processes, improve coordination mechanisms, and establish clear operational procedures.",
+    operationalMediumRecommendation: "Enhance process efficiency and strengthen inter-institutional coordination mechanisms.",
+    operationalHighRecommendation: "Optimize existing operational systems and support other dimensions with proven methodologies.",
+    politicalLowRecommendation: "Build political support through stakeholder engagement, consensus building, and strategic communication initiatives.",
+    politicalMediumRecommendation: "Strengthen political consensus and expand stakeholder participation in planning processes.",
+    politicalHighRecommendation: "Leverage political support to advance planning initiatives and maintain sustainable political backing.",
+    prospectiveLowRecommendation: "Develop future-oriented thinking, scenario planning capabilities, and long-term strategic vision.",
+    prospectiveMediumRecommendation: "Enhance forecasting tools and strategic planning methodologies for better future preparedness.",
+    prospectiveHighRecommendation: "Apply prospective capabilities to guide other dimensions and ensure long-term planning sustainability.",
   },
   
   es: {
@@ -599,6 +649,31 @@ export const translations: Record<Language, Translations> = {
     connectionError: "Error de Conexión",
     websocketConnectionFailed: "Error al conectar al taller",
     fillAllFields: "Por favor complete todos los campos",
+    
+    // Interpretation section
+    interpretation: "Interpretación",
+    excellentPerformance: "Esta dimensión muestra un rendimiento excelente",
+    goodPerformance: "Esta dimensión muestra un buen rendimiento",
+    moderatePerformance: "Esta dimensión muestra un rendimiento moderado",
+    poorPerformance: "Esta dimensión muestra un rendimiento deficiente y requiere atención urgente",
+    strongCriteria: "Criterios fortalecidos",
+    weakCriteria: "Criterios que requieren mejora",
+    improvementRecommendation: "Se debe priorizar el fortalecimiento de los criterios más débiles para lograr un mejor equilibrio.",
+    leverageStrengthsRecommendation: "Aprovechar las fortalezas existentes para mejorar los criterios moderados y mantener los niveles actuales de rendimiento.",
+    
+    // Dimension-specific recommendations
+    technicalLowRecommendation: "Enfocar en desarrollar capacidades analíticas, sistemas de datos y experticia técnica mediante capacitación e inversiones tecnológicas.",
+    technicalMediumRecommendation: "Fortalecer herramientas de diagnóstico y metodologías analíticas manteniendo los estándares técnicos actuales.",
+    technicalHighRecommendation: "Mantener la excelencia técnica y considerar compartir la experticia con otras dimensiones para lograr una planificación integrada.",
+    operationalLowRecommendation: "Desarrollar procesos institucionales, mejorar mecanismos de coordinación y establecer procedimientos operativos claros.",
+    operationalMediumRecommendation: "Mejorar la eficiencia de procesos y fortalecer mecanismos de coordinación interinstitucional.",
+    operationalHighRecommendation: "Optimizar sistemas operativos existentes y apoyar otras dimensiones con metodologías probadas.",
+    politicalLowRecommendation: "Construir apoyo político mediante participación de actores clave, construcción de consensos e iniciativas de comunicación estratégica.",
+    politicalMediumRecommendation: "Fortalecer el consenso político y ampliar la participación de actores en los procesos de planificación.",
+    politicalHighRecommendation: "Aprovechar el apoyo político para avanzar iniciativas de planificación y mantener respaldo político sostenible.",
+    prospectiveLowRecommendation: "Desarrollar pensamiento orientado al futuro, capacidades de planificación por escenarios y visión estratégica de largo plazo.",
+    prospectiveMediumRecommendation: "Mejorar herramientas de prospectiva y metodologías de planificación estratégica para mejor preparación futura.",
+    prospectiveHighRecommendation: "Aplicar capacidades prospectivas para guiar otras dimensiones y asegurar sostenibilidad de la planificación a largo plazo.",
   }
 };
 

@@ -168,6 +168,17 @@ export default function DimensionRadarCharts({ model, scores, responses }: Dimen
                     })}
                   </div>
                 </div>
+
+                {/* Interpretation Section */}
+                <div className="mt-6 bg-gray-50 rounded-lg p-4 border">
+                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <span className="mr-2">💡</span>
+                    {t('interpretation')}
+                  </h4>
+                  <div className="text-sm text-gray-700 leading-relaxed">
+                    {generateInterpretation(dimension, data, dimensionScore)}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           );
@@ -175,4 +186,77 @@ export default function DimensionRadarCharts({ model, scores, responses }: Dimen
       </div>
     </div>
   );
+
+  // Generate interpretation based on dimension data and scores
+  function generateInterpretation(dimension: any, criteriaData: any[], dimensionScore: number) {
+    const scorePercentage = Math.round(dimensionScore * 100);
+    const strongCriteria = criteriaData.filter(c => c.score >= 75);
+    const weakCriteria = criteriaData.filter(c => c.score < 50);
+    const moderateCriteria = criteriaData.filter(c => c.score >= 50 && c.score < 75);
+
+    let interpretation = "";
+
+    // Overall performance assessment
+    if (scorePercentage >= 75) {
+      interpretation += `${t('excellentPerformance')} (${scorePercentage}%). `;
+    } else if (scorePercentage >= 50) {
+      interpretation += `${t('goodPerformance')} (${scorePercentage}%). `;
+    } else if (scorePercentage >= 25) {
+      interpretation += `${t('moderatePerformance')} (${scorePercentage}%). `;
+    } else {
+      interpretation += `${t('poorPerformance')} (${scorePercentage}%). `;
+    }
+
+    // Criteria analysis
+    if (strongCriteria.length > 0) {
+      interpretation += `${t('strongCriteria')}: ${strongCriteria.map(c => c.criterion).join(', ')}. `;
+    }
+
+    if (weakCriteria.length > 0) {
+      interpretation += `${t('weakCriteria')}: ${weakCriteria.map(c => c.criterion).join(', ')}. `;
+    }
+
+    // Recommendations based on performance pattern
+    if (weakCriteria.length > strongCriteria.length) {
+      interpretation += `${t('improvementRecommendation')} `;
+    } else if (strongCriteria.length > 0 && moderateCriteria.length > 0) {
+      interpretation += `${t('leverageStrengthsRecommendation')} `;
+    }
+
+    // Specific dimension recommendations
+    const dimensionRecommendations = getDimensionSpecificRecommendations(dimension.id, scorePercentage);
+    if (dimensionRecommendations) {
+      interpretation += dimensionRecommendations;
+    }
+
+    return interpretation;
+  }
+
+  function getDimensionSpecificRecommendations(dimensionId: string, score: number): string {
+    const recommendations: Record<string, Record<string, string>> = {
+      technical: {
+        low: t('technicalLowRecommendation'),
+        medium: t('technicalMediumRecommendation'),
+        high: t('technicalHighRecommendation')
+      },
+      operational: {
+        low: t('operationalLowRecommendation'),
+        medium: t('operationalMediumRecommendation'),
+        high: t('operationalHighRecommendation')
+      },
+      political: {
+        low: t('politicalLowRecommendation'),
+        medium: t('politicalMediumRecommendation'),
+        high: t('politicalHighRecommendation')
+      },
+      prospective: {
+        low: t('prospectiveLowRecommendation'),
+        medium: t('prospectiveMediumRecommendation'),
+        high: t('prospectiveHighRecommendation')
+      }
+    };
+
+    const level = score < 50 ? 'low' : score < 75 ? 'medium' : 'high';
+    return recommendations[dimensionId]?.[level] || '';
+  }
 }
