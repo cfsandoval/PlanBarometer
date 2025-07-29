@@ -153,6 +153,33 @@ export interface Translations {
   confirm: string;
   loading: string;
   error: string;
+  
+  // Collaboration
+  collaborativeWorkshop: string;
+  connected: string;
+  disconnected: string;
+  workshopId: string;
+  enterWorkshopId: string;
+  yourName: string;
+  enterYourName: string;
+  joinWorkshop: string;
+  leaveWorkshop: string;
+  connecting: string;
+  workshop: string;
+  participants: string;
+  activeParticipants: string;
+  recentUpdates: string;
+  viewing: string;
+  noOtherParticipants: string;
+  updated: string;
+  joined: string;
+  left: string;
+  savedEvaluation: string;
+  noRecentUpdates: string;
+  workshopJoined: string;
+  connectionError: string;
+  websocketConnectionFailed: string;
+  fillAllFields: string;
   success: string;
   
   // Severity levels
@@ -343,8 +370,35 @@ export const translations: Record<Language, Translations> = {
     evaluationNotComplete: "Complete the evaluation to view results and strategic alerts.",
     evaluationCompleteMessage: "Evaluation completed successfully!",
     noAlertsMessage: "No strategic alerts detected. The evaluation shows a favorable situation.",
-    pdfExportSuccess: "PDF exported successfully",
+    pdfExportSuccess: "PDF exported successfully", 
     pdfExportError: "Error exporting PDF",
+    
+    // Collaboration
+    collaborativeWorkshop: "Collaborative Workshop",
+    connected: "Connected",
+    disconnected: "Disconnected",
+    workshopId: "Workshop ID",
+    enterWorkshopId: "Enter workshop ID",
+    yourName: "Your Name",
+    enterYourName: "Enter your name",
+    joinWorkshop: "Join Workshop",
+    leaveWorkshop: "Leave Workshop",
+    connecting: "Connecting...",
+    workshop: "Workshop",
+    participants: "Participants",
+    activeParticipants: "Active Participants",
+    recentUpdates: "Recent Updates",
+    viewing: "Viewing",
+    noOtherParticipants: "No other participants",
+    updated: "updated",
+    joined: "joined",
+    left: "left",
+    savedEvaluation: "saved evaluation",
+    noRecentUpdates: "No recent updates",
+    workshopJoined: "Workshop Joined",
+    connectionError: "Connection Error",
+    websocketConnectionFailed: "Failed to connect to workshop",
+    fillAllFields: "Please fill all fields",
   },
   
   es: {
@@ -518,6 +572,33 @@ export const translations: Record<Language, Translations> = {
     noAlertsMessage: "No se detectaron alertas estratégicas. La evaluación muestra una situación favorable.",
     pdfExportSuccess: "PDF exportado exitosamente",
     pdfExportError: "Error al exportar PDF",
+    
+    // Collaboration
+    collaborativeWorkshop: "Taller Colaborativo",
+    connected: "Conectado",
+    disconnected: "Desconectado",
+    workshopId: "ID del Taller",
+    enterWorkshopId: "Ingrese ID del taller",
+    yourName: "Su Nombre",
+    enterYourName: "Ingrese su nombre",
+    joinWorkshop: "Unirse al Taller",
+    leaveWorkshop: "Salir del Taller",
+    connecting: "Conectando...",
+    workshop: "Taller",
+    participants: "Participantes",
+    activeParticipants: "Participantes Activos",
+    recentUpdates: "Actualizaciones Recientes",
+    viewing: "Viendo",
+    noOtherParticipants: "No hay otros participantes",
+    updated: "actualizó",
+    joined: "se unió",
+    left: "salió",
+    savedEvaluation: "guardó evaluación",
+    noRecentUpdates: "No hay actualizaciones recientes", 
+    workshopJoined: "Taller Unido",
+    connectionError: "Error de Conexión",
+    websocketConnectionFailed: "Error al conectar al taller",
+    fillAllFields: "Por favor complete todos los campos",
   }
 };
 

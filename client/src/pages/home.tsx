@@ -14,6 +14,7 @@ import ResultsCharts from "@/components/results-charts";
 import StrategicAlerts from "@/components/strategic-alerts";
 import CustomAlertsEditor from "@/components/custom-alerts-editor";
 import DimensionRadarCharts from "@/components/dimension-radar-charts";
+import WorkshopCollaboration from "@/components/workshop-collaboration";
 
 import { MODELS } from "@/lib/planbarometro-data";
 import { calculateScores } from "@/lib/scoring-engine";
@@ -164,6 +165,11 @@ export default function Home() {
       ...prev,
       [elementId]: value
     }));
+    
+    // Broadcast change to workshop participants
+    if ((window as any).workshopCollaboration) {
+      (window as any).workshopCollaboration.broadcastResponseUpdate(elementId, value);
+    }
   };
 
   const handleJustificationChange = (elementId: string, justification: string) => {
@@ -171,6 +177,16 @@ export default function Home() {
       ...prev,
       [elementId]: justification
     }));
+  };
+
+  const handleCollaborativeResponseUpdate = (elementId: string, value: number) => {
+    setResponses(prev => ({ ...prev, [elementId]: value }));
+  };
+
+  const handleCollaborativeEvaluationUpdate = (data: any) => {
+    if (data.title) setEvaluationTitle(data.title);
+    if (data.responses) setResponses(data.responses);
+    if (data.justifications) setJustifications(data.justifications);
   };
 
   const handleSaveEvaluation = () => {
@@ -189,6 +205,17 @@ export default function Home() {
       customStructure: customModel || undefined,
       customAlerts: customAlerts
     });
+
+    // Broadcast evaluation save to workshop participants
+    if ((window as any).workshopCollaboration) {
+      (window as any).workshopCollaboration.broadcastEvaluationUpdate({
+        title: finalTitle,
+        model: selectedModel,
+        responses,
+        justifications,
+        scores
+      });
+    }
   };
 
   const handleExportPDF = async () => {
@@ -453,6 +480,16 @@ export default function Home() {
       </header>
 
       <div className="container mx-auto px-4 py-6">
+        {/* Collaborative Workshop */}
+        <div className="mb-6">
+          <WorkshopCollaboration
+            onResponseUpdate={handleCollaborativeResponseUpdate}
+            onEvaluationUpdate={handleCollaborativeEvaluationUpdate}
+            currentResponses={responses}
+            evaluationData={{ title: evaluationTitle, model: selectedModel, responses, justifications, scores }}
+          />
+        </div>
+
         {/* Model Selection */}
         <ModelSelector selectedModel={selectedModel} onModelSelect={handleModelSelect} />
 
