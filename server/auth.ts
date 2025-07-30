@@ -117,7 +117,7 @@ export async function requireGroupAccess(req: Request, res: Response, next: Next
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  const groupId = parseInt(req.params.groupId);
+  const groupId = parseInt(req.params.id || req.params.groupId);
   if (!groupId) {
     return res.status(400).json({ error: 'Group ID required' });
   }

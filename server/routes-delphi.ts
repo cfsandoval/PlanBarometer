@@ -145,6 +145,52 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  app.get("/api/delphi/groups/:id", requireAuth, async (req, res) => {
+    try {
+      console.log("Group ID param:", req.params.id);
+      const groupId = parseInt(req.params.id);
+      console.log("Parsed group ID:", groupId);
+      
+      if (!groupId) {
+        return res.status(400).json({ error: "Invalid group ID" });
+      }
+      
+      const group = await storage.getGroup(groupId);
+      console.log("Found group:", group);
+      
+      if (!group) {
+        return res.status(404).json({ error: "Group not found" });
+      }
+
+      res.json(group);
+    } catch (error) {
+      console.error("Get group error:", error);
+      res.status(500).json({ error: "Failed to fetch group" });
+    }
+  });
+
+  app.get("/api/delphi/groups/:id/members", requireAuth, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const members = await storage.getGroupMembers(groupId);
+      res.json(members);
+    } catch (error) {
+      console.error("Get group members error:", error);
+      res.status(500).json({ error: "Failed to fetch group members" });
+    }
+  });
+
+  app.get("/api/delphi/groups/:id/studies", requireAuth, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const studies = await storage.getStudiesByGroup(groupId);
+      res.json(studies);
+    } catch (error) {
+      console.error("Get group studies error:", error);
+      res.status(500).json({ error: "Failed to fetch group studies" });
+    }
+  });
+
   app.post("/api/delphi/groups/join", requireAuth, async (req, res) => {
     try {
       const { code }: GroupJoinData = groupJoinSchema.parse(req.body);
