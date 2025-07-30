@@ -141,26 +141,34 @@ export default function StrategicAlerts({ alerts }: StrategicAlertsProps) {
                   {/* Gauge Charts Section */}
                   {alert.metrics && (
                     <div className="flex-shrink-0">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3 text-center">Indicadores de Alerta</h4>
+                      <div className={`rounded-lg p-4 ${
+                        alert.severity === 'low' || (alert.metrics.riskLevel <= 30 && alert.metrics.impactLevel <= 30)
+                          ? 'bg-green-50' 
+                          : 'bg-gray-50'
+                      }`}>
+                        <h4 className="text-sm font-medium text-gray-700 mb-3 text-center">
+                          {alert.severity === 'low' || (alert.metrics.riskLevel <= 30 && alert.metrics.impactLevel <= 30)
+                            ? "Indicadores Favorables"
+                            : "Indicadores de Alerta"}
+                        </h4>
                         <div className="grid grid-cols-3 gap-4">
                           <GaugeChart
                             value={alert.metrics.riskLevel}
                             label="Nivel de Riesgo"
                             size={100}
-                            severity={alert.severity}
+                            severity={alert.metrics.riskLevel <= 30 ? 'low' : alert.severity}
                           />
                           <GaugeChart
                             value={alert.metrics.impactLevel}
                             label="Impacto"
                             size={100}
-                            severity={alert.severity}
+                            severity={alert.metrics.impactLevel <= 30 ? 'low' : alert.severity}
                           />
                           <GaugeChart
                             value={alert.metrics.urgencyLevel}
                             label="Urgencia"
                             size={100}
-                            severity={alert.severity}
+                            severity={alert.metrics.urgencyLevel <= 30 ? 'low' : alert.severity}
                           />
                         </div>
                       </div>

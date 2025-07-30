@@ -16,12 +16,13 @@ export default function GaugeChart({ value, label, size = 120, severity }: Gauge
 
   // Colors based on value or severity
   const getColors = () => {
-    // Determine severity from value if not provided
+    // For alerts, low values are good (green), high values are bad (red)
+    // This is opposite to typical scoring where high values are good
     let actualSeverity = severity;
     if (!actualSeverity) {
-      if (value >= 75) actualSeverity = 'low';      // Alto valor = bajo riesgo
-      else if (value >= 40) actualSeverity = 'medium';
-      else actualSeverity = 'high';                 // Bajo valor = alto riesgo
+      if (value <= 30) actualSeverity = 'low';      // Valor bajo = bajo riesgo (verde)
+      else if (value <= 60) actualSeverity = 'medium';
+      else actualSeverity = 'high';                 // Valor alto = alto riesgo (rojo)
     }
     
     switch (actualSeverity) {
