@@ -99,11 +99,8 @@ export default function ManageMembers() {
 
   const addMemberMutation = useMutation({
     mutationFn: async (data: AddMemberData) => {
-      const response = await apiRequest(`/api/delphi/groups/${groupId}/members`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return response;
+      const response = await apiRequest('POST', `/api/delphi/groups/${groupId}/members`, data);
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -124,11 +121,8 @@ export default function ManageMembers() {
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({ memberId, role }: { memberId: number; role: string }) => {
-      const response = await apiRequest(`/api/delphi/groups/${groupId}/members/${memberId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ role }),
-      });
-      return response;
+      const response = await apiRequest('PATCH', `/api/delphi/groups/${groupId}/members/${memberId}`, { role });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -148,9 +142,7 @@ export default function ManageMembers() {
 
   const removeMemberMutation = useMutation({
     mutationFn: async (memberId: number) => {
-      await apiRequest(`/api/delphi/groups/${groupId}/members/${memberId}`, {
-        method: 'DELETE',
-      });
+      await apiRequest('DELETE', `/api/delphi/groups/${groupId}/members/${memberId}`);
     },
     onSuccess: () => {
       toast({
