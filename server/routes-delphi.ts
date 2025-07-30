@@ -211,6 +211,65 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  // Member management routes
+  app.post("/api/delphi/groups/:id/members", requireAuth, requireCoordinator, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const { email, role } = req.body;
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: "User not found with that email" });
+      }
+
+      // Check if user is already a member
+      const existingMember = await storage.getGroupMember(groupId, user.id);
+      if (existingMember) {
+        return res.status(400).json({ error: "User is already a member of this group" });
+      }
+
+      // Add user to group
+      const member = await storage.addGroupMember({
+        groupId,
+        userId: user.id,
+        role: role || 'user',
+      });
+
+      res.status(201).json(member);
+    } catch (error) {
+      console.error("Add member error:", error);
+      res.status(500).json({ error: "Failed to add member" });
+    }
+  });
+
+  app.patch("/api/delphi/groups/:id/members/:memberId", requireAuth, requireCoordinator, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const memberId = parseInt(req.params.memberId);
+      const { role } = req.body;
+
+      const updatedMember = await storage.updateGroupMemberRole(memberId, role);
+      res.json(updatedMember);
+    } catch (error) {
+      console.error("Update member role error:", error);
+      res.status(500).json({ error: "Failed to update member role" });
+    }
+  });
+
+  app.delete("/api/delphi/groups/:id/members/:memberId", requireAuth, requireCoordinator, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const memberId = parseInt(req.params.memberId);
+
+      await storage.removeGroupMember(memberId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Remove member error:", error);
+      res.status(500).json({ error: "Failed to remove member" });
+    }
+  });
+
   app.post("/api/delphi/groups/join", requireAuth, async (req, res) => {
     try {
       const { code }: GroupJoinData = groupJoinSchema.parse(req.body);

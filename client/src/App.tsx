@@ -14,6 +14,7 @@ import CreateGroup from "@/pages/create-group";
 import JoinGroup from "@/pages/join-group";
 import GroupDetails from "@/pages/group-details";
 import CreateStudy from "@/pages/create-study";
+import ManageMembers from "@/pages/manage-members";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/delphi/groups/create" component={CreateGroup} />
       <Route path="/delphi/groups/join" component={JoinGroup} />
       <Route path="/delphi/groups/:id/studies/create" component={CreateStudy} />
+      <Route path="/delphi/groups/:id/members" component={ManageMembers} />
       <Route path="/delphi/groups/:id" component={GroupDetails} />
       <Route component={NotFound} />
     </Switch>

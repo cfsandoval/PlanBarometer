@@ -348,10 +348,12 @@ export default function GroupDetails() {
                       Nuevo Estudio
                     </Button>
                   </Link>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users className="mr-2 h-4 w-4" />
-                    Gestionar Miembros
-                  </Button>
+                  <Link href={`/delphi/groups/${group.id}/members`}>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Users className="mr-2 h-4 w-4" />
+                      Gestionar Miembros
+                    </Button>
+                  </Link>
                 </>
               )}
             </CardContent>

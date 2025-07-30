@@ -586,6 +586,42 @@ export class DatabaseStorage implements IExtendedStorage {
     const [newRecommendation] = await db.insert(practiceRecommendations).values(recommendation).returning();
     return newRecommendation;
   }
+
+  // Additional member management functions
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getGroupMember(groupId: number, userId: number): Promise<GroupMember | undefined> {
+    const [member] = await db.select()
+      .from(groupMembers)
+      .where(and(
+        eq(groupMembers.groupId, groupId),
+        eq(groupMembers.userId, userId)
+      ));
+    
+    return member;
+  }
+
+  async addGroupMember(member: { groupId: number; userId: number; role: string }): Promise<GroupMember> {
+    const [newMember] = await db.insert(groupMembers).values(member).returning();
+    return newMember;
+  }
+
+  async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember> {
+    const [updatedMember] = await db
+      .update(groupMembers)
+      .set({ role })
+      .where(eq(groupMembers.id, memberId))
+      .returning();
+
+    return updatedMember;
+  }
+
+  async removeGroupMember(memberId: number): Promise<void> {
+    await db.delete(groupMembers).where(eq(groupMembers.id, memberId));
+  }
 }
 
 // Export the storage instance
