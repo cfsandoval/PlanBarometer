@@ -101,7 +101,7 @@ export function registerDelphiRoutes(app: Express) {
   });
 
   // Group management routes
-  app.get("/api/groups", requireAuth, async (req, res) => {
+  app.get("/api/delphi/groups", requireAuth, async (req, res) => {
     try {
       let groups;
       if (req.user!.role === 'admin') {
@@ -122,7 +122,7 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
-  app.post("/api/groups", requireCoordinator, async (req, res) => {
+  app.post("/api/delphi/groups", requireCoordinator, async (req, res) => {
     try {
       const groupData = insertGroupSchema.parse(req.body);
       
@@ -145,7 +145,7 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
-  app.post("/api/groups/join", requireAuth, async (req, res) => {
+  app.post("/api/delphi/groups/join", requireAuth, async (req, res) => {
     try {
       const { code }: GroupJoinData = groupJoinSchema.parse(req.body);
       

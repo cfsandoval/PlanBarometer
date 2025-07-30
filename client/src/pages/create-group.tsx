@@ -36,7 +36,7 @@ export default function CreateGroup() {
       return response.json();
     },
     onSuccess: (newGroup) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/groups'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/delphi/groups'] });
       setLocation('/delphi');
     },
     onError: (err: any) => {

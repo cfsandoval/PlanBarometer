@@ -35,7 +35,7 @@ export default function JoinGroup() {
       return response.json();
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/groups'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/delphi/groups'] });
       setSuccess(`Te has unido exitosamente al grupo: ${result.group.name}`);
       setError('');
       setTimeout(() => {

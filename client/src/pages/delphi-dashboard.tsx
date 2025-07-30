@@ -21,7 +21,7 @@ export default function DelphiDashboard() {
   const { user, logout } = useAuth();
 
   const { data: groups = [] } = useQuery({
-    queryKey: ['/api/groups'],
+    queryKey: ['/api/delphi/groups'],
   }) as { data: Group[] };
 
   const getRoleIcon = (role: string) => {
