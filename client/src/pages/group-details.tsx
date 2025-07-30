@@ -212,10 +212,12 @@ export default function GroupDetails() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Estudios Delphi</CardTitle>
               {isCoordinator && (
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nuevo Estudio
-                </Button>
+                <Link href={`/delphi/groups/${group.id}/studies/create`}>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nuevo Estudio
+                  </Button>
+                </Link>
               )}
             </CardHeader>
             <CardContent>
@@ -340,10 +342,12 @@ export default function GroupDetails() {
               </Button>
               {isCoordinator && (
                 <>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nuevo Estudio
-                  </Button>
+                  <Link href={`/delphi/groups/${group.id}/studies/create`}>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nuevo Estudio
+                    </Button>
+                  </Link>
                   <Button variant="outline" className="w-full justify-start">
                     <Users className="mr-2 h-4 w-4" />
                     Gestionar Miembros

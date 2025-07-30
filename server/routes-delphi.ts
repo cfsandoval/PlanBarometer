@@ -191,6 +191,26 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  app.post("/api/delphi/groups/:id/studies", requireAuth, requireCoordinator, async (req, res) => {
+    try {
+      const groupId = parseInt(req.params.id);
+      const studyData = insertDelphiStudySchema.parse({
+        ...req.body,
+        groupId,
+        coordinatorId: req.user!.id,
+      });
+
+      const study = await storage.createDelphiStudy(studyData);
+      res.status(201).json(study);
+    } catch (error) {
+      console.error("Create study error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid study data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create study" });
+    }
+  });
+
   app.post("/api/delphi/groups/join", requireAuth, async (req, res) => {
     try {
       const { code }: GroupJoinData = groupJoinSchema.parse(req.body);
