@@ -121,13 +121,75 @@ export class MemStorage implements IStorage {
 
   async getBestPracticesByCriteria(criteria: string[]): Promise<BestPractice[]> {
     const allPractices = await this.getAllBestPractices();
-    return allPractices.filter(practice => 
-      criteria.some(criterion => 
-        practice.targetCriteria.some(target => 
-          target.toLowerCase().includes(criterion.toLowerCase())
-        )
-      )
-    );
+    console.log(`Searching for criteria: ${JSON.stringify(criteria)}`);
+    console.log(`Total practices available: ${allPractices.length}`);
+    
+    const matchedPractices = allPractices.filter(practice => {
+      // More flexible matching approach
+      return criteria.some(criterion => {
+        const lowerCriterion = criterion.toLowerCase().trim();
+        
+        // Check target criteria with flexible matching
+        const targetMatch = practice.targetCriteria.some(target => {
+          const lowerTarget = target.toLowerCase().trim();
+          return lowerTarget.includes(lowerCriterion) || 
+                 lowerCriterion.includes(lowerTarget) ||
+                 // Check for similar terms
+                 this.areRelatedTerms(lowerCriterion, lowerTarget);
+        });
+        
+        // Check title and description for broader context
+        const titleMatch = practice.title.toLowerCase().includes(lowerCriterion);
+        const descMatch = practice.description.toLowerCase().includes(lowerCriterion);
+        
+        // Check tags if available
+        const tagMatch = practice.tags ? practice.tags.some(tag => 
+          tag.toLowerCase().includes(lowerCriterion) || 
+          lowerCriterion.includes(tag.toLowerCase())
+        ) : false;
+        
+        const isMatch = targetMatch || titleMatch || descMatch || tagMatch;
+        if (isMatch) {
+          console.log(`Practice "${practice.title}" matches criterion "${criterion}"`);
+        }
+        
+        return isMatch;
+      });
+    });
+    
+    console.log(`Found ${matchedPractices.length} matching practices`);
+    return matchedPractices;
+  }
+
+  private areRelatedTerms(term1: string, term2: string): boolean {
+    const relatedTermsMap: Record<string, string[]> = {
+      'coordinación': ['coordinacion', 'coordination', 'intersectorial', 'institutional'],
+      'coordinacion': ['coordinación', 'coordination', 'intersectorial', 'institutional'],
+      'coordination': ['coordinación', 'coordinacion', 'intersectorial', 'institutional'],
+      'planificación': ['planificacion', 'planning', 'plan', 'estratégica', 'estrategica'],
+      'planificacion': ['planificación', 'planning', 'plan', 'estratégica', 'estrategica'],
+      'planning': ['planificación', 'planificacion', 'plan', 'estratégica', 'estrategica'],
+      'gestión': ['gestion', 'management', 'administración', 'administracion'],
+      'gestion': ['gestión', 'management', 'administración', 'administracion'],
+      'management': ['gestión', 'gestion', 'administración', 'administracion'],
+      'monitoreo': ['monitoring', 'seguimiento', 'evaluación', 'evaluacion'],
+      'monitoring': ['monitoreo', 'seguimiento', 'evaluación', 'evaluacion'],
+      'participación': ['participacion', 'participation', 'ciudadana', 'ciudadano'],
+      'participacion': ['participación', 'participation', 'ciudadana', 'ciudadano'],
+      'participation': ['participación', 'participacion', 'ciudadana', 'ciudadano'],
+      'innovación': ['innovacion', 'innovation', 'modernización', 'modernizacion'],
+      'innovacion': ['innovación', 'innovation', 'modernización', 'modernizacion'],
+      'innovation': ['innovación', 'innovacion', 'modernización', 'modernizacion'],
+      'transparencia': ['transparency', 'accountabilidad', 'accountability'],
+      'transparency': ['transparencia', 'accountabilidad', 'accountability'],
+      'eficiencia': ['efficiency', 'efectividad', 'effectiveness'],
+      'efficiency': ['eficiencia', 'efectividad', 'effectiveness']
+    };
+
+    const related1 = relatedTermsMap[term1] || [];
+    const related2 = relatedTermsMap[term2] || [];
+    
+    return related1.includes(term2) || related2.includes(term1);
   }
 
   async createBestPractice(insertPractice: InsertBestPractice): Promise<BestPractice> {

@@ -99,16 +99,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/best-practices/criteria", async (req, res) => {
     try {
       const criteriaParam = req.query.criteria as string;
+      console.log("Received criteria param:", criteriaParam);
+      
       if (!criteriaParam) {
         return res.status(400).json({ message: "Criteria parameter required" });
       }
       
-      // Split comma-separated criteria
-      const criteria = criteriaParam.split(',').map(c => c.trim()).filter(Boolean);
+      // Split comma-separated criteria and decode URL encoding
+      const criteria = criteriaParam.split(',')
+        .map(c => decodeURIComponent(c.trim()))
+        .filter(Boolean);
+      
+      console.log("Processed criteria:", criteria);
       
       const practices = await storage.getBestPracticesByCriteria(criteria);
       res.json(practices);
     } catch (error) {
+      console.error("Error in criteria endpoint:", error);
       res.status(500).json({ message: "Error fetching best practices by criteria" });
     }
   });
