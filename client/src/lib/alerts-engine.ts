@@ -15,6 +15,9 @@ export function generateStrategicAlerts(scores: EvaluationScores, modelId: strin
   const alerts: StrategicAlert[] = [];
   const [technical, operational, political, prospective] = scores.dimensions.map(d => d.percentage);
   
+  // Debug logging
+  console.log("Generating alerts with scores:", { technical, operational, political, prospective });
+  
   // Check for unanswered elements if responses are provided
   let unansweredCount = 0;
   let totalElements = 0;
