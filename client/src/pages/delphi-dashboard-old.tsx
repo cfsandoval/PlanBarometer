@@ -288,3 +288,77 @@ export default function DelphiDashboard() {
     </div>
   );
 }
+
+            {/* Admin Tab */}
+            {user.role === 'admin' && (
+              <TabsContent value="admin" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Panel de Administración
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Users className="h-5 w-5 text-blue-500" />
+                        <span>Gestión de Usuarios</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Crear y gestionar cuentas de usuarios y coordinadores.
+                      </p>
+                      <Link href="/delphi/admin/users">
+                        <Button size="sm" className="w-full">
+                          Gestionar Usuarios
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Settings className="h-5 w-5 text-green-500" />
+                        <span>Configuración Sistema</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Configurar parámetros generales del sistema.
+                      </p>
+                      <Button size="sm" className="w-full" variant="outline">
+                        Configuración
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <BookOpen className="h-5 w-5 text-purple-500" />
+                        <span>Sistema Legacy</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Acceder al sistema TOPP tradicional.
+                      </p>
+                      <Link href="/">
+                        <Button size="sm" className="w-full" variant="outline">
+                          Ir a TOPP
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
+      </main>
+    </div>
+  );
+}

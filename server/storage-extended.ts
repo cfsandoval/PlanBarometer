@@ -622,6 +622,26 @@ export class DatabaseStorage implements IExtendedStorage {
   async removeGroupMember(memberId: number): Promise<void> {
     await db.delete(groupMembers).where(eq(groupMembers.id, memberId));
   }
+
+  // Admin user management functions
+  async getAllUsers(): Promise<User[]> {
+    return await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+      lastLoginAt: users.lastLoginAt,
+    }).from(users);
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return result.rowCount > 0;
+  }
 }
 
 // Export the storage instance
