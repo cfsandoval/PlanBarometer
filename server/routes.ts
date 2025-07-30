@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertEvaluationSchema } from "@shared/schema";
+import { insertEvaluationSchema, insertBestPracticeSchema, insertPracticeRecommendationSchema } from "@shared/schema";
 import { z } from "zod";
 import { WebSocketServer, WebSocket } from 'ws';
 
@@ -80,6 +80,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Error deleting evaluation" });
+    }
+  });
+
+  // === BEST PRACTICES ROUTES ===
+  
+  // Get all best practices
+  app.get("/api/best-practices", async (req, res) => {
+    try {
+      const practices = await storage.getAllBestPractices();
+      res.json(practices);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching best practices" });
+    }
+  });
+
+  // Get best practices by criteria
+  app.get("/api/best-practices/criteria", async (req, res) => {
+    try {
+      const criteria = req.query.criteria as string[];
+      if (!criteria || !Array.isArray(criteria)) {
+        return res.status(400).json({ message: "Criteria parameter required as array" });
+      }
+      
+      const practices = await storage.getBestPracticesByCriteria(criteria);
+      res.json(practices);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching best practices by criteria" });
+    }
+  });
+
+  // Create new best practice
+  app.post("/api/best-practices", async (req, res) => {
+    try {
+      const validatedData = insertBestPracticeSchema.parse(req.body);
+      const practice = await storage.createBestPractice(validatedData);
+      res.status(201).json(practice);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error creating best practice" });
+    }
+  });
+
+  // Update best practice
+  app.put("/api/best-practices/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertBestPracticeSchema.partial().parse(req.body);
+      const practice = await storage.updateBestPractice(id, validatedData);
+      
+      if (!practice) {
+        return res.status(404).json({ message: "Best practice not found" });
+      }
+      
+      res.json(practice);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error updating best practice" });
+    }
+  });
+
+  // Delete best practice (soft delete)
+  app.delete("/api/best-practices/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteBestPractice(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Best practice not found" });
+      }
+      
+      res.json({ message: "Best practice deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting best practice" });
+    }
+  });
+
+  // Get recommendations by criterion
+  app.get("/api/recommendations/criterion/:name", async (req, res) => {
+    try {
+      const criterionName = req.params.name;
+      const recommendations = await storage.getRecommendationsByCriterion(criterionName);
+      res.json(recommendations);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching recommendations" });
+    }
+  });
+
+  // Create practice recommendation
+  app.post("/api/practice-recommendations", async (req, res) => {
+    try {
+      const validatedData = insertPracticeRecommendationSchema.parse(req.body);
+      const recommendation = await storage.createPracticeRecommendation(validatedData);
+      res.status(201).json(recommendation);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error creating recommendation" });
     }
   });
 

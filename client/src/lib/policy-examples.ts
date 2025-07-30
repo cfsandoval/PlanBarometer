@@ -35,6 +35,31 @@ export async function fetchPolicyExamples(
   }
 
   try {
+    // First, try to get examples from the best practices database
+    const criteriaQuery = weakCriteria.map(c => encodeURIComponent(c)).join(',');
+    const dbResponse = await fetch(`/api/best-practices/criteria?criteria=${criteriaQuery}`);
+
+    if (dbResponse.ok) {
+      const practices = await dbResponse.json();
+      
+      // Transform best practices to policy examples format
+      const examples = practices.slice(0, 3).map((practice: any) => ({
+        country: practice.country,
+        policy: practice.title,
+        description: practice.description,
+        results: practice.results || 'Resultados documentados en la fuente original',
+        year: practice.year?.toString() || 'N/A',
+        source: practice.sourceUrl || '#'
+      }));
+
+      if (examples.length > 0) {
+        // Cache the results
+        policyExamplesCache.set(cacheKey, examples);
+        return examples;
+      }
+    }
+
+    // Fallback to OpenAI API if no practices found in database
     const response = await apiRequest('POST', '/api/policy-examples', {
       dimensionId,
       dimensionName,

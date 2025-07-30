@@ -25,6 +25,35 @@ export const evaluations = pgTable("evaluations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const bestPractices = pgTable("best_practices", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  country: text("country").notNull(),
+  institution: text("institution"),
+  year: integer("year"),
+  sourceUrl: text("source_url"),
+  sourceType: text("source_type").notNull(), // "pdf", "web", "academic", "case_study"
+  targetCriteria: json("target_criteria").$type<string[]>().notNull(), // Array of criteria names
+  results: text("results"),
+  keyLessons: json("key_lessons").$type<string[]>(),
+  tags: json("tags").$type<string[]>(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const practiceRecommendations = pgTable("practice_recommendations", {
+  id: serial("id").primaryKey(),
+  practiceId: integer("practice_id").references(() => bestPractices.id),
+  criterionName: text("criterion_name").notNull(),
+  recommendation: text("recommendation").notNull(),
+  implementationSteps: json("implementation_steps").$type<string[]>(),
+  expectedImpact: text("expected_impact"),
+  timeframe: text("timeframe"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -44,7 +73,34 @@ export const insertEvaluationSchema = createInsertSchema(evaluations).pick({
   customAlerts: true,
 });
 
+export const insertBestPracticeSchema = createInsertSchema(bestPractices).pick({
+  title: true,
+  description: true,
+  country: true,
+  institution: true,
+  year: true,
+  sourceUrl: true,
+  sourceType: true,
+  targetCriteria: true,
+  results: true,
+  keyLessons: true,
+  tags: true,
+});
+
+export const insertPracticeRecommendationSchema = createInsertSchema(practiceRecommendations).pick({
+  practiceId: true,
+  criterionName: true,
+  recommendation: true,
+  implementationSteps: true,
+  expectedImpact: true,
+  timeframe: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertEvaluation = z.infer<typeof insertEvaluationSchema>;
 export type Evaluation = typeof evaluations.$inferSelect;
+export type InsertBestPractice = z.infer<typeof insertBestPracticeSchema>;
+export type BestPractice = typeof bestPractices.$inferSelect;
+export type InsertPracticeRecommendation = z.infer<typeof insertPracticeRecommendationSchema>;
+export type PracticeRecommendation = typeof practiceRecommendations.$inferSelect;
