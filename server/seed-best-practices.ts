@@ -171,6 +171,144 @@ const initialBestPractices: InsertBestPractice[] = [
       "Los mecanismos de retroalimentación continua permiten ajustes oportunos"
     ],
     tags: ["estructura organizacional", "adaptabilidad", "flexibilidad", "Uruguay"]
+  },
+  // === CASOS ESPECÍFICOS DOCUMENTADOS DE PERÚ ===
+  {
+    title: "MineduLAB - Laboratorio de Innovación Educativa",
+    description: "Primer laboratorio de innovación costo-efectiva de la política educativa en Perú, que diseña, implementa y evalúa innovaciones para mejorar el aprendizaje estudiantil",
+    country: "Perú",
+    institution: "Ministerio de Educación - Oficina de Seguimiento y Evaluación Estratégica",
+    year: 2014,
+    sourceUrl: "http://www.minedu.gob.pe/minedulab",
+    sourceType: "institutional",
+    targetCriteria: ["Innovación pública", "Evaluación de impacto", "Metodologías basadas en evidencia", "Laboratorios de gobierno"],
+    results: "14 innovaciones diseñadas, implementadas y evaluadas. Premio Buenas Prácticas en Gestión Pública 2018. Programas como 'Expande tu mente' (Growth Mindset) y 'Decidiendo por un futuro mejor' para reducir deserción escolar",
+    keyLessons: [
+      "Los laboratorios de innovación requieren metodologías rigurosas de evaluación",
+      "Las alianzas con centros de investigación fortalecen la evidencia",
+      "Los programas de bajo costo pueden tener alto impacto si están bien diseñados"
+    ],
+    tags: ["laboratorio de innovación", "educación", "evaluación de impacto", "MineduLAB"]
+  },
+  {
+    title: "TUKUY RIKUY - Sistema de Alerta Temprana Energética",
+    description: "Sistema de alerta temprana para reportar deficiencias en servicios energéticos mediante SMS gratuitos, especialmente en zonas rurales",
+    country: "Perú",
+    institution: "OSINERGMIN - Organismo Supervisor de la Inversión en Energía y Minería",
+    year: 2015,
+    sourceUrl: "https://atenciontukuy.osinergmin.gob.pe/",
+    sourceType: "institutional",
+    targetCriteria: ["Sistemas de alerta", "Inclusión digital", "Supervisión ciudadana", "Tecnologías accesibles"],
+    results: "90.5% de reducción en plazos de atención de interrupciones eléctricas en zonas rurales. 1.5 millones de beneficiarios en 533 localidades. Ahorro de S/48.49 anuales por poblador rural. Premio Especial Innovación Pública 2018",
+    keyLessons: [
+      "Los SMS son tecnología accesible para poblaciones rurales sin smartphones",
+      "Las alianzas con actores locales (gestores de tambos, docentes) amplían la cobertura",
+      "Los sistemas de alerta deben incluir seguimiento hasta el cierre del caso"
+    ],
+    tags: ["alerta temprana", "SMS", "energía", "zonas rurales", "TUKUY RIKUY"]
+  },
+  {
+    title: "Siembra y Cosecha de Agua - FONCODES",
+    description: "Programa que combate la pobreza extrema rural mediante tecnologías ancestrales de gestión hídrica adaptadas al cambio climático",
+    country: "Perú",
+    institution: "FONCODES - Fondo de Cooperación para el Desarrollo Social",
+    year: 2012,
+    sourceUrl: "https://www.gob.pe/foncodes",
+    sourceType: "institutional",
+    targetCriteria: ["Adaptación climática", "Tecnologías ancestrales", "Seguridad hídrica", "Desarrollo rural"],
+    results: "197 familias beneficiadas inicialmente, 411,700 m³ de agua almacenada, 400,000 m² irrigados. Evaluación GRADE: 35% aumento en ingresos por servicios, ratio costo-beneficio de 2.8. S/743 millones invertidos desde 2012",
+    keyLessons: [
+      "Las tecnologías ancestrales pueden ser altamente efectivas para adaptación climática",
+      "La metodología 'campesino a campesino' facilita la transferencia de conocimientos",
+      "Los programas integrales (agua + producción + capacitación) maximizan el impacto"
+    ],
+    tags: ["siembra y cosecha de agua", "tecnologías ancestrales", "cambio climático", "qochas"]
+  },
+  {
+    title: "Registro Civil Bilingüe - RENIEC",
+    description: "Primer sistema de registro civil bilingüe de América Latina que atiende en 12 lenguas originarias, eliminando barreras culturales e idiomáticas",
+    country: "Perú",
+    institution: "RENIEC - Registro Nacional de Identificación y Estado Civil",
+    year: 2014,
+    sourceUrl: "https://www.reniec.gob.pe/portal/html/registro-civil-bilingue/",
+    sourceType: "institutional",
+    targetCriteria: ["Inclusión cultural", "Derechos lingüísticos", "Interculturalidad", "Modernización de servicios"],
+    results: "780 oficinas implementadas a nivel nacional. 12 lenguas indígenas disponibles incluyendo Quechua, Aimara, Awajún, Shipibo, entre otras. Más de 5 millones de peruanos potencialmente beneficiados",
+    keyLessons: [
+      "Los servicios bilingües requieren validación cultural con las comunidades usuarias",
+      "La capacitación especializada del personal es fundamental para la calidad del servicio",
+      "Los sistemas híbridos (digital/manual) permiten cobertura en zonas sin conectividad"
+    ],
+    tags: ["registro civil bilingüe", "lenguas originarias", "interculturalidad", "RENIEC"]
+  },
+  {
+    title: "Saberes Productivos - Pensión 65",
+    description: "Innovación social que revalora a adultos mayores a través de sus saberes ancestrales, promoviendo transferencia intergeneracional de conocimientos",
+    country: "Perú",
+    institution: "Programa Nacional de Asistencia Solidaria Pensión 65 - MIDIS",
+    year: 2013,
+    sourceUrl: "https://www.pension65.gob.pe/",
+    sourceType: "institutional",
+    targetCriteria: ["Innovación social", "Inclusión del adulto mayor", "Saberes ancestrales", "Articulación intergubernamental"],
+    results: "95.5% de participantes declaró sentirse muy feliz o feliz. 9 de cada 10 consideró que mejoró su estado de ánimo. Museo de Saberes Ancestrales 'Apu Tinka' inaugurado en 2018. Modelo replicado en Colombia",
+    keyLessons: [
+      "La articulación con gobiernos locales desde el inicio es clave para la sostenibilidad",
+      "Los adultos mayores poseen conocimientos valiosos que pueden beneficiar a toda la comunidad",
+      "Los programas de transferencia intergeneracional fortalecen la identidad cultural"
+    ],
+    tags: ["saberes productivos", "adulto mayor", "transferencia intergeneracional", "Pensión 65"]
+  },
+  {
+    title: "Sistema MasiGas - Masificación del Gas Natural",
+    description: "Plataforma tecnológica integral para facilitar el acceso ciudadano al gas natural con información permanente y procedimientos seguros",
+    country: "Perú",
+    institution: "OSINERGMIN - Organismo Supervisor de la Inversión en Energía y Minería",
+    year: 2016,
+    sourceUrl: "http://www.osinergmin.gob.pe/empresas/gas_natural/sistema-masigas",
+    sourceType: "institutional",
+    targetCriteria: ["Plataformas digitales", "Transparencia regulatoria", "Acceso a servicios", "Competencia de mercado"],
+    results: "102% de incremento de empresas instaladoras (2016-2018). 15% de reducción en precio de instalación interna. Reconocido como Buena Práctica en Gestión Pública 2018",
+    keyLessons: [
+      "Las plataformas digitales pueden promover competencia y reducir precios",
+      "La información transparente empodera a los ciudadanos para tomar mejores decisiones",
+      "Los registros de proveedores certificados mejoran la calidad y seguridad del servicio"
+    ],
+    tags: ["MasiGas", "gas natural", "plataformas digitales", "competencia"]
+  },
+  {
+    title: "Convenio Marco de Contrataciones - Perú Compras",
+    description: "Sistema de catálogos electrónicos que moderniza las contrataciones del Estado mediante acuerdos marco con proveedores preseleccionados",
+    country: "Perú",
+    institution: "PERÚ COMPRAS - Central de Compras Públicas",
+    year: 2010,
+    sourceUrl: "https://www.gob.pe/perucompras",
+    sourceType: "institutional",
+    targetCriteria: ["Modernización del Estado", "Eficiencia en compras", "Transparencia", "Digitalización"],
+    results: "41 catálogos electrónicos correspondientes a 25 acuerdos marco vigentes. Formalización contractual en 1 día con 3 pasos. Reducción significativa en costos de procedimientos",
+    keyLessons: [
+      "Los catálogos electrónicos simplifican radicalmente los procesos de compra",
+      "Los acuerdos marco previos facilitan la contratación ágil y transparente",
+      "La competencia entre proveedores en plataformas digitales reduce precios"
+    ],
+    tags: ["convenio marco", "contrataciones públicas", "catálogos electrónicos", "Perú Compras"]
+  },
+  // === CASOS ADICIONALES LATINOAMERICANOS ===
+  {
+    title: "Sistema Único de Beneficiarios (SIUBEN) - República Dominicana",
+    description: "Sistema que identifica y categoriza personas en situación de vulnerabilidad para asegurar acceso a programas sociales y subsidios monetarios",
+    country: "República Dominicana",
+    institution: "Sistema Único de Beneficiarios",
+    year: 2004,
+    sourceUrl: "https://siuben.gob.do/",
+    sourceType: "institutional",
+    targetCriteria: ["Focalización de beneficiarios", "Sistemas de información social", "Transparencia", "Articulación de programas"],
+    results: "Identificación sistemática de hogares vulnerables, mejora en focalización de programas sociales, reducción de duplicidad de beneficiarios, portal de transparencia activo",
+    keyLessons: [
+      "Los registros únicos evitan duplicidades y mejoran la focalización",
+      "La transparencia en los registros de beneficiarios genera confianza ciudadana",
+      "Los sistemas de categorización permiten graduar las intervenciones según vulnerabilidad"
+    ],
+    tags: ["SIUBEN", "focalización", "beneficiarios", "República Dominicana"]
   }
 ];
 
