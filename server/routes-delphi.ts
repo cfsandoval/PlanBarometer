@@ -106,7 +106,7 @@ export function registerDelphiRoutes(app: Express) {
       let groups;
       if (req.user!.role === 'admin') {
         // Admin can see all groups
-        groups = await storage.getGroupsByCoordinator(0); // Get all groups
+        groups = await storage.getAllGroups();
       } else if (req.user!.role === 'coordinator') {
         // Coordinators see their groups
         groups = await storage.getGroupsByCoordinator(req.user!.id);

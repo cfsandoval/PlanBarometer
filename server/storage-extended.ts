@@ -49,6 +49,7 @@ export interface IExtendedStorage {
   // Group management
   getGroup(id: number): Promise<Group | undefined>;
   getGroupByCode(code: string): Promise<Group | undefined>;
+  getAllGroups(): Promise<Group[]>;
   createGroup(group: InsertGroup): Promise<Group>;
   updateGroup(id: number, group: Partial<InsertGroup>): Promise<Group | undefined>;
   deleteGroup(id: number): Promise<boolean>;
@@ -161,6 +162,10 @@ export class DatabaseStorage implements IExtendedStorage {
   async getGroupByCode(code: string): Promise<Group | undefined> {
     const [group] = await db.select().from(groups).where(eq(groups.code, code));
     return group;
+  }
+
+  async getAllGroups(): Promise<Group[]> {
+    return await db.select().from(groups).where(eq(groups.isActive, true));
   }
 
   async createGroup(group: InsertGroup): Promise<Group> {

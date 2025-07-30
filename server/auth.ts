@@ -59,30 +59,25 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 }
 
-// Role-based authorization middleware
-export function requireRole(roles: string[]) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+// Admin access middleware
+export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  await requireAuth(req, res, () => {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
     }
-
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        error: 'Insufficient permissions',
-        required: roles,
-        current: req.user.role 
-      });
-    }
-
     next();
-  };
+  });
 }
 
-// Admin only middleware
-export const requireAdmin = requireRole(['admin']);
-
-// Coordinator or admin middleware
-export const requireCoordinator = requireRole(['admin', 'coordinator']);
+// Coordinator or admin access middleware
+export async function requireCoordinator(req: Request, res: Response, next: NextFunction) {
+  await requireAuth(req, res, () => {
+    if (!['admin', 'coordinator'].includes(req.user?.role || '')) {
+      return res.status(403).json({ error: 'Coordinator or admin access required' });
+    }
+    next();
+  });
+}
 
 // Authentication helper functions
 export async function hashPassword(password: string): Promise<string> {
@@ -146,7 +141,7 @@ export async function requireGroupAccess(req: Request, res: Response, next: Next
   }
 }
 
-// Study access middleware - checks if user has access to a Delphi study
+// Study access middleware - checks if user has access to a study
 export async function requireStudyAccess(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
@@ -163,8 +158,13 @@ export async function requireStudyAccess(req: Request, res: Response, next: Next
       return next();
     }
 
-    // Check if user has access to the study through group membership
-    const hasAccess = await storage.hasStudyAccess(req.user.id, studyId);
+    // Get study and check group access
+    const study = await storage.getDelphiStudy(studyId);
+    if (!study) {
+      return res.status(404).json({ error: 'Study not found' });
+    }
+
+    const hasAccess = await storage.hasGroupAccess(req.user.id, study.groupId || 0);
     if (!hasAccess) {
       return res.status(403).json({ error: 'Access denied to this study' });
     }

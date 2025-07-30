@@ -243,8 +243,6 @@ export const aggregatedScoreRelations = relations(aggregatedScores, ({ one }) =>
 export const insertGroupSchema = createInsertSchema(groups).pick({
   name: true,
   description: true,
-  code: true,
-  coordinatorId: true,
 });
 
 export const insertDelphiStudySchema = createInsertSchema(delphiStudies).pick({
