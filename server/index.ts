@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { seedBestPractices } from "./seed-best-practices";
 
 const app = express();
 app.use(express.json());
@@ -38,6 +39,18 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+
+  // Seed best practices data on startup if empty
+  try {
+    const { storage } = await import("./storage");
+    const practices = await storage.getAllBestPractices();
+    if (practices.length === 0) {
+      log("No best practices found, seeding database...");
+      await seedBestPractices();
+    }
+  } catch (error) {
+    console.error("Error checking/seeding best practices:", error);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

@@ -98,10 +98,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get best practices by criteria
   app.get("/api/best-practices/criteria", async (req, res) => {
     try {
-      const criteria = req.query.criteria as string[];
-      if (!criteria || !Array.isArray(criteria)) {
-        return res.status(400).json({ message: "Criteria parameter required as array" });
+      const criteriaParam = req.query.criteria as string;
+      if (!criteriaParam) {
+        return res.status(400).json({ message: "Criteria parameter required" });
       }
+      
+      // Split comma-separated criteria
+      const criteria = criteriaParam.split(',').map(c => c.trim()).filter(Boolean);
       
       const practices = await storage.getBestPracticesByCriteria(criteria);
       res.json(practices);
