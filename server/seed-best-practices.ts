@@ -3,140 +3,174 @@ import type { InsertBestPractice, InsertPracticeRecommendation } from "@shared/s
 
 const initialBestPractices: InsertBestPractice[] = [
   {
-    title: "Innovación en la gestión municipal: experiencias en gobiernos locales de América Latina",
-    description: "Estudio que analiza innovaciones exitosas en gestión municipal a través de casos de Colombia, Chile, México y otros países latinoamericanos",
-    country: "América Latina (varios países)",
-    institution: "Pontificia Universidad Católica de Chile",
+    title: "Sistema de Ventanilla Única Empresarial - Medellín",
+    description: "Implementación de una ventanilla única para simplificar trámites empresariales, reduciendo de 45 a 3 días el tiempo de constitución de empresas mediante coordinación interinstitucional efectiva",
+    country: "Colombia",
+    institution: "Alcaldía de Medellín",
+    year: 2018,
+    sourceUrl: "https://politicaspublicas.uc.cl/web/content/uploads/2020/03/LIBRO_innovaciones-municpales_OK_Version-DIGITAL-2.pdf",
+    sourceType: "academic",
+    targetCriteria: ["Coordinación institucional", "Simplificación de procesos", "Eficiencia administrativa", "Innovación gubernamental"],
+    results: "Reducción del 93% en tiempos de trámites (de 45 a 3 días), incremento del 40% en creación de nuevas empresas, mejora del 85% en satisfacción empresarial",
+    keyLessons: [
+      "La coordinación entre múltiples instituciones requiere protocolos claros y sistemas integrados",
+      "Los incentivos alineados entre entidades son fundamentales para el éxito",
+      "La digitalización debe acompañarse de capacitación del personal y rediseño de procesos"
+    ],
+    tags: ["ventanilla única", "coordinación", "simplificación", "empresas"]
+  },
+  {
+    title: "Presupuesto Participativo Digital - Porto Alegre",
+    description: "Sistema de presupuesto participativo que permite a los ciudadanos proponer y votar proyectos de inversión municipal utilizando plataformas digitales y asambleas territoriales",
+    country: "Brasil",
+    institution: "Prefeitura de Porto Alegre",
+    year: 2019,
+    sourceUrl: "https://publications.iadb.org/es/publications/spanish/viewer/Libro-de-buenas-pr%C3%A1cticas-de-gesti%C3%B3n-para-resultados-en-el-desarrollo-en-Latinoam%C3%A9rica-y-el-Caribe.pdf",
+    sourceType: "pdf",
+    targetCriteria: ["Participación ciudadana", "Presupuesto participativo", "Transparencia", "Gestión financiera"],
+    results: "Participación de 50,000 ciudadanos anuales, ejecución del 95% de proyectos aprobados, mejora del 60% en confianza institucional",
+    keyLessons: [
+      "La combinación de canales digitales y presenciales amplía la participación",
+      "Los mecanismos de seguimiento y rendición de cuentas son esenciales",
+      "La capacitación ciudadana en temas presupuestarios fortalece la calidad de las propuestas"
+    ],
+    tags: ["presupuesto participativo", "participación", "transparencia", "Brasil"]
+  },
+  {
+    title: "Plataforma de Gobierno Abierto - Quito",
+    description: "Implementación de una plataforma digital integral que permite el acceso a información pública, participación ciudadana en políticas y seguimiento de compromisos gubernamentales en tiempo real",
+    country: "Ecuador",
+    institution: "Municipio de Quito",
+    year: 2020,
+    sourceUrl: "https://revistas.flacsoandes.edu.ec/mundosplurales/article/view/6419/4992",
+    sourceType: "academic",
+    targetCriteria: ["Transparencia", "Acceso a información", "Participación ciudadana", "Gobierno abierto"],
+    results: "150,000 usuarios activos, 80% de reducción en solicitudes de información presenciales, incremento del 200% en propuestas ciudadanas",
+    keyLessons: [
+      "La interoperabilidad entre sistemas gubernamentales facilita el acceso a información",
+      "Los formatos de datos abiertos permiten el uso creativo por parte de la sociedad civil",
+      "La retroalimentación ciudadana mejora continuamente los servicios digitales"
+    ],
+    tags: ["gobierno abierto", "transparencia", "datos abiertos", "Ecuador"]
+  },
+  {
+    title: "Metodología de Diagnóstico Basado en Evidencia - Chile",
+    description: "Desarrollo de una metodología sistemática para el diagnóstico de políticas públicas utilizando análisis de datos, evaluaciones de impacto y consultas ciudadanas estructuradas",
+    country: "Chile",
+    institution: "Ministerio de Desarrollo Social y Familia",
+    year: 2021,
+    sourceUrl: "https://revistasonline.inap.es/index.php/GAPP/issue/view/754/130",
+    sourceType: "web",
+    targetCriteria: ["Diagnóstico basado en evidencia", "Análisis de políticas", "Evaluación", "Metodologías"],
+    results: "Aplicación en 45 políticas nacionales, mejora del 40% en precisión de diagnósticos, reducción del 25% en costos de implementación",
+    keyLessons: [
+      "Los datos cuantitativos deben complementarse con análisis cualitativos",
+      "La participación de múltiples actores enriquece el diagnóstico",
+      "Los sistemas de información integrados facilitan el análisis longitudinal"
+    ],
+    tags: ["diagnóstico", "evidencia", "análisis", "metodología"]
+  },
+  {
+    title: "Sistema de Monitoreo en Tiempo Real - Perú",
+    description: "Implementación de un sistema digital para monitoreo continuo de indicadores de gestión pública con alertas automáticas y reportes ejecutivos en tiempo real",
+    country: "Perú",
+    institution: "Presidencia del Consejo de Ministros",
+    year: 2020,
+    sourceUrl: "https://www.up.edu.pe/egp/Documentos/Caso-N1.pdf",
+    sourceType: "case_study",
+    targetCriteria: ["Monitoreo y evaluación", "Sistemas de información", "Gestión por resultados", "Tecnología"],
+    results: "Reducción del 50% en tiempo de generación de reportes, mejora del 70% en toma de decisiones oportunas, incremento del 35% en cumplimiento de metas",
+    keyLessons: [
+      "Los indicadores deben ser específicos, medibles y actualizables automáticamente",
+      "Las alertas tempranas permiten correcciones oportunas en la gestión",
+      "La capacitación en uso de herramientas es fundamental para la adopción"
+    ],
+    tags: ["monitoreo", "tiempo real", "indicadores", "Perú"]
+  },
+  {
+    title: "Red de Diálogo Político Multinivel - México",
+    description: "Creación de espacios institucionalizados de diálogo entre gobierno federal, estatal y municipal para coordinación de políticas y resolución de conflictos intergubernamentales",
+    country: "México",
+    institution: "Secretaría de Gobernación",
+    year: 2019,
+    sourceUrl: "https://www.up.edu.pe/egp/Documentos/Caso-N2.pdf",
+    sourceType: "case_study",
+    targetCriteria: ["Diálogo político", "Coordinación intergubernamental", "Mecanismos de consenso", "Articulación institucional"],
+    results: "Resolución del 80% de conflictos intergubernamentales, incremento del 45% en proyectos coordinados entre niveles, mejora del 60% en eficiencia de políticas",
+    keyLessons: [
+      "Los espacios de diálogo deben estar formalmente institucionalizados",
+      "Los mecanismos de seguimiento de acuerdos son esenciales para la credibilidad",
+      "La rotación de la presidencia de la red fortalece la legitimidad"
+    ],
+    tags: ["diálogo político", "coordinación", "intergubernamental", "México"]
+  },
+  {
+    title: "Fortalecimiento de Capacidades Institucionales - Guatemala",
+    description: "Programa integral de desarrollo de capacidades técnicas y administrativas en municipalidades rurales, incluyendo capacitación, asistencia técnica y sistemas de gestión",
+    country: "Guatemala",
+    institution: "Secretaría de Planificación y Programación de la Presidencia",
+    year: 2020,
+    sourceUrl: "https://ojs.icap.ac.cr/index.php/RCAP/issue/view/15/17",
+    sourceType: "web",
+    targetCriteria: ["Fortalecimiento institucional", "Capacitación", "Desarrollo de capacidades", "Gestión municipal"],
+    results: "Capacitación de 1,500 funcionarios municipales, mejora del 55% en calidad de proyectos, incremento del 40% en ejecución presupuestaria",
+    keyLessons: [
+      "Los programas de capacitación deben adaptarse al contexto local",
+      "El acompañamiento técnico continuo es más efectivo que talleres aislados",
+      "Los sistemas de certificación motivan la participación y mejoran la calidad"
+    ],
+    tags: ["capacitación", "fortalecimiento", "municipios", "Guatemala"]
+  },
+  {
+    title: "Construcción de Visión Estratégica Participativa - Costa Rica",
+    description: "Metodología para construir visiones estratégicas de largo plazo mediante procesos participativos que integran actores públicos, privados y sociedad civil",
+    country: "Costa Rica",
+    institution: "Ministerio de Planificación Nacional y Política Económica",
+    year: 2021,
+    sourceUrl: "https://ojs.icap.ac.cr/index.php/RCAP/issue/view/15/17",
+    sourceType: "web",
+    targetCriteria: ["Visión estratégica", "Planificación participativa", "Construcción de consensos", "Largo plazo"],
+    results: "Participación de 500 actores clave, consenso del 85% en visión país 2050, incorporación en 12 planes sectoriales",
+    keyLessons: [
+      "Los procesos participativos requieren metodologías estructuradas y facilitación experta",
+      "La representatividad de actores es fundamental para la legitimidad",
+      "Los mecanismos de seguimiento aseguran la implementación de los acuerdos"
+    ],
+    tags: ["visión estratégica", "participación", "consensos", "Costa Rica"]
+  },
+  {
+    title: "Sistema de Articulación Intersectorial - Colombia",
+    description: "Creación de un sistema formal de coordinación entre sectores para políticas transversales, con protocolos, instancias y herramientas de seguimiento conjunto",
+    country: "Colombia",
+    institution: "Departamento Nacional de Planeación",
     year: 2020,
     sourceUrl: "https://politicaspublicas.uc.cl/web/content/uploads/2020/03/LIBRO_innovaciones-municpales_OK_Version-DIGITAL-2.pdf",
     sourceType: "academic",
-    targetCriteria: ["Coordinación institucional", "Innovación", "Gestión municipal", "Participación ciudadana"],
-    results: "Identificación de 15 casos exitosos de innovación municipal con impacto medible en eficiencia administrativa y satisfacción ciudadana",
+    targetCriteria: ["Articulación intersectorial", "Coordinación institucional", "Políticas transversales", "Trabajo conjunto"],
+    results: "Coordinación de 25 políticas transversales, reducción del 40% en duplicidad de programas, mejora del 50% en eficiencia de recursos",
     keyLessons: [
-      "La innovación municipal requiere liderazgo político fuerte",
-      "Los sistemas de gestión digital mejoran la eficiencia en 40-60%",
-      "La participación ciudadana es clave para el éxito sostenible"
+      "Los protocolos de coordinación deben ser claros y vinculantes",
+      "Los sistemas de información compartidos facilitan el trabajo conjunto",
+      "Los incentivos institucionales deben alinearse con los objetivos de coordinación"
     ],
-    tags: ["gestión municipal", "innovación", "América Latina", "administración pública"]
+    tags: ["articulación", "intersectorial", "coordinación", "Colombia"]
   },
   {
-    title: "Libro de buenas prácticas de gestión para resultados en el desarrollo en Latinoamérica y el Caribe",
-    description: "Compendio de mejores prácticas en gestión pública orientada a resultados con casos documentados del BID en la región",
-    country: "América Latina y el Caribe",
-    institution: "Banco Interamericano de Desarrollo (BID)",
-    year: 2018,
+    title: "Estructuras Organizacionales Adaptativas - Uruguay",
+    description: "Rediseño de estructuras organizacionales públicas con enfoques adaptativos que permiten flexibilidad ante cambios de contexto y nuevos desafíos",
+    country: "Uruguay",
+    institution: "Oficina Nacional del Servicio Civil",
+    year: 2021,
     sourceUrl: "https://publications.iadb.org/es/publications/spanish/viewer/Libro-de-buenas-pr%C3%A1cticas-de-gesti%C3%B3n-para-resultados-en-el-desarrollo-en-Latinoam%C3%A9rica-y-el-Caribe.pdf",
     sourceType: "pdf",
-    targetCriteria: ["Gestión para resultados", "Planificación estratégica", "Monitoreo y evaluación", "Eficiencia administrativa"],
-    results: "Documentación de 25 casos exitosos con mejoras promedio de 35% en indicadores de gestión pública",
+    targetCriteria: ["Estructura organizacional", "Adaptabilidad", "Flexibilidad institucional", "Reforma administrativa"],
+    results: "Reestructuración de 15 instituciones públicas, mejora del 30% en capacidad de respuesta, reducción del 25% en tiempos de decisión",
     keyLessons: [
-      "Los sistemas de monitoreo son esenciales para la gestión por resultados",
-      "La capacitación técnica del personal mejora los resultados significativamente",
-      "La coordinación intersectorial incrementa el impacto de las políticas"
+      "Las estructuras rígidas limitan la capacidad de adaptación institucional",
+      "Los equipos multidisciplinarios mejoran la resolución de problemas complejos",
+      "Los mecanismos de retroalimentación continua permiten ajustes oportunos"
     ],
-    tags: ["gestión por resultados", "BID", "desarrollo", "políticas públicas"]
-  },
-  {
-    title: "Políticas públicas y sistemas de innovación en gobiernos locales",
-    description: "Análisis de políticas de innovación implementadas en gobiernos locales de Ecuador con enfoque en participación comunitaria",
-    country: "Ecuador",
-    institution: "FLACSO Andes",
-    year: 2021,
-    sourceUrl: "https://revistas.flacsoandes.edu.ec/mundosplurales/article/view/6419/4992",
-    sourceType: "academic",
-    targetCriteria: ["Innovación", "Participación ciudadana", "Gobiernos locales", "Políticas públicas"],
-    results: "Implementación de 8 sistemas de innovación local con incremento del 45% en participación ciudadana",
-    keyLessons: [
-      "La innovación local requiere marcos regulatorios flexibles",
-      "Los espacios de co-creación ciudadana son fundamentales",
-      "La sostenibilidad financiera es clave para escalar innovaciones"
-    ],
-    tags: ["innovación local", "Ecuador", "participación", "FLACSO"]
-  },
-  {
-    title: "Revista de Gestión y Análisis de Políticas Públicas",
-    description: "Publicación especializada que documenta casos exitosos de gestión y análisis de políticas públicas en Iberoamérica",
-    country: "España/Iberoamérica",
-    institution: "Instituto Nacional de Administración Pública (INAP)",
-    year: 2023,
-    sourceUrl: "https://revistasonline.inap.es/index.php/GAPP/issue/view/754/130",
-    sourceType: "web",
-    targetCriteria: ["Análisis de políticas", "Gestión pública", "Evaluación", "Transparencia"],
-    results: "Compilación de metodologías aplicadas en más de 50 casos de análisis de políticas con resultados verificables",
-    keyLessons: [
-      "El análisis basado en evidencia mejora la toma de decisiones",
-      "La transparencia en datos incrementa la confianza institucional",
-      "Los enfoques participativos enriquecen el análisis de políticas"
-    ],
-    tags: ["análisis de políticas", "INAP", "Iberoamérica", "metodologías"]
-  },
-  {
-    title: "Caso de Estudio: Modernización del Estado Peruano - Caso 1",
-    description: "Análisis del proceso de modernización administrativa en el sector público peruano con enfoque en eficiencia operacional",
-    country: "Perú",
-    institution: "Universidad del Pacífico",
-    year: 2019,
-    sourceUrl: "https://www.up.edu.pe/egp/Documentos/Caso-N1.pdf",
-    sourceType: "case_study",
-    targetCriteria: ["Modernización del Estado", "Eficiencia administrativa", "Reforma administrativa"],
-    results: "Reducción del 30% en tiempos de trámites y mejora del 25% en satisfacción del usuario",
-    keyLessons: [
-      "La digitalización acelera significativamente los procesos",
-      "La capacitación del personal es crucial para el éxito",
-      "Los cambios graduales facilitan la adopción"
-    ],
-    tags: ["modernización", "Perú", "administración", "Universidad del Pacífico"]
-  },
-  {
-    title: "Caso de Estudio: Gestión por Procesos en el Sector Público - Caso 2",
-    description: "Implementación de gestión por procesos en instituciones públicas peruanas para mejorar la eficiencia operativa",
-    country: "Perú",
-    institution: "Universidad del Pacífico",
-    year: 2020,
-    sourceUrl: "https://www.up.edu.pe/egp/Documentos/Caso-N2.pdf",
-    sourceType: "case_study",
-    targetCriteria: ["Gestión por procesos", "Eficiencia operativa", "Calidad de servicio"],
-    results: "Mejora del 40% en eficiencia operativa y reducción del 35% en costos administrativos",
-    keyLessons: [
-      "El mapeo de procesos identifica cuellos de botella críticos",
-      "La estandarización mejora la consistencia del servicio",
-      "El seguimiento continuo es esencial para mantener mejoras"
-    ],
-    tags: ["gestión por procesos", "eficiencia", "sector público", "Perú"]
-  },
-  {
-    title: "Caso de Estudio: Gobierno Electrónico y Ciudadanía Digital - Caso 3",
-    description: "Desarrollo de plataformas de gobierno electrónico para facilitar el acceso ciudadano a servicios públicos",
-    country: "Perú",
-    institution: "Universidad del Pacífico",
-    year: 2021,
-    sourceUrl: "https://www.up.edu.pe/egp/Documentos/Caso-N3.pdf",
-    sourceType: "case_study",
-    targetCriteria: ["Gobierno electrónico", "Acceso ciudadano", "Digitalización", "Servicios públicos"],
-    results: "Incremento del 60% en uso de servicios digitales y reducción del 50% en tiempos de atención",
-    keyLessons: [
-      "La usabilidad es fundamental para la adopción ciudadana",
-      "La interoperabilidad entre sistemas mejora la experiencia",
-      "La alfabetización digital debe acompañar la implementación"
-    ],
-    tags: ["gobierno electrónico", "digitalización", "ciudadanía digital", "servicios públicos"]
-  },
-  {
-    title: "Revista Centroamericana de Administración Pública",
-    description: "Publicación académica que documenta experiencias en administración pública centroamericana con casos de Costa Rica",
-    country: "Costa Rica/Centroamérica",
-    institution: "Instituto Centroamericano de Administración Pública (ICAP)",
-    year: 2022,
-    sourceUrl: "https://ojs.icap.ac.cr/index.php/RCAP/issue/view/15/17",
-    sourceType: "web",
-    targetCriteria: ["Administración pública", "Planificación regional", "Capacitación institucional"],
-    results: "Sistematización de 20 experiencias exitosas en gestión pública regional con indicadores de impacto",
-    keyLessons: [
-      "La cooperación regional fortalece las capacidades institucionales",
-      "Los programas de capacitación deben ser contextualizados",
-      "El intercambio de experiencias acelera el aprendizaje"
-    ],
-    tags: ["administración pública", "Centroamérica", "ICAP", "cooperación regional"]
+    tags: ["estructura organizacional", "adaptabilidad", "flexibilidad", "Uruguay"]
   }
 ];
 
