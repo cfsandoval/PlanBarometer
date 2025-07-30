@@ -124,72 +124,290 @@ export class MemStorage implements IStorage {
     console.log(`Searching for criteria: ${JSON.stringify(criteria)}`);
     console.log(`Total practices available: ${allPractices.length}`);
     
+    if (allPractices.length > 0) {
+      console.log('Sample practice target criteria:', allPractices[0].targetCriteria);
+    }
+    
     const matchedPractices = allPractices.filter(practice => {
-      // More flexible matching approach
-      return criteria.some(criterion => {
+      // Very aggressive matching - if ANY criterion word appears ANYWHERE, include it
+      const match = criteria.some(criterion => {
         const lowerCriterion = criterion.toLowerCase().trim();
+        console.log(`\nChecking criterion: "${criterion}"`);
+        console.log(`Practice: "${practice.title}"`);
+        console.log(`Target criteria: ${JSON.stringify(practice.targetCriteria)}`);
         
-        // Check target criteria with flexible matching
-        const targetMatch = practice.targetCriteria.some(target => {
-          const lowerTarget = target.toLowerCase().trim();
-          return lowerTarget.includes(lowerCriterion) || 
-                 lowerCriterion.includes(lowerTarget) ||
-                 // Check for similar terms
-                 this.areRelatedTerms(lowerCriterion, lowerTarget);
+        // Split both the search criterion and each target criterion into words
+        const searchWords = lowerCriterion.split(/[\s\-]+/).filter(word => word.length > 2);
+        console.log(`Search words: ${JSON.stringify(searchWords)}`);
+        
+        // Check each search word against all content
+        const hasMatch = searchWords.some(searchWord => {
+          // 1. Check if the search word appears in target criteria
+          const targetMatch = practice.targetCriteria.some(target => {
+            const targetWords = target.toLowerCase().split(/[\s\-]+/);
+            const directMatch = targetWords.some(targetWord => 
+              targetWord.includes(searchWord) || 
+              searchWord.includes(targetWord) ||
+              this.areRelatedTerms(searchWord, targetWord)
+            );
+            if (directMatch) console.log(`  Target match: "${searchWord}" in "${target}"`);
+            return directMatch;
+          });
+          
+          // 2. Check title
+          const titleMatch = practice.title.toLowerCase().includes(searchWord);
+          if (titleMatch) console.log(`  Title match: "${searchWord}" in title`);
+          
+          // 3. Check description
+          const descMatch = practice.description.toLowerCase().includes(searchWord);
+          if (descMatch) console.log(`  Description match: "${searchWord}" in description`);
+          
+          // 4. Check tags
+          const tagMatch = practice.tags?.some(tag => 
+            tag.toLowerCase().includes(searchWord)
+          ) || false;
+          if (tagMatch) console.log(`  Tag match: "${searchWord}" in tags`);
+          
+          // 5. Check for semantic matches
+          const semanticMatch = this.hasSemanticMatch(searchWord, practice);
+          if (semanticMatch) console.log(`  Semantic match: "${searchWord}"`);
+          
+          return targetMatch || titleMatch || descMatch || tagMatch || semanticMatch;
         });
         
-        // Check title and description for broader context
-        const titleMatch = practice.title.toLowerCase().includes(lowerCriterion);
-        const descMatch = practice.description.toLowerCase().includes(lowerCriterion);
-        
-        // Check tags if available
-        const tagMatch = practice.tags ? practice.tags.some(tag => 
-          tag.toLowerCase().includes(lowerCriterion) || 
-          lowerCriterion.includes(tag.toLowerCase())
-        ) : false;
-        
-        const isMatch = targetMatch || titleMatch || descMatch || tagMatch;
-        if (isMatch) {
-          console.log(`Practice "${practice.title}" matches criterion "${criterion}"`);
-        }
-        
-        return isMatch;
+        console.log(`  Result: ${hasMatch ? 'MATCH' : 'NO MATCH'}`);
+        return hasMatch;
       });
+      
+      return match;
     });
     
     console.log(`Found ${matchedPractices.length} matching practices`);
     return matchedPractices;
   }
 
-  private areRelatedTerms(term1: string, term2: string): boolean {
-    const relatedTermsMap: Record<string, string[]> = {
-      'coordinación': ['coordinacion', 'coordination', 'intersectorial', 'institutional'],
-      'coordinacion': ['coordinación', 'coordination', 'intersectorial', 'institutional'],
-      'coordination': ['coordinación', 'coordinacion', 'intersectorial', 'institutional'],
-      'planificación': ['planificacion', 'planning', 'plan', 'estratégica', 'estrategica'],
-      'planificacion': ['planificación', 'planning', 'plan', 'estratégica', 'estrategica'],
-      'planning': ['planificación', 'planificacion', 'plan', 'estratégica', 'estrategica'],
-      'gestión': ['gestion', 'management', 'administración', 'administracion'],
-      'gestion': ['gestión', 'management', 'administración', 'administracion'],
-      'management': ['gestión', 'gestion', 'administración', 'administracion'],
-      'monitoreo': ['monitoring', 'seguimiento', 'evaluación', 'evaluacion'],
-      'monitoring': ['monitoreo', 'seguimiento', 'evaluación', 'evaluacion'],
-      'participación': ['participacion', 'participation', 'ciudadana', 'ciudadano'],
-      'participacion': ['participación', 'participation', 'ciudadana', 'ciudadano'],
-      'participation': ['participación', 'participacion', 'ciudadana', 'ciudadano'],
-      'innovación': ['innovacion', 'innovation', 'modernización', 'modernizacion'],
-      'innovacion': ['innovación', 'innovation', 'modernización', 'modernizacion'],
-      'innovation': ['innovación', 'innovacion', 'modernización', 'modernizacion'],
-      'transparencia': ['transparency', 'accountabilidad', 'accountability'],
-      'transparency': ['transparencia', 'accountabilidad', 'accountability'],
-      'eficiencia': ['efficiency', 'efectividad', 'effectiveness'],
-      'efficiency': ['eficiencia', 'efectividad', 'effectiveness']
+  private hasSemanticMatch(searchWord: string, practice: BestPractice): boolean {
+    // Broad semantic matching for common planning concepts
+    const semanticMappings: Record<string, string[]> = {
+      'evidence': ['análisis', 'datos', 'información', 'estudio', 'investigación', 'evaluación'],
+      'diagnosis': ['diagnóstico', 'análisis', 'evaluación', 'estudio', 'investigación'],
+      'capacity': ['capacidad', 'fortalecimiento', 'desarrollo', 'competencia', 'habilidad'],
+      'budget': ['presupuesto', 'financiero', 'recursos', 'económico', 'fiscal'],
+      'budgetary': ['presupuestario', 'presupuestaria', 'financiero', 'recursos'],
+      'financial': ['financiero', 'presupuesto', 'recursos', 'económico'],
+      'vision': ['visión', 'estrategia', 'objetivo', 'meta', 'propósito', 'planificación'],
+      'visión': ['vision', 'estrategia', 'objetivo', 'meta', 'propósito', 'planificación'],
+      'shared': ['compartida', 'común', 'colectiva', 'conjunta', 'participativa'],
+      'compartida': ['shared', 'común', 'colectiva', 'conjunta', 'participativa'],
+      'construction': ['construcción', 'desarrollo', 'creación', 'formación', 'planificación'],
+      'construcción': ['construction', 'desarrollo', 'creación', 'formación', 'planificación'],
+      'participation': ['participación', 'ciudadana', 'actores', 'involucrados'],
+      'stakeholders': ['actores', 'partes', 'interesados', 'ciudadanos'],
+      'actors': ['actores', 'partes', 'interesados', 'participantes'],
+      'key': ['clave', 'importante', 'principal', 'fundamental'],
+      'planning': ['planificación', 'plan', 'estrategia', 'programación'],
+      'management': ['gestión', 'administración', 'dirección', 'organización'],
+      'public': ['público', 'gubernamental', 'estatal', 'gobierno'],
+      'government': ['gobierno', 'gubernamental', 'público', 'estatal'],
+      'institutional': ['institucional', 'organización', 'coordinación'],
+      'coordination': ['coordinación', 'articulación', 'intersectorial'],
+      'innovation': ['innovación', 'modernización', 'mejora', 'reforma'],
+      'evaluation': ['evaluación', 'monitoreo', 'seguimiento', 'análisis'],
+      'monitoring': ['monitoreo', 'seguimiento', 'evaluación', 'control']
     };
 
+    const relatedTerms = semanticMappings[searchWord] || [];
+    const allPracticeText = `${practice.title} ${practice.description} ${practice.targetCriteria.join(' ')} ${practice.tags?.join(' ') || ''}`.toLowerCase();
+    
+    return relatedTerms.some(term => allPracticeText.includes(term));
+  }
+
+  private areRelatedTerms(term1: string, term2: string): boolean {
+    // Comprehensive mapping of related planning terms
+    const relatedTermsMap: Record<string, string[]> = {
+      // Core planning terms
+      'planificación': ['planificacion', 'planning', 'plan', 'estratégica', 'estrategica', 'estratégico', 'estrategico', 'programación', 'programacion'],
+      'planificacion': ['planificación', 'planning', 'plan', 'estratégica', 'estrategica', 'estratégico', 'estrategico', 'programación', 'programacion'],
+      'planning': ['planificación', 'planificacion', 'plan', 'estratégica', 'estrategica', 'estratégico', 'estrategico', 'programación', 'programacion'],
+      
+      // Management and administration
+      'gestión': ['gestion', 'management', 'administración', 'administracion', 'dirección', 'direccion', 'organización', 'organizacion'],
+      'gestion': ['gestión', 'management', 'administración', 'administracion', 'dirección', 'direccion', 'organización', 'organizacion'],
+      'management': ['gestión', 'gestion', 'administración', 'administracion', 'dirección', 'direccion', 'organización', 'organizacion'],
+      'administración': ['administracion', 'gestión', 'gestion', 'management', 'pública', 'publica', 'gubernamental'],
+      'administracion': ['administración', 'gestión', 'gestion', 'management', 'pública', 'publica', 'gubernamental'],
+      
+      // Coordination and institutional
+      'coordinación': ['coordinacion', 'coordination', 'intersectorial', 'institutional', 'articulación', 'articulacion', 'interinstitucional'],
+      'coordinacion': ['coordinación', 'coordination', 'intersectorial', 'institutional', 'articulación', 'articulacion', 'interinstitucional'],
+      'coordination': ['coordinación', 'coordinacion', 'intersectorial', 'institutional', 'articulación', 'articulacion', 'interinstitucional'],
+      'institucional': ['institutional', 'interinstitucional', 'coordinación', 'coordinacion', 'organización', 'organizacion'],
+      'institutional': ['institucional', 'interinstitucional', 'coordinación', 'coordinacion', 'organización', 'organizacion'],
+      
+      // Monitoring and evaluation
+      'monitoreo': ['monitoring', 'seguimiento', 'evaluación', 'evaluacion', 'control', 'supervisión', 'supervision'],
+      'monitoring': ['monitoreo', 'seguimiento', 'evaluación', 'evaluacion', 'control', 'supervisión', 'supervision'],
+      'evaluación': ['evaluacion', 'evaluation', 'monitoreo', 'monitoring', 'seguimiento', 'análisis', 'analisis'],
+      'evaluacion': ['evaluación', 'evaluation', 'monitoreo', 'monitoring', 'seguimiento', 'análisis', 'analisis'],
+      'evaluation': ['evaluación', 'evaluacion', 'monitoreo', 'monitoring', 'seguimiento', 'análisis', 'analisis'],
+      'seguimiento': ['monitoring', 'monitoreo', 'evaluación', 'evaluacion', 'control', 'supervisión', 'supervision'],
+      
+      // Participation and stakeholders
+      'participación': ['participacion', 'participation', 'ciudadana', 'ciudadano', 'actores', 'stakeholders', 'involucrar', 'consulta'],
+      'participacion': ['participación', 'participation', 'ciudadana', 'ciudadano', 'actores', 'stakeholders', 'involucrar', 'consulta'],
+      'participation': ['participación', 'participacion', 'ciudadana', 'ciudadano', 'actores', 'stakeholders', 'involucrar', 'consulta'],
+      'actores': ['stakeholders', 'participación', 'participacion', 'ciudadanos', 'involucrados', 'partes', 'interesados'],
+      'stakeholders': ['actores', 'participación', 'participacion', 'ciudadanos', 'involucrados', 'partes', 'interesados'],
+      'ciudadana': ['ciudadano', 'participación', 'participacion', 'participation', 'civil', 'comunitaria', 'comunitario'],
+      'ciudadano': ['ciudadana', 'participación', 'participacion', 'participation', 'civil', 'comunitaria', 'comunitario'],
+      
+      // Innovation and modernization
+      'innovación': ['innovacion', 'innovation', 'modernización', 'modernizacion', 'mejora', 'reforma', 'transformación', 'transformacion'],
+      'innovacion': ['innovación', 'innovation', 'modernización', 'modernizacion', 'mejora', 'reforma', 'transformación', 'transformacion'],
+      'innovation': ['innovación', 'innovacion', 'modernización', 'modernizacion', 'mejora', 'reforma', 'transformación', 'transformacion'],
+      'modernización': ['modernizacion', 'modernization', 'innovación', 'innovacion', 'reforma', 'mejora', 'transformación', 'transformacion'],
+      'modernizacion': ['modernización', 'modernization', 'innovación', 'innovacion', 'reforma', 'mejora', 'transformación', 'transformacion'],
+      
+      // Transparency and accountability
+      'transparencia': ['transparency', 'accountabilidad', 'accountability', 'rendición', 'cuentas', 'acceso', 'información', 'informacion'],
+      'transparency': ['transparencia', 'accountabilidad', 'accountability', 'rendición', 'cuentas', 'acceso', 'información', 'informacion'],
+      'accountability': ['transparencia', 'transparency', 'rendición', 'cuentas', 'responsabilidad', 'accountabilidad'],
+      
+      // Efficiency and effectiveness
+      'eficiencia': ['efficiency', 'efectividad', 'effectiveness', 'productividad', 'rendimiento', 'optimización', 'optimizacion'],
+      'efficiency': ['eficiencia', 'efectividad', 'effectiveness', 'productividad', 'rendimiento', 'optimización', 'optimizacion'],
+      'efectividad': ['effectiveness', 'eficiencia', 'efficiency', 'resultados', 'impacto', 'logro'],
+      'effectiveness': ['efectividad', 'eficiencia', 'efficiency', 'resultados', 'impacto', 'logro'],
+      
+      // Capacity and capabilities
+      'capacidad': ['capacity', 'capability', 'competencia', 'habilidad', 'fortalecimiento', 'desarrollo'],
+      'capacity': ['capacidad', 'capability', 'competencia', 'habilidad', 'fortalecimiento', 'desarrollo'],
+      'capability': ['capacidad', 'capacity', 'competencia', 'habilidad', 'fortalecimiento', 'desarrollo'],
+      'fortalecimiento': ['strengthening', 'capacity', 'capacidad', 'desarrollo', 'mejora', 'consolidación', 'consolidacion'],
+      
+      // Budgeting and resources
+      'presupuestaria': ['presupuestario', 'budget', 'budgetary', 'presupuesto', 'financiera', 'financiero', 'recursos'],
+      'presupuestario': ['presupuestaria', 'budget', 'budgetary', 'presupuesto', 'financiera', 'financiero', 'recursos'],
+      'presupuesto': ['budget', 'presupuestaria', 'presupuestario', 'financiera', 'financiero', 'recursos', 'fiscal'],
+      'budget': ['presupuesto', 'presupuestaria', 'presupuestario', 'financiera', 'financiero', 'recursos', 'fiscal'],
+      'financiera': ['financiero', 'financial', 'presupuestaria', 'presupuestario', 'recursos', 'económica', 'economica'],
+      'financiero': ['financiera', 'financial', 'presupuestaria', 'presupuestario', 'recursos', 'económica', 'economica'],
+      
+      // Diagnosis and analysis
+      'diagnóstico': ['diagnostico', 'diagnosis', 'análisis', 'analisis', 'evaluation', 'evaluación', 'evaluacion', 'estudio'],
+      'diagnostico': ['diagnóstico', 'diagnosis', 'análisis', 'analisis', 'evaluation', 'evaluación', 'evaluacion', 'estudio'],
+      'diagnosis': ['diagnóstico', 'diagnostico', 'análisis', 'analisis', 'evaluation', 'evaluación', 'evaluacion', 'estudio'],
+      'análisis': ['analisis', 'analysis', 'diagnóstico', 'diagnostico', 'estudio', 'evaluación', 'evaluacion'],
+      'analisis': ['análisis', 'analysis', 'diagnóstico', 'diagnostico', 'estudio', 'evaluación', 'evaluacion'],
+      'analysis': ['análisis', 'analisis', 'diagnóstico', 'diagnostico', 'estudio', 'evaluación', 'evaluacion'],
+      'evidence-based': ['basado', 'evidencia', 'evidence', 'análisis', 'analisis', 'datos', 'información', 'informacion'],
+      
+      // Vision and strategy
+      'visión': ['vision', 'estrategia', 'strategy', 'objetivo', 'meta', 'propósito', 'proposito'],
+      'vision': ['visión', 'estrategia', 'strategy', 'objetivo', 'meta', 'propósito', 'proposito'],
+      'estrategia': ['strategy', 'visión', 'vision', 'planificación', 'planificacion', 'plan'],
+      'strategy': ['estrategia', 'visión', 'vision', 'planificación', 'planificacion', 'plan'],
+      'compartida': ['shared', 'común', 'comun', 'colectiva', 'conjunta', 'participativa', 'participativo'],
+      'shared': ['compartida', 'común', 'comun', 'colectiva', 'conjunta', 'participativa', 'participativo'],
+      
+      // Government and public
+      'gobierno': ['government', 'gubernamental', 'público', 'publico', 'estatal', 'administración', 'administracion'],
+      'government': ['gobierno', 'gubernamental', 'público', 'publico', 'estatal', 'administración', 'administracion'],
+      'público': ['publico', 'public', 'gobierno', 'government', 'estatal', 'gubernamental'],
+      'publico': ['público', 'public', 'gobierno', 'government', 'estatal', 'gubernamental'],
+      'public': ['público', 'publico', 'gobierno', 'government', 'estatal', 'gubernamental'],
+      
+      // Municipal and local
+      'municipal': ['municipality', 'local', 'ciudad', 'municipio', 'ayuntamiento', 'alcaldía', 'alcaldia'],
+      'municipality': ['municipal', 'local', 'ciudad', 'municipio', 'ayuntamiento', 'alcaldía', 'alcaldia'],
+      'local': ['municipal', 'municipality', 'territorial', 'regional', 'descentralizado', 'descentralizada']
+    };
+
+    // Check if terms are directly related
     const related1 = relatedTermsMap[term1] || [];
     const related2 = relatedTermsMap[term2] || [];
     
-    return related1.includes(term2) || related2.includes(term1);
+    if (related1.includes(term2) || related2.includes(term1)) {
+      return true;
+    }
+    
+    // Check for partial word matches (minimum 4 characters)
+    if (term1.length >= 4 && term2.length >= 4) {
+      if (term1.includes(term2) || term2.includes(term1)) {
+        return true;
+      }
+    }
+    
+    // Check for common root words
+    const commonRoots = ['plan', 'gest', 'admin', 'coord', 'particip', 'innov', 'modern', 'efic', 'evalua'];
+    for (const root of commonRoots) {
+      if (term1.includes(root) && term2.includes(root)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  private checkFullCriterionMatch(criterion: string, practice: BestPractice): boolean {
+    // Check target criteria with flexible matching
+    const targetMatch = practice.targetCriteria.some(target => {
+      const lowerTarget = target.toLowerCase().trim();
+      return lowerTarget.includes(criterion) || 
+             criterion.includes(lowerTarget) ||
+             this.areRelatedTerms(criterion, lowerTarget);
+    });
+    
+    // Check title and description for broader context
+    const titleMatch = practice.title.toLowerCase().includes(criterion);
+    const descMatch = practice.description.toLowerCase().includes(criterion);
+    
+    // Check tags if available
+    const tagMatch = practice.tags ? practice.tags.some(tag => 
+      tag.toLowerCase().includes(criterion) || 
+      criterion.includes(tag.toLowerCase()) ||
+      this.areRelatedTerms(criterion, tag.toLowerCase())
+    ) : false;
+    
+    return targetMatch || titleMatch || descMatch || tagMatch;
+  }
+
+  private hasRelatedTermInText(word: string, text: string): boolean {
+    // Check if the word or its related terms appear in the text
+    const relatedTermsMap: Record<string, string[]> = {
+      'evidence': ['evidencia', 'datos', 'información', 'análisis', 'estudio'],
+      'evidencia': ['evidence', 'datos', 'información', 'análisis', 'estudio'],
+      'based': ['basado', 'fundamentado', 'sustentado'],
+      'basado': ['based', 'fundamentado', 'sustentado'],
+      'diagnosis': ['diagnóstico', 'análisis', 'evaluación', 'estudio'],
+      'diagnostic': ['diagnóstico', 'análisis', 'evaluación'],
+      'diagnostico': ['diagnosis', 'análisis', 'evaluación', 'estudio'],
+      'capacity': ['capacidad', 'competencia', 'habilidad', 'fortalecimiento'],
+      'capacidad': ['capacity', 'competencia', 'habilidad', 'fortalecimiento'],
+      'budget': ['presupuesto', 'financiero', 'recursos', 'fiscal'],
+      'budgetary': ['presupuestario', 'presupuestaria', 'fiscal'],
+      'presupuestaria': ['budget', 'budgetary', 'financiero', 'recursos'],
+      'presupuestario': ['budget', 'budgetary', 'financiero', 'recursos'],
+      'vision': ['visión', 'estrategia', 'objetivo', 'meta'],
+      'visión': ['vision', 'estrategia', 'objetivo', 'meta'],
+      'shared': ['compartida', 'común', 'colectiva', 'conjunta'],
+      'compartida': ['shared', 'común', 'colectiva', 'conjunta'],
+      'construction': ['construcción', 'desarrollo', 'creación'],
+      'construcción': ['construction', 'desarrollo', 'creación'],
+      'stakeholders': ['actores', 'partes', 'interesados'],
+      'actores': ['stakeholders', 'partes', 'interesados'],
+      'key': ['clave', 'importantes', 'principales'],
+      'clave': ['key', 'importantes', 'principales']
+    };
+
+    const relatedTerms = relatedTermsMap[word] || [];
+    
+    // Check if the word itself or any related term appears in the text
+    if (text.includes(word)) {
+      return true;
+    }
+    
+    return relatedTerms.some(term => text.includes(term));
   }
 
   async createBestPractice(insertPractice: InsertBestPractice): Promise<BestPractice> {
