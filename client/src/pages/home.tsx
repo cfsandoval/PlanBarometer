@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,14 @@ export default function Home() {
       description: "Se han generado respuestas aleatorias para testing",
     });
   };
+
+  // Auto-complete evaluation randomly when page loads
+  useEffect(() => {
+    if (currentModel && Object.keys(responses).length === 0) {
+      // Auto-complete only if no responses exist yet
+      handleRandomComplete();
+    }
+  }, [currentModel]); // Re-run when model changes
 
   // Toggle edit mode and create custom model copy
   const handleToggleEditMode = () => {
