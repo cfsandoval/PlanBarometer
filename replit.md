@@ -128,6 +128,9 @@ Preferred communication style: Simple, everyday language.
 16. **Smart Policy Search**: Automatic search for Latin American public policies and strategies targeting weak criteria (< 50%) with real source links and verified documentation
 17. **Expanded Best Practices Repository**: Comprehensive database with 18+ specific documented cases including 7 concrete Peruvian cases with quantified results and verified metrics
 18. **Complete GitHub Documentation**: Full suite of documentation files including README.md, CONTRIBUTING.md, SECURITY.md, DEPLOYMENT.md, LICENSE, CHANGELOG.md, CI/CD workflows, and environment templates for professional open-source project management
+19. **RT Delphi Multi-User System**: Complete collaborative evaluation system with user roles (admin, coordinator, user), group management, and real-time studies
+20. **Member Management**: Full CRUD functionality for managing group members with role-based permissions and email invitations
+21. **Admin Users Interface**: Comprehensive user administration page with create, edit, delete, and search capabilities for system administrators
 
 ### Key Architectural Decisions
 
