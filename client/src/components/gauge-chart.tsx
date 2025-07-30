@@ -25,6 +25,16 @@ export default function GaugeChart({ value, label, size = 120, severity }: Gauge
       else actualSeverity = 'high';                 // Valor alto = alto riesgo (rojo)
     }
     
+    // Override for very low values - always show as low severity (green)
+    if (value <= 30) {
+      actualSeverity = 'low';
+    }
+    
+    // Override for very low values - always show as low severity (green)
+    if (value <= 30) {
+      actualSeverity = 'low';
+    }
+    
     switch (actualSeverity) {
       case 'high':
         return {
