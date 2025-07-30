@@ -8,6 +8,8 @@ import { LanguageSelector } from "@/components/language-selector";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import BestPractices from "@/pages/best-practices";
+import Login from "@/pages/login";
+import DelphiDashboard from "@/pages/delphi-dashboard";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -15,6 +17,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/best-practices" component={BestPractices} />
+      <Route path="/login" component={Login} />
+      <Route path="/delphi" component={DelphiDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -45,6 +49,12 @@ function App() {
                 </a>
                 <a href="/best-practices" className="text-sm font-medium transition-colors hover:text-primary">
                   Buenas Prácticas
+                </a>
+                <a href="/delphi" className="text-sm font-medium transition-colors hover:text-primary">
+                  Sistema RT Delphi
+                </a>
+                <a href="/login" className="text-sm font-medium transition-colors hover:text-primary">
+                  Iniciar Sesión
                 </a>
               </nav>
               <LanguageSelector onLanguageChange={handleLanguageChange} />

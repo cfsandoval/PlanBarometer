@@ -52,6 +52,14 @@ app.use((req, res, next) => {
     console.error("Error checking/seeding best practices:", error);
   }
 
+  // Seed admin user for RT Delphi system
+  try {
+    const { seedAdminUser } = await import("./seed-admin");
+    await seedAdminUser();
+  } catch (error) {
+    console.error("Error seeding admin user:", error);
+  }
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

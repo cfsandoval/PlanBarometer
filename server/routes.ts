@@ -4,9 +4,14 @@ import { storage } from "./storage";
 import { insertEvaluationSchema, insertBestPracticeSchema, insertPracticeRecommendationSchema } from "@shared/schema";
 import { z } from "zod";
 import { WebSocketServer, WebSocket } from 'ws';
+import { registerDelphiRoutes } from "./routes-delphi";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Register Delphi RT multi-user routes
+  registerDelphiRoutes(app);
+  
+  // Legacy evaluation routes (TOPP system)
   // Get all evaluations
   app.get("/api/evaluations", async (req, res) => {
     try {
