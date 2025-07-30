@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 import { Model } from "@/types/planbarometro";
 import { t, currentLanguage, setLanguage } from "@/lib/i18n";
+import PolicyExamplesSection from "./policy-examples-section";
 
 interface DimensionRadarChartsProps {
   model: Model;
-  scores: Record<string, number>;
+  scores: any;
   responses: Record<string, number>;
 }
 
@@ -192,6 +193,15 @@ export default function DimensionRadarCharts({ model, scores, responses }: Dimen
                   </div>
                 </div>
               </CardContent>
+              
+              {/* Policy Examples Section - Only show when dimension score < 50% */}
+              <PolicyExamplesSection
+                dimensionId={dimension.id}
+                dimensionName={dimension.name}
+                percentage={Math.round(dimensionScore * 100)}
+                criteria={dimension.criteria}
+                isVisible={true}
+              />
             </Card>
           );
         })}

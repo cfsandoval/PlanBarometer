@@ -376,7 +376,7 @@ Basándome en tu evaluación, puedo ayudarte a:
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            {t('coachingChat')}
+            Mentor de Planificación
           </CardTitle>
         </CardHeader>
         <CardContent>

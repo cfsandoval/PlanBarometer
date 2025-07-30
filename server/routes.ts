@@ -83,6 +83,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint for fetching policy examples
+  app.post("/api/policy-examples", async (req, res) => {
+    try {
+      const { dimensionId, dimensionName, criteria } = req.body;
+      
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: "OpenAI API key not configured" });
+      }
+
+      const { default: OpenAI } = await import('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      // Build context about the dimension and its criteria
+      const criteriaText = criteria.map((c: any) => 
+        `- ${c.name}: ${c.elements.join(', ')}`
+      ).join('\n');
+
+      const prompt = `Como experto en políticas públicas de América Latina, necesito 3 ejemplos específicos y reales de políticas exitosas que hayan fortalecido la dimensión "${dimensionName}" en países latinoamericanos.
+
+Contexto de la dimensión:
+${criteriaText}
+
+Para cada ejemplo, proporciona:
+1. País específico
+2. Nombre exacto de la política/programa
+3. Descripción concisa de qué hizo
+4. Resultados concretos obtenidos
+5. Año de implementación o evaluación
+
+Responde en formato JSON con la siguiente estructura:
+{
+  "examples": [
+    {
+      "country": "nombre del país",
+      "policy": "nombre exacto de la política",
+      "description": "descripción de 1-2 líneas",
+      "results": "resultados específicos obtenidos",
+      "year": "año",
+      "source": "institución responsable"
+    }
+  ]
+}
+
+Enfócate solo en casos documentados y exitosos de América Latina.`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: "Eres un experto en políticas públicas latinoamericanas con acceso a casos documentados de éxito. Proporciona ejemplos reales y específicos."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 1500
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{"examples":[]}');
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error generating policy examples:', error);
+      res.status(500).json({ error: "Error generating policy examples" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Setup WebSocket server for real-time collaboration
