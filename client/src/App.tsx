@@ -10,6 +10,8 @@ import Home from "@/pages/home";
 import BestPractices from "@/pages/best-practices";
 import Login from "@/pages/login";
 import DelphiDashboard from "@/pages/delphi-dashboard";
+import CreateGroup from "@/pages/create-group";
+import JoinGroup from "@/pages/join-group";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/best-practices" component={BestPractices} />
       <Route path="/login" component={Login} />
       <Route path="/delphi" component={DelphiDashboard} />
+      <Route path="/delphi/groups/create" component={CreateGroup} />
+      <Route path="/delphi/groups/join" component={JoinGroup} />
       <Route component={NotFound} />
     </Switch>
   );
