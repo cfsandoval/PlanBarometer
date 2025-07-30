@@ -24,9 +24,10 @@ const policyExamplesCache = new Map<string, PolicyExample[]>();
 export async function fetchPolicyExamples(
   dimensionId: string, 
   dimensionName: string, 
-  criteria: any[]
+  criteria: any[],
+  weakCriteria: string[]
 ): Promise<PolicyExample[]> {
-  const cacheKey = `${dimensionId}-${dimensionName}`;
+  const cacheKey = `${dimensionId}-${weakCriteria.join('-')}`;
   
   // Check cache first
   if (policyExamplesCache.has(cacheKey)) {
@@ -34,16 +35,10 @@ export async function fetchPolicyExamples(
   }
 
   try {
-    // Prepare the criteria and elements information for context
-    const criteriaContext = criteria.map(criterion => ({
-      name: criterion.name,
-      elements: criterion.elements.map((el: any) => el.name)
-    }));
-
     const response = await apiRequest('POST', '/api/policy-examples', {
       dimensionId,
       dimensionName,
-      criteria: criteriaContext
+      weakCriteria
     });
 
     const examples = (response as any).examples || [];

@@ -83,10 +83,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New endpoint for fetching policy examples
+  // New endpoint for fetching policy examples based on weak criteria
   app.post("/api/policy-examples", async (req, res) => {
     try {
-      const { dimensionId, dimensionName, criteria } = req.body;
+      const { dimensionId, dimensionName, weakCriteria } = req.body;
       
       if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: "OpenAI API key not configured" });
@@ -95,45 +95,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { default: OpenAI } = await import('openai');
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-      // Build context about the dimension and its criteria
-      const criteriaText = criteria.map((c: any) => 
-        `- ${c.name}: ${c.elements.join(', ')}`
-      ).join('\n');
+      // Build search keywords from weak criteria
+      const searchKeywords = weakCriteria.join(', ');
 
-      const prompt = `Como experto en políticas públicas de América Latina, necesito 3 ejemplos específicos y reales de políticas exitosas que hayan fortalecido la dimensión "${dimensionName}" en países latinoamericanos.
-
-Contexto de la dimensión:
-${criteriaText}
+      const prompt = `Necesito encontrar 3 políticas, estrategias o programas específicos de América Latina que hayan abordado exitosamente estos criterios débiles: "${searchKeywords}" en el contexto de "${dimensionName}".
 
 Para cada ejemplo, proporciona:
 1. País específico
-2. Nombre exacto de la política/programa
-3. Descripción concisa de qué hizo
-4. Resultados concretos obtenidos
-5. Año de implementación o evaluación
+2. Nombre exacto de la política/programa/estrategia
+3. Descripción concisa (máximo 2 líneas)
+4. Resultados específicos y medibles obtenidos
+5. Año de implementación
+6. Enlace web a fuente oficial o documento que lo respalde
 
-Responde en formato JSON con la siguiente estructura:
+Responde SOLO en formato JSON:
 {
   "examples": [
     {
-      "country": "nombre del país",
-      "policy": "nombre exacto de la política",
-      "description": "descripción de 1-2 líneas",
-      "results": "resultados específicos obtenidos",
-      "year": "año",
-      "source": "institución responsable"
+      "country": "País específico",
+      "policy": "Nombre exacto de la política/programa/estrategia",
+      "description": "Descripción concisa de máximo 2 líneas",
+      "results": "Resultados específicos y medibles obtenidos", 
+      "year": "Año de implementación",
+      "source": "https://enlace-a-fuente-oficial.gov/documento"
     }
   ]
 }
 
-Enfócate solo en casos documentados y exitosos de América Latina.`;
+IMPORTANTE: Los enlaces deben ser reales y verificables. Si no conoces un enlace específico, usa el formato del sitio oficial de la institución responsable.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
         messages: [
           {
             role: "system",
-            content: "Eres un experto en políticas públicas latinoamericanas con acceso a casos documentados de éxito. Proporciona ejemplos reales y específicos."
+            content: "Eres un investigador especializado en políticas públicas latinoamericanas. Proporciona información precisa con fuentes verificables y enlaces reales a documentos oficiales."
           },
           {
             role: "user",
@@ -141,7 +137,7 @@ Enfócate solo en casos documentados y exitosos de América Latina.`;
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.7,
+        temperature: 0.3,
         max_tokens: 1500
       });
 

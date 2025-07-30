@@ -15,7 +15,6 @@ import StrategicAlerts from "@/components/strategic-alerts";
 import CustomAlertsEditor from "@/components/custom-alerts-editor";
 import DimensionRadarCharts from "@/components/dimension-radar-charts";
 import WorkshopCollaboration from "@/components/workshop-collaboration";
-import CoachingChat from "@/components/coaching-chat";
 
 import { MODELS } from "@/lib/planbarometro-data";
 import { calculateScores } from "@/lib/scoring-engine";
@@ -507,7 +506,7 @@ export default function Home() {
         <Card>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b border-gray-200">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="evaluation" className="flex items-center space-x-2">
                   <span>📝</span>
                   <span>{t('evaluation')}</span>
@@ -519,10 +518,6 @@ export default function Home() {
                 <TabsTrigger value="alerts" className="flex items-center space-x-2">
                   <span>⚠️</span>
                   <span>{t('strategicAlerts')}</span>
-                </TabsTrigger>
-                <TabsTrigger value="coaching" className="flex items-center space-x-2">
-                  <span>🤖</span>
-                  <span>Mentor IA</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -629,15 +624,6 @@ export default function Home() {
                   />
                 </div>
               )}
-            </TabsContent>
-
-            <TabsContent value="coaching" className="p-6">
-              <CoachingChat 
-                scores={scores}
-                model={currentModel as Model}
-                alerts={alerts}
-                isEvaluationComplete={isEvaluationComplete}
-              />
             </TabsContent>
           </Tabs>
         </Card>

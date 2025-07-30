@@ -11,6 +11,7 @@ interface PolicyExamplesSectionProps {
   dimensionName: string;
   percentage: number;
   criteria: any[];
+  responses: Record<string, number>;
   isVisible: boolean;
 }
 
@@ -19,6 +20,7 @@ export default function PolicyExamplesSection({
   dimensionName, 
   percentage, 
   criteria,
+  responses,
   isVisible 
 }: PolicyExamplesSectionProps) {
   const [examples, setExamples] = useState<PolicyExample[]>([]);
@@ -26,19 +28,45 @@ export default function PolicyExamplesSection({
   const [error, setError] = useState<string | null>(null);
   const [showFallback, setShowFallback] = useState(false);
 
-  useEffect(() => {
-    if (isVisible && percentage < 50 && criteria.length > 0) {
-      loadPolicyExamples();
-    }
-  }, [isVisible, percentage, dimensionId]);
+  // Find criteria with lowest scores (below 50%)
+  const getWeakCriteria = () => {
+    return criteria.filter(criterion => {
+      const criterionScore = calculateCriterionScore(criterion);
+      return criterionScore < 50;
+    }).map(c => c.name);
+  };
 
-  const loadPolicyExamples = async () => {
+  const calculateCriterionScore = (criterion: any) => {
+    let totalScore = 0;
+    let totalElements = 0;
+    
+    criterion.elements.forEach((element: any) => {
+      const response = responses[element.id];
+      if (response !== undefined) {
+        totalScore += response;
+        totalElements++;
+      }
+    });
+    
+    return totalElements > 0 ? (totalScore / totalElements) * 100 : 0;
+  };
+
+  useEffect(() => {
+    if (isVisible && criteria.length > 0) {
+      const weakCriteria = getWeakCriteria();
+      if (weakCriteria.length > 0) {
+        loadPolicyExamples(weakCriteria);
+      }
+    }
+  }, [isVisible, dimensionId, criteria]);
+
+  const loadPolicyExamples = async (weakCriteria: string[]) => {
     setLoading(true);
     setError(null);
     setShowFallback(false);
 
     try {
-      const fetchedExamples = await fetchPolicyExamples(dimensionId, dimensionName, criteria);
+      const fetchedExamples = await fetchPolicyExamples(dimensionId, dimensionName, criteria, weakCriteria);
       setExamples(fetchedExamples);
     } catch (err) {
       console.error('Error fetching policy examples:', err);
@@ -56,10 +84,15 @@ export default function PolicyExamplesSection({
   };
 
   const handleRetry = () => {
-    loadPolicyExamples();
+    const weakCriteria = getWeakCriteria();
+    if (weakCriteria.length > 0) {
+      loadPolicyExamples(weakCriteria);
+    }
   };
 
-  if (!isVisible || percentage >= 50) {
+  const weakCriteria = getWeakCriteria();
+  
+  if (!isVisible || weakCriteria.length === 0) {
     return null;
   }
 
@@ -68,13 +101,13 @@ export default function PolicyExamplesSection({
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-blue-900">
           <Lightbulb className="h-5 w-5" />
-          Ejemplos de Políticas Públicas Exitosas
+          Políticas y Estrategias para Criterios Débiles
           <Badge variant="secondary" className="ml-auto">
-            {percentage}% - Oportunidad de Mejora
+            {weakCriteria.length} criterio(s) &lt; 50%
           </Badge>
         </CardTitle>
         <p className="text-sm text-blue-700">
-          Casos documentados de América Latina que fortalecieron esta dimensión
+          Programas exitosos de América Latina para: <strong>{weakCriteria.join(', ')}</strong>
         </p>
       </CardHeader>
       
@@ -151,7 +184,20 @@ export default function PolicyExamplesSection({
                 {example.source && (
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Building className="h-3 w-3" />
-                    <span>Fuente: {example.source}</span>
+                    <span>Fuente: </span>
+                    {example.source.startsWith('http') ? (
+                      <a 
+                        href={example.source} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                      >
+                        Ver documento original
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      <span>{example.source}</span>
+                    )}
                   </div>
                 )}
               </div>

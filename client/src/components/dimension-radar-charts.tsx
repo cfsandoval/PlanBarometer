@@ -200,6 +200,7 @@ export default function DimensionRadarCharts({ model, scores, responses }: Dimen
                 dimensionName={dimension.name}
                 percentage={Math.round(dimensionScore * 100)}
                 criteria={dimension.criteria}
+                responses={responses}
                 isVisible={true}
               />
             </Card>
