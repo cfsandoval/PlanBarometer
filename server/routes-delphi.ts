@@ -291,10 +291,12 @@ export function registerDelphiRoutes(app: Express) {
         return res.status(400).json({ error: "Username already exists" });
       }
 
-      // Check if email already exists
-      const existingEmail = await storage.getUserByEmail(userData.email);
-      if (existingEmail) {
-        return res.status(400).json({ error: "Email already exists" });
+      // Check if email already exists  
+      if (userData.email) {
+        const existingEmail = await storage.getUserByEmail(userData.email);
+        if (existingEmail) {
+          return res.status(400).json({ error: "Email already exists" });
+        }
       }
 
       // Hash password

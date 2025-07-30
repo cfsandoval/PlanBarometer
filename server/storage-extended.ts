@@ -128,6 +128,30 @@ export class DatabaseStorage implements IExtendedStorage {
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+      lastLoginAt: users.lastLoginAt,
+    }).from(users);
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
   async createUser(user: InsertUser): Promise<User> {
     const [newUser] = await db.insert(users).values(user).returning();
     return newUser;
@@ -184,35 +208,81 @@ export class DatabaseStorage implements IExtendedStorage {
 
   async deleteGroup(id: number): Promise<boolean> {
     const result = await db.delete(groups).where(eq(groups.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getGroupsByCoordinator(coordinatorId: number): Promise<Group[]> {
     return await db.select().from(groups).where(eq(groups.coordinatorId, coordinatorId));
   }
 
-  // Group membership
-  async addUserToGroup(userId: number, groupId: number): Promise<GroupMember> {
+  // Group membership  
+  async addGroupMember(data: { groupId: number; userId: number; role?: string }): Promise<GroupMember> {
     const [member] = await db
       .insert(groupMembers)
-      .values({ userId, groupId })
+      .values({
+        groupId: data.groupId,
+        userId: data.userId,
+        joinedAt: new Date(),
+      })
       .returning();
     return member;
+  }
+
+  async addUserToGroup(userId: number, groupId: number): Promise<GroupMember> {
+    return this.addGroupMember({ groupId, userId });
+  }
+
+  async getGroupMember(groupId: number, userId: number): Promise<GroupMember | undefined> {
+    const [member] = await db
+      .select()
+      .from(groupMembers)
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)));
+    return member;
+  }
+
+  async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember | undefined> {
+    const [member] = await db
+      .update(groupMembers)
+      .set({ joinedAt: new Date() })
+      .where(eq(groupMembers.id, memberId))
+      .returning();
+    return member;
+  }
+
+  async removeGroupMember(memberId: number): Promise<boolean> {
+    const result = await db
+      .delete(groupMembers)
+      .where(eq(groupMembers.id, memberId));
+    return (result.rowCount || 0) > 0;
   }
 
   async removeUserFromGroup(userId: number, groupId: number): Promise<boolean> {
     const result = await db
       .delete(groupMembers)
       .where(and(eq(groupMembers.userId, userId), eq(groupMembers.groupId, groupId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
-  async getGroupMembers(groupId: number): Promise<(GroupMember & { user: User })[]> {
-    return await db
-      .select()
+  async getGroupMembers(groupId: number): Promise<any[]> {
+    const results = await db
+      .select({
+        id: groupMembers.id,
+        groupId: groupMembers.groupId,
+        userId: groupMembers.userId,
+        joinedAt: groupMembers.joinedAt,
+        user: {
+          id: users.id,
+          username: users.username,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          role: users.role,
+        }
+      })
       .from(groupMembers)
       .innerJoin(users, eq(groupMembers.userId, users.id))
       .where(eq(groupMembers.groupId, groupId));
+    return results;
   }
 
   async getUserGroups(userId: number): Promise<(GroupMember & { group: Group })[]> {
