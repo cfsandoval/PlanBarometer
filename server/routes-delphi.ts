@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { z } from "zod";
 import { storage } from "./storage-extended";
+import { db } from "./db";
+import { groups, groupMembers } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { 
   setupSession, 
   requireAuth, 
@@ -111,9 +114,21 @@ export function registerDelphiRoutes(app: Express) {
         // Coordinators see their groups
         groups = await storage.getGroupsByCoordinator(req.user!.id);
       } else {
-        // Regular users see groups they belong to
-        const userGroups = await storage.getUserGroups(req.user!.id);
-        groups = userGroups.map(ug => ug.group).filter(g => g !== null);
+        // Regular users see groups they belong to - select only group fields
+        groups = await db
+          .select({
+            id: groups.id,
+            name: groups.name,
+            description: groups.description,
+            code: groups.code,
+            coordinatorId: groups.coordinatorId,
+            isActive: groups.isActive,
+            createdAt: groups.createdAt,
+            updatedAt: groups.updatedAt,
+          })
+          .from(groups)
+          .innerJoin(groupMembers, eq(groups.id, groupMembers.groupId))
+          .where(eq(groupMembers.userId, req.user!.id));
       }
       res.json(groups);
     } catch (error) {
