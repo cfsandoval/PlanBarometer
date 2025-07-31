@@ -130,7 +130,8 @@ export function registerDelphiRoutes(app: Express) {
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
       
       const group = await storage.createGroup({
-        ...groupData,
+        name: groupData.name,
+        description: groupData.description,
         coordinatorId: req.user!.id,
         code,
       });
@@ -442,9 +443,11 @@ export function registerDelphiRoutes(app: Express) {
       }
 
       // Check if email already exists (excluding current user)
-      const existingEmail = await storage.getUserByEmail(userData.email);
-      if (existingEmail && existingEmail.id !== userId) {
-        return res.status(400).json({ error: "Email already exists" });
+      if (userData.email) {
+        const existingEmail = await storage.getUserByEmail(userData.email);
+        if (existingEmail && existingEmail.id !== userId) {
+          return res.status(400).json({ error: "Email already exists" });
+        }
       }
 
       const updatedUser = await storage.updateUser(userId, userData);
