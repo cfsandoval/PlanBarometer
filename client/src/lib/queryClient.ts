@@ -29,10 +29,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Convert queryKey to URL string
-    const url = Array.isArray(queryKey) ? (queryKey[0] as string) : (queryKey as unknown as string);
+    // Properly construct URL from queryKey
+    let url: string;
+    if (Array.isArray(queryKey)) {
+      // Take the first element as the base URL
+      url = queryKey[0] as string;
+    } else {
+      url = queryKey as unknown as string;
+    }
 
     const res = await fetch(url, {
+      method: "GET",
       credentials: "include",
     });
 
