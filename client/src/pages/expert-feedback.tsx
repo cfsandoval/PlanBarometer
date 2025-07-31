@@ -33,6 +33,7 @@ import { useLocation, Link, useParams } from 'wouter';
 interface PersonalizedFeedback {
   expertId: number;
   criterionId: string;
+  criterionName?: string;
   personalScore: number;
   groupMean: number;
   deviation: number;
@@ -67,6 +68,35 @@ interface LearningInsight {
     type: 'article' | 'video' | 'course' | 'practice';
     url: string;
   }>;
+}
+
+interface FeedbackData {
+  expertId: number;
+  studyId: number;
+  overallPerformance: {
+    accuracyScore: number;
+    consensusAlignment: number;
+    confidenceLevel: number;
+    expertLevel: string;
+  };
+  criterionFeedback: PersonalizedFeedback[];
+  learningInsights: LearningInsight[];
+}
+
+interface ProfileData {
+  id: number;
+  expertiseAreas: string[];
+  evaluationHistory: {
+    totalEvaluations: number;
+    averageAccuracy: number;
+    consensusAlignment: number;
+    skillMetrics: {
+      evaluationPrecision: number;
+      consensusBuilding: number;
+      criticalThinking: number;
+      domainKnowledge: number;
+    };
+  };
 }
 
 const mockFeedbackData: PersonalizedFeedback[] = [
@@ -165,14 +195,25 @@ export default function ExpertFeedback() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  // Mock expert profile
+  // Fetch expert feedback data
+  const { data: feedbackData, isLoading: feedbackLoading } = useQuery<FeedbackData>({
+    queryKey: [`/api/delphi/studies/${studyId}/feedback/${user?.id}`],
+    enabled: !!user && !!studyId,
+  });
+
+  // Fetch expert profile data
+  const { data: profileData, isLoading: profileLoading } = useQuery<ProfileData>({
+    queryKey: [`/api/delphi/experts/${user?.id}/profile`],
+    enabled: !!user,
+  });
+
   const expertProfile: ExpertProfile = {
     id: user?.id || 1,
     username: user?.username || 'expert',
     firstName: user?.firstName || 'Ana',
     lastName: user?.lastName || 'García',
-    expertiseAreas: ['Planificación Estratégica', 'Políticas Públicas', 'Desarrollo Sostenible'],
-    evaluationHistory: {
+    expertiseAreas: profileData?.expertiseAreas || ['Planificación Estratégica', 'Políticas Públicas', 'Desarrollo Sostenible'],
+    evaluationHistory: profileData?.evaluationHistory || {
       totalEvaluations: 15,
       averageAccuracy: 87,
       consensusAlignment: 75
@@ -232,6 +273,22 @@ export default function ExpertFeedback() {
           <Link href="/login">
             <Button>Iniciar Sesión</Button>
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (feedbackLoading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Brain className="h-16 w-16 text-purple-400 mx-auto mb-4 animate-pulse" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            Analizando tu desempeño...
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Generando retroalimentación personalizada
+          </p>
         </div>
       </div>
     );
@@ -304,7 +361,7 @@ export default function ExpertFeedback() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-blue-600">
-                    {expertProfile.evaluationHistory.averageAccuracy}%
+                    {feedbackData?.overallPerformance?.accuracyScore || expertProfile.evaluationHistory.averageAccuracy}%
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     En {expertProfile.evaluationHistory.totalEvaluations} evaluaciones
@@ -321,7 +378,7 @@ export default function ExpertFeedback() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-green-600">
-                    {expertProfile.evaluationHistory.consensusAlignment}%
+                    {feedbackData?.overallPerformance?.consensusAlignment || expertProfile.evaluationHistory.consensusAlignment}%
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Consenso con grupo
@@ -356,12 +413,12 @@ export default function ExpertFeedback() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {mockFeedbackData.map((feedback, index) => (
+                {(feedbackData?.criterionFeedback || mockFeedbackData).map((feedback: PersonalizedFeedback, index: number) => (
                   <div key={feedback.criterionId} className="border rounded-lg p-4 space-y-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                          Criterio {index + 1}: {feedback.criterionId === 'crit1' ? 'Viabilidad Técnica' : 'Impacto Social'}
+                          Criterio {index + 1}: {feedback.criterionName || (feedback.criterionId === 'crit1' ? 'Viabilidad Técnica' : 'Impacto Social')}
                         </h3>
                         <div className="flex items-center space-x-4 mt-2">
                           <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -393,7 +450,7 @@ export default function ExpertFeedback() {
                           Fortalezas Identificadas
                         </h4>
                         <ul className="space-y-1 text-sm">
-                          {feedback.strengths.map((strength, i) => (
+                          {feedback.strengths.map((strength: string, i: number) => (
                             <li key={i} className="text-gray-700 dark:text-gray-300">
                               • {strength}
                             </li>
@@ -407,7 +464,7 @@ export default function ExpertFeedback() {
                           Áreas de Mejora
                         </h4>
                         <ul className="space-y-1 text-sm">
-                          {feedback.improvementAreas.map((area, i) => (
+                          {feedback.improvementAreas.map((area: string, i: number) => (
                             <li key={i} className="text-gray-700 dark:text-gray-300">
                               • {area}
                             </li>
@@ -421,7 +478,7 @@ export default function ExpertFeedback() {
                         Recomendaciones Personalizadas
                       </h4>
                       <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-                        {feedback.recommendations.map((rec, i) => (
+                        {feedback.recommendations.map((rec: string, i: number) => (
                           <li key={i}>• {rec}</li>
                         ))}
                       </ul>
@@ -442,7 +499,7 @@ export default function ExpertFeedback() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {mockLearningInsights.map((insight) => (
+                {(feedbackData?.learningInsights || mockLearningInsights).map((insight: LearningInsight) => (
                   <div key={insight.id} className={`border rounded-lg p-4 ${getPriorityColor(insight.priority)}`}>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center space-x-2">
@@ -463,7 +520,7 @@ export default function ExpertFeedback() {
                     <div>
                       <h4 className="font-medium mb-2">Recursos Recomendados:</h4>
                       <div className="space-y-2">
-                        {insight.resources.map((resource, i) => (
+                        {insight.resources.map((resource: any, i: number) => (
                           <div key={i} className="flex items-center justify-between bg-white dark:bg-gray-800 rounded p-2">
                             <div className="flex items-center space-x-2">
                               <BookOpen className="h-4 w-4 text-gray-500" />
