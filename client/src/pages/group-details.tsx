@@ -55,16 +55,37 @@ export default function GroupDetails() {
 
   const { data: group, isLoading: groupLoading, error: groupError } = useQuery<Group>({
     queryKey: [`/api/delphi/groups/${groupId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/delphi/groups/${groupId}`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
     enabled: !!groupId,
   });
 
   const { data: members = [], isLoading: membersLoading } = useQuery<GroupMember[]>({
     queryKey: [`/api/delphi/groups/${groupId}/members`],
+    queryFn: async () => {
+      const response = await fetch(`/api/delphi/groups/${groupId}/members`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
     enabled: !!groupId,
   });
 
   const { data: studies = [], isLoading: studiesLoading } = useQuery<any[]>({
     queryKey: [`/api/delphi/groups/${groupId}/studies`],
+    queryFn: async () => {
+      const response = await fetch(`/api/delphi/groups/${groupId}/studies`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
     enabled: !!groupId,
   });
 
