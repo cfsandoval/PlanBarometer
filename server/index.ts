@@ -60,6 +60,8 @@ app.use((req, res, next) => {
     // Seed Delphi test users
     const { seedDelphiUsers } = await import("./seed-delphi-users");
     await seedDelphiUsers();
+    
+
   } catch (error) {
     console.error("Error seeding users:", error);
   }
