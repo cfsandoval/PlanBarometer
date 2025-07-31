@@ -38,6 +38,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     setIsConnecting(true);
     
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    // For development, use the current location's host which includes port
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     
     try {

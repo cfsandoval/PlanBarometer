@@ -132,10 +132,7 @@ export default function BinaryEvaluation() {
 
   const submitResponsesMutation = useMutation({
     mutationFn: async (data: BinaryResponse) => {
-      await apiRequest(`/api/delphi/studies/${studyId}/responses`, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
+      await apiRequest('POST', `/api/delphi/studies/${studyId}/responses`, data);
     },
     onSuccess: () => {
       toast({

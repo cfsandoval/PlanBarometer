@@ -616,6 +616,27 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  // Binary response endpoint for studies
+  app.post("/api/delphi/studies/:studyId/responses", requireAuth, requireStudyAccess, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const responseData = req.body;
+      
+      // Here you would typically save the response to database
+      // For now, just acknowledge receipt
+      console.log(`Received binary response for study ${studyId}:`, responseData);
+      
+      res.json({ 
+        message: "Response received successfully",
+        studyId,
+        responseData 
+      });
+    } catch (error) {
+      console.error("Submit response error:", error);
+      res.status(500).json({ error: "Failed to submit response" });
+    }
+  });
+
   app.get("/api/studies/:studyId", requireAuth, requireStudyAccess, async (req, res) => {
     try {
       const studyId = parseInt(req.params.studyId);
