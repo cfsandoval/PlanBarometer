@@ -56,8 +56,12 @@ app.use((req, res, next) => {
   try {
     const { seedAdminUser } = await import("./seed-admin");
     await seedAdminUser();
+    
+    // Seed Delphi test users
+    const { seedDelphiUsers } = await import("./seed-delphi-users");
+    await seedDelphiUsers();
   } catch (error) {
-    console.error("Error seeding admin user:", error);
+    console.error("Error seeding users:", error);
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

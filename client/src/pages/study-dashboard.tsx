@@ -25,9 +25,11 @@ import {
   Target,
   Clock,
   BarChart3,
-  Brain
+  Brain,
+  Vote
 } from 'lucide-react';
 import { useLocation, Link, useParams } from 'wouter';
+import { ConsensusGaugeGrid } from '@/components/consensus-gauge';
 
 interface DelphiStudy {
   id: number;
@@ -523,61 +525,135 @@ export default function StudyDashboard() {
 
           {/* Evaluation Tab */}
           <TabsContent value="evaluation" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Panel de Evaluación Delphi</CardTitle>
-                <CardDescription>
-                  Sistema colaborativo de evaluación y búsqueda de consenso entre expertos
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="text-center p-6 border rounded-lg">
-                    <Target className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Iniciar Evaluación
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      Califica criterios del 1-10 con justificaciones detalladas
-                    </p>
-                    <Link href={`/delphi/studies/${studyId}/evaluate`}>
-                      <Button className="w-full">
-                        <Target className="h-4 w-4 mr-2" />
-                        Comenzar Evaluación
-                      </Button>
-                    </Link>
-                  </div>
-                  
-                  <div className="text-center p-6 border rounded-lg">
-                    <BarChart3 className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Análisis de Consenso
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      Visualiza convergencia y divergencia entre expertos
-                    </p>
-                    <Link href={`/delphi/studies/${studyId}/feedback`}>
-                      <Button variant="outline" className="w-full">
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Ver Retroalimentación
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                    Metodología Delphi - Ronda {study.currentRound} de {study.rounds}
-                  </h4>
-                  <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                    <li>• Evaluación anónima e independiente de criterios</li>
-                    <li>• Justificación de puntuaciones para retroalimentación</li>
-                    <li>• Análisis estadístico de consenso y divergencias</li>
-                    <li>• Rondas iterativas hasta alcanzar convergencia</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="h-5 w-5 text-blue-600" />
+                    <span>Evaluación Tradicional</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Evalúa criterios con puntuaciones de 1-10
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Link href={`/delphi/studies/${studyId}/evaluate`}>
+                    <Button className="w-full" size="lg">
+                      <Target className="h-4 w-4 mr-2" />
+                      Evaluación Numérica
+                    </Button>
+                  </Link>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Sistema tradicional con escalas de puntuación
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Vote className="h-5 w-5 text-green-600" />
+                    <span>Evaluación Binaria</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Evalúa criterios como presente o ausente
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Link href={`/delphi/studies/${studyId}/binary-evaluate`}>
+                    <Button variant="outline" className="w-full" size="lg">
+                      <Vote className="h-4 w-4 mr-2" />
+                      Presente/Ausente
+                    </Button>
+                  </Link>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Sistema binario para evaluación rápida
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    <span>Retroalimentación Personal</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Análisis de tu desempeño y recomendaciones
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Link href={`/delphi/studies/${studyId}/feedback`}>
+                    <Button variant="outline" className="w-full" size="lg">
+                      <Brain className="h-4 w-4 mr-2" />
+                      Ver Retroalimentación
+                    </Button>
+                  </Link>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Insights personalizados sobre tu evaluación
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Admin Consensus Gauge Charts */}
+            {user?.role === 'admin' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <BarChart3 className="h-5 w-5 text-orange-600" />
+                    <span>Panel de Consenso del Administrador</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Gráficos de consenso en tiempo real para cada criterio evaluado
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ConsensusGaugeGrid
+                    gauges={[
+                      {
+                        id: 'planning_capacity',
+                        title: 'Capacidad de Planificación',
+                        value: 0.85,
+                        description: '8 de 10 expertos coinciden'
+                      },
+                      {
+                        id: 'monitoring_systems',
+                        title: 'Sistemas de Monitoreo',
+                        value: 0.45,
+                        description: '5 de 10 expertos coinciden'
+                      },
+                      {
+                        id: 'stakeholder_participation',
+                        title: 'Participación de Actores',
+                        value: 0.75,
+                        description: '7 de 10 expertos coinciden'
+                      },
+                      {
+                        id: 'future_vision',
+                        title: 'Visión de Futuro',
+                        value: 0.60,
+                        description: '6 de 10 expertos coinciden'
+                      },
+                      {
+                        id: 'coordination_mechanisms',
+                        title: 'Mecanismos de Coordinación',
+                        value: 0.90,
+                        description: '9 de 10 expertos coinciden'
+                      },
+                      {
+                        id: 'resource_allocation',
+                        title: 'Asignación de Recursos',
+                        value: 0.55,
+                        description: '5.5 de 10 expertos coinciden'
+                      }
+                    ]}
+                    columns={3}
+                    size="md"
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Results Tab */}

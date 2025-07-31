@@ -22,6 +22,7 @@ import StudyDashboard from "@/pages/study-dashboard";
 import StudySettings from "@/pages/study-settings";
 import DelphiEvaluation from "@/pages/delphi-evaluation";
 import ExpertFeedback from "@/pages/expert-feedback";
+import BinaryEvaluation from "@/pages/binary-evaluation";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/delphi/studies/:studyId/participants" component={StudyParticipants} />
       <Route path="/delphi/studies/:studyId/settings" component={StudySettings} />
       <Route path="/delphi/studies/:studyId/evaluate" component={DelphiEvaluation} />
+      <Route path="/delphi/studies/:studyId/binary-evaluate" component={BinaryEvaluation} />
       <Route path="/delphi/studies/:studyId/feedback" component={ExpertFeedback} />
       <Route path="/delphi/studies/:studyId" component={StudyDashboard} />
       <Route path="/delphi/groups/:id" component={GroupDetails} />
