@@ -675,14 +675,18 @@ export class DatabaseStorage implements IExtendedStorage {
   }
 
   async addGroupMember(member: { groupId: number; userId: number; role: string }): Promise<GroupMember> {
-    const [newMember] = await db.insert(groupMembers).values(member).returning();
+    const [newMember] = await db.insert(groupMembers).values({
+      groupId: member.groupId,
+      userId: member.userId,
+      joinedAt: new Date()
+    }).returning();
     return newMember;
   }
 
   async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember> {
     const [updatedMember] = await db
       .update(groupMembers)
-      .set({ role })
+      .set({ joinedAt: new Date() }) // Update with available field
       .where(eq(groupMembers.id, memberId))
       .returning();
 
