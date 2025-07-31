@@ -21,9 +21,17 @@ import type { Group, DelphiStudy } from '@shared/schema';
 export default function DelphiDashboard() {
   const { user, logout } = useAuth();
 
-  const { data: groups = [] } = useQuery({
+  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useQuery<Group[]>({
     queryKey: ['/api/delphi/groups'],
-  }) as { data: Group[] };
+    queryFn: async () => {
+      const response = await fetch('/api/delphi/groups', {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    enabled: !!user,
+  });
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -56,7 +64,32 @@ export default function DelphiDashboard() {
   };
 
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Acceso requerido
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Necesitas iniciar sesión para acceder al sistema RT Delphi
+          </p>
+          <Link href="/login">
+            <Button>Iniciar Sesión</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (groupsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Cargando dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
