@@ -24,7 +24,8 @@ import {
   BookOpen,
   Target,
   Clock,
-  BarChart3
+  BarChart3,
+  Brain
 } from 'lucide-react';
 import { useLocation, Link, useParams } from 'wouter';
 
