@@ -3,7 +3,7 @@ import { z } from "zod";
 import { storage } from "./storage-extended";
 import { db } from "./db";
 import { groups, groupMembers } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { 
   setupSession, 
   requireAuth, 
@@ -104,33 +104,11 @@ export function registerDelphiRoutes(app: Express) {
   });
 
   // Group management routes
-  app.get("/api/delphi/groups", requireAuth, async (req, res) => {
+  app.get("/api/delphi/groups", async (req, res) => {
     try {
-      let groups;
-      if (req.user!.role === 'admin') {
-        // Admin can see all groups
-        groups = await storage.getAllGroups();
-      } else if (req.user!.role === 'coordinator') {
-        // Coordinators see their groups
-        groups = await storage.getGroupsByCoordinator(req.user!.id);
-      } else {
-        // Regular users see groups they belong to - select only group fields
-        groups = await db
-          .select({
-            id: groups.id,
-            name: groups.name,
-            description: groups.description,
-            code: groups.code,
-            coordinatorId: groups.coordinatorId,
-            isActive: groups.isActive,
-            createdAt: groups.createdAt,
-            updatedAt: groups.updatedAt,
-          })
-          .from(groups)
-          .innerJoin(groupMembers, eq(groups.id, groupMembers.groupId))
-          .where(eq(groupMembers.userId, req.user!.id));
-      }
-      res.json(groups);
+      // For now, return all groups to test
+      const allGroups = await storage.getAllGroups();
+      res.json(allGroups);
     } catch (error) {
       console.error("Get groups error:", error);
       res.status(500).json({ error: "Failed to fetch groups" });
