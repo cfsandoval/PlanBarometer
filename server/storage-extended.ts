@@ -286,11 +286,30 @@ export class DatabaseStorage implements IExtendedStorage {
   }
 
   async getUserGroups(userId: number): Promise<(GroupMember & { group: Group })[]> {
-    return await db
-      .select()
+    const results = await db
+      .select({
+        // GroupMember fields
+        id: groupMembers.id,
+        groupId: groupMembers.groupId,
+        userId: groupMembers.userId,
+        joinedAt: groupMembers.joinedAt,
+        // Group fields nested
+        group: {
+          id: groups.id,
+          name: groups.name,
+          description: groups.description,
+          code: groups.code,
+          coordinatorId: groups.coordinatorId,
+          isActive: groups.isActive,
+          createdAt: groups.createdAt,
+          updatedAt: groups.updatedAt,
+        }
+      })
       .from(groupMembers)
       .innerJoin(groups, eq(groupMembers.groupId, groups.id))
       .where(eq(groupMembers.userId, userId));
+    
+    return results as (GroupMember & { group: Group })[];
   }
 
   async hasGroupAccess(userId: number, groupId: number): Promise<boolean> {
