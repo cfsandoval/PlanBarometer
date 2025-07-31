@@ -53,17 +53,17 @@ export default function GroupDetails() {
 
   const groupId = parseInt(id || '0');
 
-  const { data: group, isLoading: groupLoading, error: groupError } = useQuery({
+  const { data: group, isLoading: groupLoading, error: groupError } = useQuery<Group>({
     queryKey: [`/api/delphi/groups/${groupId}`],
     enabled: !!groupId,
   });
 
-  const { data: members = [], isLoading: membersLoading } = useQuery({
+  const { data: members = [], isLoading: membersLoading } = useQuery<GroupMember[]>({
     queryKey: [`/api/delphi/groups/${groupId}/members`],
     enabled: !!groupId,
   });
 
-  const { data: studies = [], isLoading: studiesLoading } = useQuery({
+  const { data: studies = [], isLoading: studiesLoading } = useQuery<any[]>({
     queryKey: [`/api/delphi/groups/${groupId}/studies`],
     enabled: !!groupId,
   });
