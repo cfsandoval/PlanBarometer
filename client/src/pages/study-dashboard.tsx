@@ -555,10 +555,10 @@ export default function StudyDashboard() {
                     <p className="text-gray-500 dark:text-gray-400 mb-4">
                       Visualiza convergencia y divergencia entre expertos
                     </p>
-                    <Link href={`/delphi/studies/${studyId}/evaluate`}>
+                    <Link href={`/delphi/studies/${studyId}/feedback`}>
                       <Button variant="outline" className="w-full">
                         <BarChart3 className="h-4 w-4 mr-2" />
-                        Ver Consenso
+                        Ver Retroalimentación
                       </Button>
                     </Link>
                   </div>

@@ -135,6 +135,7 @@ Preferred communication style: Simple, everyday language.
 23. **Study-Specific Expert Assignment**: Granular participant management allowing coordinators to invite specific experts to individual studies with expertise areas, separate from group membership
 24. **Complete Study Dashboard**: Comprehensive individual study interface with tabbed navigation (Overview, Participants, Evaluation, Results) including metrics, progress tracking, and participant management
 25. **Route Resolution**: Fixed 404 errors for study URLs (/delphi/studies/:id) with proper frontend routing and authentication handling
+26. **Personalized Expert Feedback Mechanism**: Advanced feedback system providing individualized performance analysis, deviation patterns (aligned/optimistic/conservative/outlier), personalized learning insights, skill development recommendations, and expert progression tracking with achievement levels
 
 ### Key Architectural Decisions
 

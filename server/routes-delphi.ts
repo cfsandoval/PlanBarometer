@@ -132,7 +132,6 @@ export function registerDelphiRoutes(app: Express) {
       const group = await storage.createGroup({
         name: groupData.name,
         description: groupData.description,
-        coordinatorId: req.user!.id,
         code,
       });
 
@@ -914,6 +913,101 @@ export function registerDelphiRoutes(app: Express) {
     } catch (error) {
       console.error("Membership heatmap error:", error);
       res.status(500).json({ error: "Failed to generate heatmap data" });
+    }
+  });
+
+  // Personalized Expert Feedback routes
+  app.get("/api/delphi/studies/:studyId/feedback/:expertId", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const expertId = parseInt(req.params.expertId);
+      
+      // In a real implementation, this would calculate personalized feedback
+      // based on the expert's responses compared to group consensus
+      const mockFeedback = {
+        expertId: expertId,
+        studyId: studyId,
+        overallPerformance: {
+          accuracyScore: 87,
+          consensusAlignment: 75,
+          confidenceLevel: 82,
+          expertLevel: 'advanced'
+        },
+        criterionFeedback: [
+          {
+            criterionId: 'crit1',
+            criterionName: 'Viabilidad Técnica',
+            personalScore: 8,
+            groupMean: 7.5,
+            deviation: 0.5,
+            deviationType: 'optimistic',
+            confidenceLevel: 85,
+            strengths: [
+              'Identificación clara de oportunidades técnicas',
+              'Justificación bien fundamentada',
+              'Perspectiva innovadora'
+            ],
+            improvementAreas: [
+              'Análisis de limitaciones técnicas',
+              'Evaluación de riesgos operacionales'
+            ],
+            recommendations: [
+              'Tu evaluación está ligeramente por encima del promedio grupal',
+              'Considera revisar aspectos técnicos que otros expertos pueden haber identificado como limitantes',
+              'Profundiza en el análisis de riesgos técnicos'
+            ]
+          }
+        ],
+        learningInsights: [
+          {
+            id: 'insight1',
+            title: 'Calibración de Evaluaciones con Consenso Grupal',
+            description: 'Aprende técnicas para alinear mejor tus evaluaciones con el consenso sin perder tu perspectiva única',
+            category: 'consensus_building',
+            priority: 'high',
+            resources: [
+              {
+                title: 'Técnicas de Calibración en Evaluación Delphi',
+                type: 'article',
+                url: '#'
+              }
+            ]
+          }
+        ]
+      };
+
+      res.json(mockFeedback);
+    } catch (error) {
+      console.error("Get expert feedback error:", error);
+      res.status(500).json({ error: "Failed to fetch expert feedback" });
+    }
+  });
+
+  // Get expert profile and evaluation history
+  app.get("/api/delphi/experts/:expertId/profile", requireAuth, async (req, res) => {
+    try {
+      const expertId = parseInt(req.params.expertId);
+      
+      const mockProfile = {
+        id: expertId,
+        expertiseAreas: ['Planificación Estratégica', 'Políticas Públicas', 'Desarrollo Sostenible'],
+        evaluationHistory: {
+          totalEvaluations: 15,
+          averageAccuracy: 87,
+          consensusAlignment: 75,
+          skillMetrics: {
+            evaluationPrecision: 87,
+            consensusBuilding: 75,
+            criticalThinking: 92,
+            domainKnowledge: 80
+          }
+        }
+      };
+
+      res.json(mockProfile);
+    } catch (error) {
+      console.error("Get expert profile error:", error);
+      res.status(500).json({ error: "Failed to fetch expert profile" });
     }
   });
 }

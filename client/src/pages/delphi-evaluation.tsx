@@ -22,7 +22,8 @@ import {
   Star,
   BarChart3,
   Eye,
-  Save
+  Save,
+  Brain
 } from 'lucide-react';
 import { useLocation, Link, useParams } from 'wouter';
 
@@ -464,7 +465,13 @@ export default function DelphiEvaluation() {
                   </div>
                 ))}
 
-                <div className="flex justify-end pt-6">
+                <div className="flex justify-between pt-6">
+                  <Link href={`/delphi/studies/${studyId}/feedback`}>
+                    <Button variant="outline" size="lg">
+                      <Brain className="h-4 w-4 mr-2" />
+                      Ver Mi Retroalimentación
+                    </Button>
+                  </Link>
                   <Button 
                     onClick={handleSubmit}
                     disabled={submitResponsesMutation.isPending || progressPercentage < 100}
