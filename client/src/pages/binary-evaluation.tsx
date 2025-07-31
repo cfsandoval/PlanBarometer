@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { ConsensusGauge } from '@/components/consensus-gauge';
 import { apiRequest } from '@/lib/queryClient';
 import {
   ArrowLeft,
@@ -391,8 +392,8 @@ export default function BinaryEvaluation() {
                 {mockConsensusData.map((consensus) => (
                   <div key={consensus.criterionId} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
                           {consensus.criterionName}
                         </h3>
                         <div className={`flex items-center space-x-2 ${getConsensusColor(consensus.level)}`}>
@@ -400,9 +401,17 @@ export default function BinaryEvaluation() {
                           <span className="font-medium">{getConsensusLabel(consensus.level)}</span>
                         </div>
                       </div>
-                      <Badge variant={consensus.level === 'high' ? 'default' : consensus.level === 'medium' ? 'secondary' : 'destructive'}>
-                        {Math.round(consensus.consensus * 100)}% consenso
-                      </Badge>
+                      <div className="flex items-center space-x-4">
+                        <Badge variant={consensus.level === 'high' ? 'default' : consensus.level === 'medium' ? 'secondary' : 'destructive'}>
+                          {Math.round(consensus.consensus * 100)}% consenso
+                        </Badge>
+                        <ConsensusGauge 
+                          value={consensus.consensus}
+                          title="Nivel de Consenso"
+                          size="md"
+                          showDetails={true}
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
@@ -453,7 +462,48 @@ export default function BinaryEvaluation() {
 
           {/* Analysis Tab */}
           <TabsContent value="analysis" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Consensus Overview Gauges */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Panorama General de Consenso</CardTitle>
+                <CardDescription>
+                  Medidores de consenso para métricas clave del estudio
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <ConsensusGauge 
+                      value={0.72}
+                      title="Consenso General"
+                      description="Promedio global de acuerdo"
+                      size="lg"
+                      showDetails={true}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <ConsensusGauge 
+                      value={0.85}
+                      title="Criterios Técnicos"
+                      description="Acuerdo en aspectos técnicos"
+                      size="lg"
+                      showDetails={true}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <ConsensusGauge 
+                      value={0.58}
+                      title="Criterios Operativos"
+                      description="Acuerdo en aspectos operativos"
+                      size="lg"
+                      showDetails={true}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
