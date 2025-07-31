@@ -29,12 +29,13 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Build URL from queryKey array or string
-    const url = Array.isArray(queryKey) 
-      ? queryKey.join('') // Join without separator since the first element should be the full path
-      : String(queryKey);
+    // Build URL from queryKey - take first element if array
+    const url = Array.isArray(queryKey) ? queryKey[0] : queryKey;
+    
+    console.log('Fetching URL:', url, 'from queryKey:', queryKey);
 
-    const res = await fetch(url, {
+    const res = await fetch(url as string, {
+      method: 'GET',
       credentials: "include",
     });
 
