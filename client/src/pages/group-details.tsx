@@ -274,6 +274,36 @@ export default function GroupDetails() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             {study.description}
                           </p>
+                          <div className="flex space-x-2 mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.location.href = `/delphi/studies/${study.id}`}
+                            >
+                              <PlayCircle className="mr-2 h-4 w-4" />
+                              Acceder
+                            </Button>
+                            {isCoordinator && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.location.href = `/delphi/studies/${study.id}/participants`}
+                                >
+                                  <Users className="mr-2 h-4 w-4" />
+                                  Expertos
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.location.href = `/delphi/studies/${study.id}/settings`}
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  Config
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
                         <Badge variant="outline">
                           {study.status}

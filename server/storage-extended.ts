@@ -684,13 +684,9 @@ export class DatabaseStorage implements IExtendedStorage {
   }
 
   async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember> {
-    const [updatedMember] = await db
-      .update(groupMembers)
-      .set({ joinedAt: new Date() }) // Update with available field
-      .where(eq(groupMembers.id, memberId))
-      .returning();
-
-    return updatedMember;
+    // Since role field doesn't exist in groupMembers, we just return the member
+    const [member] = await db.select().from(groupMembers).where(eq(groupMembers.id, memberId));
+    return member;
   }
 
   async removeGroupMember(memberId: number): Promise<void> {

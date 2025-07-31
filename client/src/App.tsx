@@ -17,6 +17,7 @@ import CreateStudy from "@/pages/create-study";
 import ManageMembers from "@/pages/manage-members";
 import AdminUsers from "@/pages/admin-users";
 import MembershipHeatmap from "@/pages/membership-heatmap";
+import StudyParticipants from "@/pages/study-participants";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/delphi/groups/:id/members" component={ManageMembers} />
       <Route path="/delphi/admin/users" component={AdminUsers} />
       <Route path="/delphi/membership-heatmap" component={MembershipHeatmap} />
+      <Route path="/delphi/studies/:studyId/participants" component={StudyParticipants} />
       <Route path="/delphi/groups/:id" component={GroupDetails} />
       <Route component={NotFound} />
     </Switch>

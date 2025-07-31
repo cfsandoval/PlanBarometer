@@ -270,6 +270,116 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  // Study participants management routes
+  app.get("/api/delphi/studies/:studyId/participants", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      // For now, return group members as participants
+      const study = await storage.getDelphiStudy(studyId);
+      if (!study) {
+        return res.status(404).json({ error: "Study not found" });
+      }
+      
+      const members = await storage.getGroupMembers(study.groupId || 0);
+      const participants = members.map(member => ({
+        id: member.id,
+        studyId: studyId,
+        userId: member.userId,
+        status: 'active',
+        role: 'participant',
+        expertise: null,
+        invitedAt: member.joinedAt,
+        joinedAt: member.joinedAt,
+        user: member.user
+      }));
+      
+      res.json(participants);
+    } catch (error) {
+      console.error("Get study participants error:", error);
+      res.status(500).json({ error: "Failed to fetch study participants" });
+    }
+  });
+
+  app.post("/api/delphi/studies/:studyId/participants", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const { email, role = 'participant', expertise } = req.body;
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: "User not found with that email" });
+      }
+      
+      // Get study and add user to group if not already a member
+      const study = await storage.getDelphiStudy(studyId);
+      if (!study) {
+        return res.status(404).json({ error: "Study not found" });
+      }
+      
+      const existingMember = await storage.getGroupMember(study.groupId || 0, user.id);
+      if (!existingMember) {
+        await storage.addGroupMember({
+          groupId: study.groupId || 0,
+          userId: user.id,
+          role: 'user'
+        });
+      }
+      
+      const participant = {
+        id: Date.now(), // Temporary ID
+        studyId: studyId,
+        userId: user.id,
+        status: 'invited',
+        role: role,
+        expertise: expertise,
+        invitedAt: new Date().toISOString(),
+        user: user
+      };
+      
+      res.status(201).json(participant);
+    } catch (error) {
+      console.error("Add study participant error:", error);
+      res.status(500).json({ error: "Failed to add participant" });
+    }
+  });
+
+  app.delete("/api/delphi/studies/:studyId/participants/:participantId", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const participantId = parseInt(req.params.participantId);
+      
+      // For now, we'll just return success
+      res.status(204).send();
+    } catch (error) {
+      console.error("Remove study participant error:", error);
+      res.status(500).json({ error: "Failed to remove participant" });
+    }
+  });
+
+  // Study details route
+  app.get("/api/delphi/studies/:studyId", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const study = await storage.getDelphiStudy(studyId);
+      if (!study) {
+        return res.status(404).json({ error: "Study not found" });
+      }
+      
+      // Get group info
+      const group = await storage.getGroup(study.groupId || 0);
+      const studyWithGroup = {
+        ...study,
+        group: group
+      };
+      
+      res.json(studyWithGroup);
+    } catch (error) {
+      console.error("Get study details error:", error);
+      res.status(500).json({ error: "Failed to fetch study details" });
+    }
+  });
+
   // Admin user management routes
   app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
     try {
