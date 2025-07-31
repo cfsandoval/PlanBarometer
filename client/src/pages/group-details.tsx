@@ -14,7 +14,8 @@ import {
   Calendar,
   User,
   Copy,
-  Check
+  Check,
+  Play
 } from 'lucide-react';
 import { useLocation, Link, useParams } from 'wouter';
 
@@ -280,7 +281,7 @@ export default function GroupDetails() {
                               size="sm"
                               onClick={() => window.location.href = `/delphi/studies/${study.id}`}
                             >
-                              <PlayCircle className="mr-2 h-4 w-4" />
+                              <Play className="mr-2 h-4 w-4" />
                               Acceder
                             </Button>
                             {isCoordinator && (
