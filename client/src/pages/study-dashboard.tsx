@@ -523,19 +523,57 @@ export default function StudyDashboard() {
           <TabsContent value="evaluation" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Panel de Evaluación</CardTitle>
+                <CardTitle>Panel de Evaluación Delphi</CardTitle>
                 <CardDescription>
-                  Herramientas para realizar la evaluación Delphi
+                  Sistema colaborativo de evaluación y búsqueda de consenso entre expertos
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center py-12">
-                <Target className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Funcionalidad en Desarrollo
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  El sistema de evaluación Delphi estará disponible próximamente
-                </p>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="text-center p-6 border rounded-lg">
+                    <Target className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      Iniciar Evaluación
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">
+                      Califica criterios del 1-10 con justificaciones detalladas
+                    </p>
+                    <Link href={`/delphi/studies/${studyId}/evaluate`}>
+                      <Button className="w-full">
+                        <Target className="h-4 w-4 mr-2" />
+                        Comenzar Evaluación
+                      </Button>
+                    </Link>
+                  </div>
+                  
+                  <div className="text-center p-6 border rounded-lg">
+                    <BarChart3 className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      Análisis de Consenso
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">
+                      Visualiza convergencia y divergencia entre expertos
+                    </p>
+                    <Link href={`/delphi/studies/${studyId}/evaluate`}>
+                      <Button variant="outline" className="w-full">
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Ver Consenso
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+                    Metodología Delphi - Ronda {study.currentRound} de {study.rounds}
+                  </h4>
+                  <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                    <li>• Evaluación anónima e independiente de criterios</li>
+                    <li>• Justificación de puntuaciones para retroalimentación</li>
+                    <li>• Análisis estadístico de consenso y divergencias</li>
+                    <li>• Rondas iterativas hasta alcanzar convergencia</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
