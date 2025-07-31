@@ -23,7 +23,8 @@ import {
   Play,
   BookOpen,
   Target,
-  Clock
+  Clock,
+  BarChart3
 } from 'lucide-react';
 import { useLocation, Link, useParams } from 'wouter';
 
