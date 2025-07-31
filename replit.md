@@ -131,6 +131,7 @@ Preferred communication style: Simple, everyday language.
 19. **RT Delphi Multi-User System**: Complete collaborative evaluation system with user roles (admin, coordinator, user), group management, and real-time studies
 20. **Member Management**: Full CRUD functionality for managing group members with role-based permissions and email invitations
 21. **Admin Users Interface**: Comprehensive user administration page with create, edit, delete, and search capabilities for system administrators
+22. **Visual Membership Heatmap**: Interactive matrix visualization showing user-group relationships with color-coded membership status (green=member, blue=coordinator, gray=not member), hover tooltips, and comprehensive statistics dashboard
 
 ### Key Architectural Decisions
 
