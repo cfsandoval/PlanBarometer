@@ -52,14 +52,24 @@ export default function CreateStudy() {
 
   const createStudyMutation = useMutation({
     mutationFn: async (data: CreateStudyData) => {
-      const response = await apiRequest(`/api/delphi/groups/${groupId}/studies`, {
+      const response = await fetch(`/api/delphi/groups/${groupId}/studies`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
         body: JSON.stringify({
           ...data,
           groupId: parseInt(groupId || '0'),
         }),
       });
-      return response;
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`${response.status}: ${error}`);
+      }
+      
+      return response.json();
     },
     onSuccess: (study) => {
       toast({

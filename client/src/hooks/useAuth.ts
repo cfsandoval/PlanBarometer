@@ -7,6 +7,16 @@ export function useAuth() {
 
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['/api/auth/me'],
+    queryFn: async () => {
+      const response = await fetch('/api/auth/me', {
+        credentials: "include",
+      });
+      if (response.status === 404 || response.status === 401) {
+        return null;
+      }
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
     retry: false,
   });
 
