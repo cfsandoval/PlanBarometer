@@ -680,4 +680,69 @@ export function registerDelphiRoutes(app: Express) {
       res.status(500).json({ error: "Failed to fetch study progress" });
     }
   });
+
+  // Membership heatmap route
+  app.get("/api/delphi/membership-heatmap", requireAuth, async (req, res) => {
+    try {
+      // Get all groups with their coordinators
+      const groups = await storage.getAllGroups();
+      const groupsWithCoordinators = await Promise.all(
+        groups.map(async (group) => {
+          const coordinator = await storage.getUser(group.coordinatorId!);
+          const members = await storage.getGroupMembers(group.id);
+          return {
+            id: group.id,
+            name: group.name,
+            code: group.code,
+            memberCount: members.length,
+            coordinatorName: coordinator ? `${coordinator.firstName} ${coordinator.lastName}`.trim() || coordinator.username : 'Unknown',
+          };
+        })
+      );
+
+      // Get all users with their group memberships
+      const allUsers = await storage.getAllUsers();
+      const usersWithMemberships = await Promise.all(
+        allUsers.map(async (user) => {
+          const userGroups = await storage.getUserGroups(user.id);
+          const groupMemberships = userGroups.map((membership: any) => ({
+            groupId: membership.groupId || membership.group?.id,
+            joinedAt: membership.joinedAt,
+            isCoordinator: groups.some(g => g.coordinatorId === user.id && (g.id === membership.groupId || g.id === membership.group?.id)),
+          }));
+
+          return {
+            id: user.id,
+            name: `${user.firstName} ${user.lastName}`.trim() || user.username,
+            email: user.email || '',
+            role: user.role,
+            groupMemberships,
+          };
+        })
+      );
+
+      // Create membership matrix
+      const matrix = usersWithMemberships.map((user) => 
+        groupsWithCoordinators.map((group) => {
+          const membership = user.groupMemberships.find(m => m.groupId === group.id);
+          return {
+            isMember: !!membership,
+            isCoordinator: membership?.isCoordinator || false,
+            joinedAt: membership?.joinedAt,
+          };
+        })
+      );
+
+      const heatmapData = {
+        groups: groupsWithCoordinators,
+        users: usersWithMemberships,
+        matrix,
+      };
+
+      res.json(heatmapData);
+    } catch (error) {
+      console.error("Membership heatmap error:", error);
+      res.status(500).json({ error: "Failed to generate heatmap data" });
+    }
+  });
 }

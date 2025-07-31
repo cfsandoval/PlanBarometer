@@ -12,7 +12,8 @@ import {
   Plus,
   Crown,
   Shield,
-  User as UserIcon
+  User as UserIcon,
+  Grid3X3
 } from 'lucide-react';
 import { Link } from 'wouter';
 import type { Group, DelphiStudy } from '@shared/schema';
@@ -265,18 +266,20 @@ export default function DelphiDashboard() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center">
-                        <BookOpen className="mr-2 h-5 w-5" />
-                        Sistema General
+                        <Grid3X3 className="mr-2 h-5 w-5" />
+                        Análisis de Membresías
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Configuración general del sistema y estadísticas.
+                        Vista visual de membresías de usuarios en grupos.
                       </p>
-                      <Button variant="outline" className="w-full" disabled>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Próximamente
-                      </Button>
+                      <Link href="/delphi/membership-heatmap">
+                        <Button variant="outline" className="w-full">
+                          <Grid3X3 className="mr-2 h-4 w-4" />
+                          Ver Mapa de Calor
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 </div>
