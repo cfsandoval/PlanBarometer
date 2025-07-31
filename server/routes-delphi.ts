@@ -113,7 +113,7 @@ export function registerDelphiRoutes(app: Express) {
       } else {
         // Regular users see groups they belong to
         const userGroups = await storage.getUserGroups(req.user!.id);
-        groups = userGroups.map(ug => ug.group);
+        groups = userGroups.map(ug => ug.group).filter(g => g !== null);
       }
       res.json(groups);
     } catch (error) {

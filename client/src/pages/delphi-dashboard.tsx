@@ -185,7 +185,7 @@ export default function DelphiDashboard() {
                 )}
               </div>
 
-              {groups.length === 0 ? (
+              {(!groups || groups.length === 0 || groups.some(g => !g)) ? (
                 <Card>
                   <CardContent className="p-6 text-center">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -210,7 +210,7 @@ export default function DelphiDashboard() {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groups.map((group: Group) => (
+                  {groups.filter(group => group && group.id).map((group: Group) => (
                     <Card key={group.id} className="hover:shadow-md transition-shadow">
                       <CardHeader>
                         <CardTitle className="flex items-center justify-between">
