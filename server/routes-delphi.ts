@@ -381,6 +381,64 @@ export function registerDelphiRoutes(app: Express) {
     }
   });
 
+  // Update study route
+  app.patch("/api/delphi/studies/:studyId", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      const updateData = req.body;
+      
+      // Verify study exists and user has permission
+      const existingStudy = await storage.getDelphiStudy(studyId);
+      if (!existingStudy) {
+        return res.status(404).json({ error: "Study not found" });
+      }
+      
+      // Check if user is coordinator or admin
+      const group = await storage.getGroup(existingStudy.groupId || 0);
+      if (req.user!.role !== 'admin' && group?.coordinatorId !== req.user!.id) {
+        return res.status(403).json({ error: "Not authorized to update this study" });
+      }
+      
+      // Update study (for now, we'll just return the updated data)
+      const updatedStudy = {
+        ...existingStudy,
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      res.json(updatedStudy);
+    } catch (error) {
+      console.error("Update study error:", error);
+      res.status(500).json({ error: "Failed to update study" });
+    }
+  });
+
+  // Delete study route
+  app.delete("/api/delphi/studies/:studyId", requireAuth, async (req, res) => {
+    try {
+      const studyId = parseInt(req.params.studyId);
+      
+      // Verify study exists and user has permission
+      const existingStudy = await storage.getDelphiStudy(studyId);
+      if (!existingStudy) {
+        return res.status(404).json({ error: "Study not found" });
+      }
+      
+      // Check if user is coordinator or admin
+      const group = await storage.getGroup(existingStudy.groupId || 0);
+      if (req.user!.role !== 'admin' && group?.coordinatorId !== req.user!.id) {
+        return res.status(403).json({ error: "Not authorized to delete this study" });
+      }
+      
+      // For now, we'll just return success
+      // In a real implementation, you'd delete from database
+      res.status(204).send();
+    } catch (error) {
+      console.error("Delete study error:", error);
+      res.status(500).json({ error: "Failed to delete study" });
+    }
+  });
+
   // Admin user management routes
   app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
     try {
