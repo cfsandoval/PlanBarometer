@@ -132,6 +132,9 @@ Preferred communication style: Simple, everyday language.
 20. **Member Management**: Full CRUD functionality for managing group members with role-based permissions and email invitations
 21. **Admin Users Interface**: Comprehensive user administration page with create, edit, delete, and search capabilities for system administrators
 22. **Visual Membership Heatmap**: Interactive matrix visualization showing user-group relationships with color-coded membership status (green=member, blue=coordinator, gray=not member), hover tooltips, and comprehensive statistics dashboard
+23. **Study-Specific Expert Assignment**: Granular participant management allowing coordinators to invite specific experts to individual studies with expertise areas, separate from group membership
+24. **Complete Study Dashboard**: Comprehensive individual study interface with tabbed navigation (Overview, Participants, Evaluation, Results) including metrics, progress tracking, and participant management
+25. **Route Resolution**: Fixed 404 errors for study URLs (/delphi/studies/:id) with proper frontend routing and authentication handling
 
 ### Key Architectural Decisions
 
