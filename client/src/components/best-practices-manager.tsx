@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search } from 'lucide-react';
+import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import type { BestPractice } from '@shared/schema';
 
@@ -42,8 +42,6 @@ export default function BestPracticesManager() {
     queryKey: ['/api/best-practices'],
   });
 
-
-
   const createMutation = useMutation({
     mutationFn: async (data: BestPracticeFormData) => {
       const response = await fetch('/api/best-practices', {
@@ -58,6 +56,21 @@ export default function BestPracticesManager() {
       queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
       setIsDialogOpen(false);
       form.reset();
+    },
+  });
+
+  const scrapeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/best-practices/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to scrape');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
+      console.log(`Successfully scraped ${data.practices?.length || 0} new practices`);
     },
   });
 
@@ -91,9 +104,10 @@ export default function BestPracticesManager() {
   };
 
   const filteredPractices = (practices as BestPractice[]).filter((practice) => {
-    const matchesSearch = practice.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         practice.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         practice.country.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = 
+      practice.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      practice.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      practice.country.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === 'all' || practice.sourceType === filterType;
     const matchesCountry = filterCountry === 'all' || practice.country === filterCountry;
@@ -101,17 +115,15 @@ export default function BestPracticesManager() {
     return matchesSearch && matchesType && matchesCountry;
   });
 
-  const uniqueCountries = Array.from(new Set((practices as BestPractice[]).map((p) => p.country)));
+  const uniqueCountries = Array.from(new Set((practices as BestPractice[]).map(p => p.country))).sort();
 
-  const getSourceTypeLabel = (type: string) => {
-    const labels = {
-      pdf: 'PDF',
-      web: 'Web',
-      academic: 'Académico',
-      case_study: 'Caso de Estudio'
-    };
-    return labels[type as keyof typeof labels] || type;
-  };
+  if (isLoading) {
+    return <div className="p-6">Cargando repositorio...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6">Error al cargar las buenas prácticas</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -144,55 +156,29 @@ export default function BestPracticesManager() {
           )}
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Práctica
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Agregar Nueva Buena Práctica</DialogTitle>
-            </DialogHeader>
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Título *</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Nombre de la política, programa o estrategia" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descripción *</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} placeholder="Descripción concisa de la práctica" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-2">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Práctica
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Agregar Nueva Buena Práctica</DialogTitle>
+              </DialogHeader>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="country"
+                    name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>País *</FormLabel>
+                        <FormLabel>Título *</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="País donde se implementó" />
+                          <Input {...field} placeholder="Nombre de la política, programa o estrategia" />
                         </FormControl>
                       </FormItem>
                     )}
@@ -200,115 +186,76 @@ export default function BestPracticesManager() {
 
                   <FormField
                     control={form.control}
-                    name="institution"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Institución</FormLabel>
+                        <FormLabel>Descripción *</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Institución responsable" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Año</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                            placeholder="Año de implementación" 
-                          />
+                          <Textarea {...field} placeholder="Descripción concisa de la práctica" />
                         </FormControl>
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="sourceType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de Fuente *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>País *</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleccionar tipo" />
-                            </SelectTrigger>
+                            <Input {...field} placeholder="País donde se implementó" />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="pdf">PDF</SelectItem>
-                            <SelectItem value="web">Web</SelectItem>
-                            <SelectItem value="academic">Académico</SelectItem>
-                            <SelectItem value="case_study">Caso de Estudio</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="sourceUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL de la Fuente</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="https://..." />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="institution"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Institución</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Organización responsable" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-                <FormField
-                  control={form.control}
-                  name="targetCriteria"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Criterios Objetivo *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Separar con comas: coordinación, innovación, participación" 
-                          onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="results"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Resultados</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} placeholder="Resultados específicos y medibles obtenidos" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? 'Guardando...' : 'Guardar Práctica'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <div className="flex justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={createMutation.isPending}>
+                      {createMutation.isPending ? 'Guardando...' : 'Guardar Práctica'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => scrapeMutation.mutate()}
+            disabled={scrapeMutation.isPending}
+          >
+            {scrapeMutation.isPending ? (
+              <>
+                <Download className="h-4 w-4 mr-2 animate-spin" />
+                Extrayendo...
+              </>
+            ) : (
+              <>
+                <Globe className="h-4 w-4 mr-2" />
+                Extraer de Repositorios
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -373,80 +320,48 @@ export default function BestPracticesManager() {
       </div>
 
       <div className="grid gap-4">
-        {isLoading ? (
-          <div className="text-center py-8">
-            <h3 className="text-lg font-semibold mb-2">Cargando repositorio de buenas prácticas...</h3>
-            <div className="animate-pulse space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-600">
-            <h3 className="text-lg font-semibold mb-2">Error cargando buenas prácticas</h3>
-            <p className="text-sm">Error: {error.message}</p>
-          </div>
-        ) : filteredPractices.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">No se encontraron prácticas</h3>
-            <p className="text-sm">
-              {practices.length === 0 
-                ? "No hay buenas prácticas en el repositorio aún."
-                : "No se encontraron prácticas que coincidan con los filtros."
-              }
-            </p>
-          </div>
+        {filteredPractices.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-muted-foreground">No se encontraron prácticas que coincidan con los filtros</p>
+            </CardContent>
+          </Card>
         ) : (
           filteredPractices.map((practice) => (
-            <Card key={practice.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{practice.title}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      <span>{practice.country}</span>
-                      {practice.institution && (
-                        <>
-                          <span>•</span>
-                          <span>{practice.institution}</span>
-                        </>
-                      )}
-                      {practice.year && (
-                        <>
-                          <span>•</span>
-                          <span>{practice.year}</span>
-                        </>
-                      )}
+            <Card key={practice.id}>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2">{practice.title}</h3>
+                      <p className="text-muted-foreground mb-3">{practice.description}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">
-                      {getSourceTypeLabel(practice.sourceType)}
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteMutation.mutate(practice.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">País:</span>
+                      <span>{practice.country}</span>
+                    </div>
+                    {practice.institution && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium">Institución:</span>
+                        <span>{practice.institution}</span>
+                      </div>
+                    )}
+                    {practice.year && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium">Año:</span>
+                        <span>{practice.year}</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {practice.description}
-                </p>
-                
-                <div className="space-y-3">
+                  
                   <div>
                     <span className="text-sm font-medium">Criterios objetivo:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {practice.targetCriteria?.map((criterion, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                      {practice.targetCriteria.map((criterion, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
                           {criterion}
                         </Badge>
                       ))}

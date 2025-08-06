@@ -139,6 +139,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Web scraping endpoint for external repositories  
+  app.post("/api/best-practices/scrape", async (req, res) => {
+    try {
+      const { WebScraper } = await import('./web-scraper');
+      const scraper = new WebScraper();
+      
+      console.log('Starting web scraping of external repositories...');
+      const scrapedPractices = await scraper.scrapeAllRepositories();
+      
+      // Convert and save scraped practices
+      const savedPractices = [];
+      for (const scraped of scrapedPractices) {
+        try {
+          const practiceData = WebScraper.convertToBestPractice(scraped);
+          const savedPractice = await storage.createBestPractice(practiceData);
+          savedPractices.push(savedPractice);
+        } catch (error) {
+          console.error('Error saving scraped practice:', error);
+        }
+      }
+      
+      console.log(`Successfully scraped and saved ${savedPractices.length} new practices`);
+      res.json({ 
+        message: `Successfully scraped ${savedPractices.length} new practices`,
+        practices: savedPractices 
+      });
+    } catch (error) {
+      console.error('Error during web scraping:', error);
+      res.status(500).json({ message: 'Failed to scrape external repositories' });
+    }
+  });
+
   // Update best practice
   app.put("/api/best-practices/:id", async (req, res) => {
     try {
