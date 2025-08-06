@@ -359,6 +359,8 @@ export const bestPractices = pgTable("best_practices", {
   results: text("results"),
   keyLessons: json("key_lessons").$type<string[]>(),
   tags: json("tags").$type<string[]>(),
+  isNew: boolean("is_new").default(true),
+  incorporatedAt: timestamp("incorporated_at").defaultNow(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()

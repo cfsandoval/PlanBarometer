@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe } from 'lucide-react';
+import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe, Terminal, Sparkles, Calendar } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import type { BestPractice } from '@shared/schema';
+import TerminalWindow from "./terminal-window";
+import TOPPSearchModule from "./topp-search-module";
 
 const bestPracticeFormSchema = z.object({
   title: z.string().min(1, "Título requerido"),
@@ -31,11 +33,22 @@ const bestPracticeFormSchema = z.object({
 
 type BestPracticeFormData = z.infer<typeof bestPracticeFormSchema>;
 
+interface TerminalEntry {
+  id: string;
+  timestamp: string;
+  command: string;
+  output: string;
+  status: 'running' | 'success' | 'error';
+}
+
 export default function BestPracticesManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterCountry, setFilterCountry] = useState<string>('all');
+  const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [toppFilters, setToppFilters] = useState<any>({});
   const queryClient = useQueryClient();
 
   const { data: practices = [], isLoading, error } = useQuery<BestPractice[]>({
@@ -75,20 +88,47 @@ export default function BestPracticesManager() {
     },
   });
 
+  const addTerminalEntry = (command: string, output: string, status: 'running' | 'success' | 'error' = 'success') => {
+    const entry: TerminalEntry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleTimeString(),
+      command,
+      output,
+      status
+    };
+    setTerminalEntries(prev => [...prev, entry]);
+  };
+
   const toppScrapeMutation = useMutation({
     mutationFn: async () => {
+      const startTime = Date.now();
+      addTerminalEntry('scrape-topp --repositories=6 --dimensions=TOPP', 'Iniciando extracción especializada TOPP...', 'running');
+      
       const response = await fetch('/api/best-practices/scrape-topp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!response.ok) throw new Error('Failed to scrape TOPP');
-      return response.json();
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to scrape TOPP');
+      
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+      addTerminalEntry(
+        'scrape-topp --completed', 
+        `✓ Extracción completada en ${duration}s\n✓ ${data.count} prácticas TOPP agregadas\n✓ Dimensiones: Técnicas, Operativas, Políticas, Prospectivas\n✓ Repositorios: CEPAL, BID, Chile, Colombia, México, Perú`, 
+        'success'
+      );
+      
+      return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
       const count = data.practices?.length || 0;
       alert(`🎯 Extracción TOPP exitosa!\n\n📊 ${count} prácticas de capacidades institucionales agregadas\n🔍 Enfoque en dimensiones Técnicas, Operativas, Políticas y Prospectivas\n✅ Datos especializados en fortalecimiento institucional`);
     },
+    onError: (error) => {
+      addTerminalEntry('scrape-topp --error', `✗ Error: ${error.message}`, 'error');
+    }
   });
 
   const deleteMutation = useMutation({
@@ -120,17 +160,62 @@ export default function BestPracticesManager() {
     createMutation.mutate(data);
   };
 
-  const filteredPractices = (practices as BestPractice[]).filter((practice) => {
-    const matchesSearch = 
-      practice.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      practice.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      practice.country.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterType === 'all' || practice.sourceType === filterType;
-    const matchesCountry = filterCountry === 'all' || practice.country === filterCountry;
-    
-    return matchesSearch && matchesType && matchesCountry;
-  });
+  const filteredPractices = useMemo(() => {
+    return (practices as BestPractice[]).filter((practice) => {
+      const matchesSearch = 
+        practice.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        practice.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        practice.country.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesType = filterType === 'all' || practice.sourceType === filterType;
+      const matchesCountry = filterCountry === 'all' || practice.country === filterCountry;
+      
+      // TOPP Filters
+      const matchesToppFilters = Object.entries(toppFilters).every(([key, value]) => {
+        if (!value || value === '') return true;
+        
+        switch (key) {
+          case 'dimension':
+            return practice.tags?.some(tag => 
+              tag.toLowerCase().includes(value.toLowerCase())
+            );
+          case 'country':
+            return practice.country.toLowerCase().includes(value.toLowerCase());
+          case 'institution':
+            return practice.institution?.toLowerCase().includes(value.toLowerCase());
+          case 'year':
+            return practice.year?.toString() === value;
+          case 'keyword':
+            return practice.title.toLowerCase().includes(value.toLowerCase()) ||
+                   practice.description.toLowerCase().includes(value.toLowerCase()) ||
+                   practice.results?.toLowerCase().includes(value.toLowerCase());
+          case 'targetCriterion':
+            return practice.targetCriteria?.some(criteria => 
+              criteria.toLowerCase().includes(value.toLowerCase())
+            );
+          default:
+            return true;
+        }
+      });
+      
+      return matchesSearch && matchesType && matchesCountry && matchesToppFilters;
+    });
+  }, [practices, searchTerm, filterType, filterCountry, toppFilters]);
+
+  const handleToppSearch = (filters: any) => {
+    setToppFilters(filters);
+    const activeFilters = Object.entries(filters).filter(([k,v]) => v);
+    addTerminalEntry(
+      'filter-topp --criteria=' + activeFilters.map(([k]) => k).join(','),
+      `Aplicando filtros TOPP:\n${activeFilters.map(([k,v]) => `• ${k}: ${v}`).join('\n')}\nResultados: ${filteredPractices.length} prácticas encontradas`,
+      'success'
+    );
+  };
+
+  const handleToppClear = () => {
+    setToppFilters({});
+    addTerminalEntry('clear-filters', 'Filtros TOPP limpiados. Mostrando todas las prácticas.', 'success');
+  };
 
   const uniqueCountries = Array.from(new Set((practices as BestPractice[]).map(p => p.country))).sort();
 
@@ -175,6 +260,15 @@ export default function BestPracticesManager() {
         </div>
         
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+            className="border-gray-300 hover:bg-gray-50"
+          >
+            <Terminal className="h-4 w-4 mr-2" />
+            Terminal TOPP
+          </Button>
+          
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -296,6 +390,9 @@ export default function BestPracticesManager() {
         </div>
       </div>
 
+      {/* TOPP Search Module */}
+      <TOPPSearchModule onSearch={handleToppSearch} onClear={handleToppClear} />
+
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
@@ -372,12 +469,28 @@ export default function BestPracticesManager() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-2">{practice.title}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg">{practice.title}</h3>
+                        {practice.isNew && (
+                          <div className="flex items-center gap-1">
+                            <Sparkles className="h-4 w-4 text-yellow-500" />
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                              NUEVA
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
                       <p className="text-muted-foreground mb-3">{practice.description}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-600">
+                        Incorporada: {practice.incorporatedAt ? new Date(practice.incorporatedAt).toLocaleDateString('es-ES') : 'N/A'}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-1">
                       <span className="font-medium">País:</span>
                       <span>{practice.country}</span>
@@ -433,6 +546,13 @@ export default function BestPracticesManager() {
           ))
         )}
       </div>
+
+      {/* Terminal Window */}
+      <TerminalWindow 
+        isOpen={isTerminalOpen}
+        onClose={() => setIsTerminalOpen(false)}
+        entries={terminalEntries}
+      />
     </div>
   );
 }
