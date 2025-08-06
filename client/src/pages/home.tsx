@@ -417,48 +417,63 @@ export default function Home() {
                 <p className="text-blue-100 text-sm">Herramienta de Evaluación ILPES-CEPAL</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="country-field" className="text-white text-sm">{t('country')}:</Label>
+            <div className="flex items-center space-x-4">
+              {/* Navigation Links */}
+              <nav className="flex items-center space-x-6">
+                <a href="/" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
+                  Inicio
+                </a>
+                <a href="/best-practices" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
+                  Buenas Prácticas
+                </a>
+                <a href="/delphi" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
+                  Sistema RT Delphi
+                </a>
+              </nav>
+              
+              {/* Form fields */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                  <Label htmlFor="country-field" className="text-white text-sm">{t('country')}:</Label>
                 <Input
                   id="country-field"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   placeholder={t('countryPlaceholder')}
                   className="bg-white text-gray-900 w-24 text-sm"
-                />
-              </div>
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="territory-field" className="text-white text-sm">{t('territory')}:</Label>
+                  />
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Label htmlFor="territory-field" className="text-white text-sm">{t('territory')}:</Label>
                 <Input
                   id="territory-field"
                   value={territory}
                   onChange={(e) => setTerritory(e.target.value)}
                   placeholder={t('territoryPlaceholder')}
                   className="bg-white text-gray-900 w-24 text-sm"
-                />
-              </div>
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="exercise-code" className="text-white text-sm">{t('exerciseCode')}:</Label>
+                  />
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Label htmlFor="exercise-code" className="text-white text-sm">{t('exerciseCode')}:</Label>
                 <Input
                   id="exercise-code"
                   value={exerciseCode}
                   onChange={(e) => setExerciseCode(e.target.value)}
                   placeholder={t('exerciseCodePlaceholder')}
                   className="bg-white text-gray-900 w-24 text-sm"
-                />
-              </div>
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="group-code" className="text-white text-sm">{t('groupCode')}:</Label>
+                  />
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Label htmlFor="group-code" className="text-white text-sm">{t('groupCode')}:</Label>
                 <Input
                   id="group-code"
                   value={groupCode}
                   onChange={(e) => setGroupCode(e.target.value)}
                   placeholder={t('groupCodePlaceholder')}
                   className="bg-white text-gray-900 w-24 text-sm"
-                />
-              </div>
-              <Button 
+                  />
+                </div>
+                <Button 
                 onClick={handleSaveEvaluation}
                 disabled={saveEvaluationMutation.isPending}
                 className="bg-blue-600 hover:bg-blue-700"
@@ -478,10 +493,11 @@ export default function Home() {
                 onClick={handleImportData}
                 variant="outline"
                 className="bg-white text-blue-600 border-white hover:bg-blue-50"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-              </Button>
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import
+                </Button>
+              </div>
             </div>
           </div>
         </div>
