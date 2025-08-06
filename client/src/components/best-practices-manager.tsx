@@ -42,7 +42,7 @@ export default function BestPracticesManager() {
     queryKey: ['/api/best-practices'],
   });
 
-  console.log('Best Practices Debug:', { practices, isLoading, error, practicesLength: practices?.length });
+
 
   const createMutation = useMutation({
     mutationFn: async (data: BestPracticeFormData) => {
@@ -120,10 +120,25 @@ export default function BestPracticesManager() {
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6" />
             Repositorio de Buenas Prácticas
+            <span className="text-lg font-normal text-blue-600">
+              ({practices.length} registradas)
+            </span>
           </h2>
           <p className="text-muted-foreground mt-1">
             Gestiona el repositorio de políticas públicas y mejores prácticas documentadas
           </p>
+          {!isLoading && practices.length > 0 && (
+            <div className="mt-3 flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="font-medium">{practices.length} prácticas documentadas</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>{uniqueCountries.length} países representados</span>
+              </div>
+            </div>
+          )}
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -345,8 +360,13 @@ export default function BestPracticesManager() {
       </Card>
 
       {/* Results */}
-      <div className="text-sm text-muted-foreground mb-4">
-        Mostrando {filteredPractices.length} de {(practices as BestPractice[]).length} prácticas
+      <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
+        <span>
+          Mostrando {filteredPractices.length} de {(practices as BestPractice[]).length} prácticas
+        </span>
+        <span className="font-medium">
+          Total en repositorio: {practices.length} buenas prácticas documentadas
+        </span>
       </div>
 
       <div className="grid gap-4">
