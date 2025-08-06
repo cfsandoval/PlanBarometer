@@ -38,9 +38,11 @@ export default function BestPracticesManager() {
   const [filterCountry, setFilterCountry] = useState<string>('all');
   const queryClient = useQueryClient();
 
-  const { data: practices = [], isLoading } = useQuery<BestPractice[]>({
+  const { data: practices = [], isLoading, error } = useQuery<BestPractice[]>({
     queryKey: ['/api/best-practices'],
   });
+
+  console.log('Best Practices Debug:', { practices, isLoading, error, practicesLength: practices?.length });
 
   const createMutation = useMutation({
     mutationFn: async (data: BestPracticeFormData) => {
@@ -349,10 +351,28 @@ export default function BestPracticesManager() {
 
       <div className="grid gap-4">
         {isLoading ? (
-          <div className="text-center py-8">Cargando prácticas...</div>
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold mb-2">Cargando repositorio de buenas prácticas...</h3>
+            <div className="animate-pulse space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-600">
+            <h3 className="text-lg font-semibold mb-2">Error cargando buenas prácticas</h3>
+            <p className="text-sm">Error: {error.message}</p>
+          </div>
         ) : filteredPractices.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No se encontraron prácticas que coincidan con los filtros
+            <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-semibold mb-2">No se encontraron prácticas</h3>
+            <p className="text-sm">
+              {practices.length === 0 
+                ? "No hay buenas prácticas en el repositorio aún."
+                : "No se encontraron prácticas que coincidan con los filtros."
+              }
+            </p>
           </div>
         ) : (
           filteredPractices.map((practice) => (
