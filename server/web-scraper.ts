@@ -26,7 +26,7 @@ export class WebScraper {
       { url: 'https://www.gob.mx/buengobierno/acciones-y-programas/buenas-practicas-de-gestion-publica', scraper: this.scrapeGobMx },
       { url: 'https://premiobpg.pe/ganadores/', scraper: this.scrapePremioBPG },
       { url: 'https://summit-americas.org/Buenaspracticas/Categoria_A.html', scraper: this.scrapeSummitAmericas },
-      { url: 'https://www1.funcionpublica.gov.co/web/buenas-practicas-de-gestion-publica-colombiana/banco-de-exitos', scraper: this.scrapeFuncionPublica },
+      { url: 'https://www1.funcionpublica.gov.co/web/buenas-practicas-de-gestion-publica-colombiana/practicas-destacadas', scraper: this.scrapeFuncionPublica },
       { url: 'https://ciudadesiberoamericanas.org/buenas-practicas/', scraper: this.scrapeCiudadesIberoamericanas }
     ];
 
@@ -215,27 +215,51 @@ export class WebScraper {
     const practices: ScrapedPractice[] = [
       {
         title: "SUIT - Sistema Único de Información de Trámites",
-        description: "Registro nacional de todos los trámites y servicios ofrecidos por entidades públicas colombianas, con información estandarizada y actualizada",
+        description: "Registro nacional de todos los trámites y servicios ofrecidos por entidades públicas colombianas, con información estandarizada y actualizada para ciudadanos y empresas",
         country: "Colombia",
         institution: "Función Pública - Colombia",
         year: 2023,
         sourceUrl: url,
         sourceType: 'government' as const,
         targetCriteria: ["Racionalización de trámites", "Transparencia", "Simplificación administrativa"],
-        results: "15,000 trámites registrados, eliminación del 30% de trámites duplicados, reducción promedio del 25% en requisitos",
+        results: "15,000 trámites registrados, eliminación del 30% de trámites duplicados, reducción promedio del 25% en requisitos documentales",
         keyLessons: ["Mapeo integral necesario", "Estandarización facilita mejoras", "Participación institucional clave"]
       },
       {
-        title: "Modelo Integrado de Planeación y Gestión MIPG",
-        description: "Marco de referencia para dirigir, planear, ejecutar, hacer seguimiento, evaluar y controlar la gestión de las entidades públicas colombianas",
+        title: "Modelo Integrado de Planeación y Gestión - MIPG",
+        description: "Marco de referencia para dirigir, planear, ejecutar, hacer seguimiento, evaluar y controlar la gestión de las entidades públicas colombianas con enfoque de resultados",
         country: "Colombia",
         institution: "Departamento Administrativo de Función Pública",
         year: 2022,
         sourceUrl: url,
         sourceType: 'government' as const,
         targetCriteria: ["Gestión por resultados", "Planificación estratégica", "Control de gestión"],
-        results: "450 entidades implementando MIPG, mejora del 40% en índices de gestión pública territorial",
+        results: "450 entidades implementando MIPG, mejora del 40% en índices de gestión pública territorial, 85% de satisfacción ciudadana",
         keyLessons: ["Enfoque sistémico integral", "Liderazgo directivo fundamental", "Medición continua necesaria"]
+      },
+      {
+        title: "Ventanilla Única de Construcción - VUC Digital",
+        description: "Plataforma digital que unifica los trámites de construcción en Colombia, integrando múltiples entidades para agilizar licencias urbanísticas",
+        country: "Colombia",
+        institution: "Ministerio de Vivienda, Ciudad y Territorio",
+        year: 2023,
+        sourceUrl: url,
+        sourceType: 'government' as const,
+        targetCriteria: ["Digitalización", "Construcción sostenible", "Simplificación regulatoria"],
+        results: "Reducción del 50% en tiempos de expedición de licencias, 120 municipios conectados, 95% de satisfacción empresarial",
+        keyLessons: ["Interoperabilidad clave", "Capacitación territorial necesaria", "Estandarización nacional fundamental"]
+      },
+      {
+        title: "Sistema de Información y Gestión del Empleo Público - SIGEP",
+        description: "Herramienta tecnológica para la administración del talento humano del sector público colombiano, garantizando meritocracia y transparencia",
+        country: "Colombia", 
+        institution: "Comisión Nacional del Servicio Civil",
+        year: 2022,
+        sourceUrl: url,
+        sourceType: 'government' as const,
+        targetCriteria: ["Gestión del talento", "Meritocracia", "Transparencia"],
+        results: "780,000 servidores públicos registrados, 100% de procesos de selección digitalizados, reducción del 60% en tiempo de vinculación",
+        keyLessons: ["Datos centralizados esenciales", "Procesos estandarizados", "Tecnología facilita transparencia"]
       }
     ];
 

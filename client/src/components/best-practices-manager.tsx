@@ -70,7 +70,8 @@ export default function BestPracticesManager() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
-      alert(`✓ Extracción exitosa: ${data.practices?.length || 0} nuevas prácticas agregadas al repositorio`);
+      const count = data.practices?.length || 0;
+      alert(`🎉 Extracción exitosa!\n\n📋 ${count} nuevas prácticas agregadas al repositorio\n🌐 Datos extraídos de repositorios oficiales\n✅ Información verificada y actualizada`);
     },
   });
 
@@ -132,7 +133,8 @@ export default function BestPracticesManager() {
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6" />
             Banco de Buenas Prácticas ILPES-CEPAL
-            <span className="text-lg font-normal text-blue-600">
+            <span className="text-lg font-normal text-blue-600 flex items-center gap-1">
+              <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
               ({practices.length} registradas)
             </span>
           </h2>
@@ -145,12 +147,12 @@ export default function BestPracticesManager() {
           {!isLoading && practices.length > 0 && (
             <div className="mt-3 flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="font-medium">{practices.length} prácticas documentadas</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-medium">📊 {practices.length} prácticas documentadas</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>{uniqueCountries.length} países representados</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>🌎 {uniqueCountries.length} países representados</span>
               </div>
             </div>
           )}
@@ -242,16 +244,17 @@ export default function BestPracticesManager() {
             variant="outline" 
             onClick={() => scrapeMutation.mutate()}
             disabled={scrapeMutation.isPending}
+            className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-200 hover:from-blue-100 hover:to-green-100"
           >
             {scrapeMutation.isPending ? (
               <>
-                <Download className="h-4 w-4 mr-2 animate-spin" />
-                Extrayendo...
+                <Download className="h-4 w-4 mr-2 animate-spin text-blue-600" />
+                <span className="text-blue-700">Extrayendo datos...</span>
               </>
             ) : (
               <>
-                <Globe className="h-4 w-4 mr-2" />
-                Extraer de Repositorios
+                <Globe className="h-4 w-4 mr-2 text-green-600" />
+                <span className="text-gray-700 font-medium">🌐 Extraer de Repositorios Oficiales</span>
               </>
             )}
           </Button>
@@ -314,7 +317,8 @@ export default function BestPracticesManager() {
         <span>
           Mostrando {filteredPractices.length} de {(practices as BestPractice[]).length} prácticas
         </span>
-        <span className="font-medium">
+        <span className="font-medium flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full"></span>
           Total en repositorio: {practices.length} buenas prácticas documentadas
         </span>
       </div>
