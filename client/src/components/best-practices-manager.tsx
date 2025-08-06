@@ -119,13 +119,16 @@ export default function BestPracticesManager() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6" />
-            Repositorio de Buenas Prácticas
+            Banco de Buenas Prácticas ILPES-CEPAL
             <span className="text-lg font-normal text-blue-600">
               ({practices.length} registradas)
             </span>
           </h2>
           <p className="text-muted-foreground mt-1">
-            Gestiona el repositorio de políticas públicas y mejores prácticas documentadas
+            Instituto Latinoamericano y del Caribe de Planificación Económica y Social
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Repositorio de políticas públicas y mejores prácticas documentadas para América Latina
           </p>
           {!isLoading && practices.length > 0 && (
             <div className="mt-3 flex items-center gap-4 text-sm">

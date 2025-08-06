@@ -415,6 +415,12 @@ export default function Home() {
               <div>
                 <h1 className="text-2xl font-bold">Planbarómetro</h1>
                 <p className="text-blue-100 text-sm">Herramienta de Evaluación ILPES-CEPAL</p>
+                <div className="mt-1 p-2 bg-blue-700/30 rounded border border-blue-500/20">
+                  <div className="text-xs text-blue-100">
+                    <div className="font-semibold">Banco de Buenas Prácticas ILPES-CEPAL</div>
+                    <div className="text-xs">Instituto Latinoamericano y del Caribe de Planificación Económica y Social</div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
