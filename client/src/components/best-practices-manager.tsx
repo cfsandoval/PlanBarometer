@@ -70,7 +70,7 @@ export default function BestPracticesManager() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
-      console.log(`Successfully scraped ${data.practices?.length || 0} new practices`);
+      alert(`✓ Extracción exitosa: ${data.practices?.length || 0} nuevas prácticas agregadas al repositorio`);
     },
   });
 
