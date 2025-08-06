@@ -73,6 +73,9 @@ function App() {
                 <a href="/" className="text-sm font-medium transition-colors hover:text-primary">
                   Planbarómetro
                 </a>
+                <a href="/best-practices" className="text-sm font-medium transition-colors hover:text-primary text-blue-600">
+                  🌐 Banco de Buenas Prácticas
+                </a>
                 <a href="/best-practices" className="text-sm font-medium transition-colors hover:text-primary">
                   Buenas Prácticas
                 </a>

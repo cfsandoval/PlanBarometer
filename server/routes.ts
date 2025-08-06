@@ -207,6 +207,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Scrape best practices from external repositories
+  app.post("/api/best-practices/scrape", async (req, res) => {
+    try {
+      const { WebScraper } = await import('./web-scraper');
+      const scraper = new WebScraper();
+      const scrapedPractices = await scraper.scrapeAll();
+      
+      // Save all scraped practices
+      const savedPractices = [];
+      for (const practice of scrapedPractices) {
+        try {
+          const saved = await storage.createBestPractice(practice);
+          savedPractices.push(saved);
+        } catch (error) {
+          console.error('Error saving practice:', practice.title, error);
+        }
+      }
+      
+      res.json({ 
+        message: "Scraping completed successfully", 
+        practices: savedPractices,
+        count: savedPractices.length 
+      });
+    } catch (error) {
+      console.error("Error during scraping:", error);
+      res.status(500).json({ message: "Error during web scraping", error: error.message });
+    }
+  });
+
   // Get recommendations by criterion
   app.get("/api/recommendations/criterion/:name", async (req, res) => {
     try {
