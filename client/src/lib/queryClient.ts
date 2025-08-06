@@ -26,6 +26,17 @@ export async function apiRequest(
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      queryFn: async ({ queryKey }) => {
+        const url = Array.isArray(queryKey) ? queryKey[0] : queryKey;
+        const response = await fetch(url as string, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          const text = (await response.text()) || response.statusText;
+          throw new Error(`${response.status}: ${text}`);
+        }
+        return response.json();
+      },
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,
