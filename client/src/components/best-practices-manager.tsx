@@ -75,6 +75,22 @@ export default function BestPracticesManager() {
     },
   });
 
+  const toppScrapeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/best-practices/scrape-topp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to scrape TOPP');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/best-practices'] });
+      const count = data.practices?.length || 0;
+      alert(`🎯 Extracción TOPP exitosa!\n\n📊 ${count} prácticas de capacidades institucionales agregadas\n🔍 Enfoque en dimensiones Técnicas, Operativas, Políticas y Prospectivas\n✅ Datos especializados en fortalecimiento institucional`);
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/best-practices/${id}`, { method: 'DELETE' });
@@ -254,7 +270,26 @@ export default function BestPracticesManager() {
             ) : (
               <>
                 <Globe className="h-4 w-4 mr-2 text-green-600" />
-                <span className="text-gray-700 font-medium">🌐 Extraer de Repositorios Oficiales</span>
+                <span className="text-gray-700 font-medium">🌐 Extraer Repositorios Generales</span>
+              </>
+            )}
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={() => toppScrapeMutation.mutate()}
+            disabled={toppScrapeMutation.isPending}
+            className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 hover:from-orange-100 hover:to-red-100"
+          >
+            {toppScrapeMutation.isPending ? (
+              <>
+                <Download className="h-4 w-4 mr-2 animate-spin text-orange-600" />
+                <span className="text-orange-700">Extrayendo TOPP...</span>
+              </>
+            ) : (
+              <>
+                <Globe className="h-4 w-4 mr-2 text-red-600" />
+                <span className="text-gray-700 font-medium">🎯 Extraer Capacidades TOPP</span>
               </>
             )}
           </Button>

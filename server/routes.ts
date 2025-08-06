@@ -240,6 +240,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TOPP-focused scraping for capacity building practices
+  app.post("/api/best-practices/scrape-topp", async (req, res) => {
+    try {
+      const { TOPPScraper } = await import('./topp-scraper');
+      const scraper = new TOPPScraper();
+      const toppPractices = await scraper.scrapeAll();
+      
+      // Save all TOPP practices
+      const savedPractices = [];
+      for (const practice of toppPractices) {
+        try {
+          const practiceData = TOPPScraper.convertToBestPractice(practice);
+          const saved = await storage.createBestPractice(practiceData);
+          savedPractices.push(saved);
+        } catch (error) {
+          console.error('Error saving TOPP practice:', practice.title, error);
+        }
+      }
+      
+      res.json({ 
+        message: "TOPP scraping completed successfully", 
+        practices: savedPractices,
+        count: savedPractices.length,
+        toppDimensions: toppPractices.map(p => p.toppDimensions)
+      });
+    } catch (error) {
+      console.error("Error during TOPP scraping:", error);
+      res.status(500).json({ 
+        message: "Error during TOPP web scraping", 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
   // Get recommendations by criterion
   app.get("/api/recommendations/criterion/:name", async (req, res) => {
     try {

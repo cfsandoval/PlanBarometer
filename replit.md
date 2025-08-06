@@ -136,6 +136,7 @@ Preferred communication style: Simple, everyday language.
 24. **Complete Study Dashboard**: Comprehensive individual study interface with tabbed navigation (Overview, Participants, Evaluation, Results) including metrics, progress tracking, and participant management
 25. **Route Resolution**: Fixed 404 errors for study URLs (/delphi/studies/:id) with proper frontend routing and authentication handling
 26. **Personalized Expert Feedback Mechanism**: Advanced feedback system providing individualized performance analysis, deviation patterns (aligned/optimistic/conservative/outlier), personalized learning insights, skill development recommendations, and expert progression tracking with achievement levels
+27. **TOPP-Focused Scraping Module**: Specialized web scraping system targeting institutional capacity building practices with classification by Technical, Operational, Political, and Prospective dimensions from 6 regional repositories including CEPAL, BID, and national modernization agencies
 
 ### Key Architectural Decisions
 
