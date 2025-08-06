@@ -212,13 +212,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { WebScraper } = await import('./web-scraper');
       const scraper = new WebScraper();
-      const scrapedPractices = await scraper.scrapeAll();
+      const scrapedPractices = await scraper.scrapeAllRepositories();
       
       // Save all scraped practices
       const savedPractices = [];
       for (const practice of scrapedPractices) {
         try {
-          const saved = await storage.createBestPractice(practice);
+          const practiceData = WebScraper.convertToBestPractice(practice);
+          const saved = await storage.createBestPractice(practiceData);
           savedPractices.push(saved);
         } catch (error) {
           console.error('Error saving practice:', practice.title, error);
@@ -232,7 +233,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error during scraping:", error);
-      res.status(500).json({ message: "Error during web scraping", error: error.message });
+      res.status(500).json({ 
+        message: "Error during web scraping", 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
     }
   });
 
