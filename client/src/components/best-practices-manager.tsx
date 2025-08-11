@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe, Terminal, Sparkles, Calendar } from 'lucide-react';
+import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe, Terminal, Sparkles, Calendar, FileText } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import type { BestPractice } from '@shared/schema';
 import TerminalWindow from "./terminal-window";
@@ -217,6 +217,49 @@ export default function BestPracticesManager() {
     addTerminalEntry('clear-filters', 'Filtros TOPP limpiados. Mostrando todas las prácticas.', 'success');
   };
 
+  const exportLinksToTxt = () => {
+    const practicesWithLinks = filteredPractices.filter(practice => practice.sourceUrl);
+    
+    if (practicesWithLinks.length === 0) {
+      alert('No hay prácticas con enlaces para exportar en los resultados filtrados.');
+      return;
+    }
+
+    const txtContent = [
+      '# Enlaces del Banco de Buenas Prácticas ILPES-CEPAL',
+      `# Exportado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`,
+      `# Total de enlaces: ${practicesWithLinks.length}`,
+      '',
+      ...practicesWithLinks.map((practice, index) => [
+        `${index + 1}. ${practice.title}`,
+        `   País: ${practice.country}`,
+        `   Institución: ${practice.institution || 'N/A'}`,
+        `   Año: ${practice.year || 'N/A'}`,
+        `   Tipo: ${practice.sourceType}`,
+        `   Criterios objetivo: ${practice.targetCriteria?.join(', ') || 'N/A'}`,
+        `   Enlace: ${practice.sourceUrl}`,
+        `   Incorporada: ${practice.incorporatedAt ? new Date(practice.incorporatedAt).toLocaleDateString('es-ES') : 'N/A'}`,
+        ''
+      ]).flat()
+    ].join('\n');
+
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `enlaces-buenas-practicas-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    addTerminalEntry(
+      'export-links --format=txt',
+      `✓ Enlaces exportados exitosamente\n✓ ${practicesWithLinks.length} prácticas con enlaces\n✓ Archivo: enlaces-buenas-practicas-${new Date().toISOString().split('T')[0]}.txt`,
+      'success'
+    );
+  };
+
   const uniqueCountries = Array.from(new Set((practices as BestPractice[]).map(p => p.country))).sort();
 
   if (isLoading) {
@@ -267,6 +310,15 @@ export default function BestPracticesManager() {
           >
             <Terminal className="h-4 w-4 mr-2" />
             Terminal TOPP
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={exportLinksToTxt}
+            className="border-blue-300 hover:bg-blue-50"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar Enlaces TXT
           </Button>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -448,6 +500,11 @@ export default function BestPracticesManager() {
       <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
         <span>
           Mostrando {filteredPractices.length} de {(practices as BestPractice[]).length} prácticas
+          {filteredPractices.filter(p => p.sourceUrl).length > 0 && (
+            <span className="ml-2 text-blue-600">
+              ({filteredPractices.filter(p => p.sourceUrl).length} con enlaces)
+            </span>
+          )}
         </span>
         <span className="font-medium flex items-center gap-1">
           <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full"></span>
