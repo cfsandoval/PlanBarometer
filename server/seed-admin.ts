@@ -1,4 +1,4 @@
-import { storage } from "./storage-extended";
+import { storage } from "./storage";
 import { hashPassword } from "./auth";
 
 export async function seedAdminUser() {

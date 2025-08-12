@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { z } from "zod";
-import { storage } from "./storage-extended";
+import { storage } from "./storage";
 import { db } from "./db";
 import { groups, groupMembers } from "@shared/schema";
 import { eq, inArray } from "drizzle-orm";

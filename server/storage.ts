@@ -495,4 +495,8 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import the extended database storage
+import { DatabaseStorage as ExtendedDatabaseStorage } from "./storage-extended";
+
+// Use database storage when DATABASE_URL is available, otherwise use memory storage
+export const storage = process.env.DATABASE_URL ? new ExtendedDatabaseStorage() : new MemStorage();
