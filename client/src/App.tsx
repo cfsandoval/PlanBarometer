@@ -23,6 +23,7 @@ import StudySettings from "@/pages/study-settings";
 import DelphiEvaluation from "@/pages/delphi-evaluation";
 import ExpertFeedback from "@/pages/expert-feedback";
 import BinaryEvaluation from "@/pages/binary-evaluation";
+import ScrapingConfig from "@/pages/scraping-config";
 import { Language, currentLanguage, setLanguage, getLanguage } from "@/lib/i18n";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/best-practices" component={BestPractices} />
+      <Route path="/scraping-config" component={ScrapingConfig} />
       <Route path="/login" component={Login} />
       <Route path="/delphi" component={DelphiDashboard} />
       <Route path="/delphi/groups/create" component={CreateGroup} />

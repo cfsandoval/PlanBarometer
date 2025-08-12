@@ -1,123 +1,61 @@
-import { eq, and, desc, sql } from "drizzle-orm";
-import { db } from "./db";
-import {
+import { 
   users,
-  groups,
-  groupMembers,
-  delphiStudies,
-  alternatives,
-  criteria,
-  responses,
-  justifications,
-  aggregatedScores,
   evaluations,
-  bestPractices,
+  bestPractices, 
   practiceRecommendations,
+  scrapingConfigs, 
+  externalApis, 
+  scrapingSessions,
   type User,
   type InsertUser,
-  type Group,
-  type InsertGroup,
-  type GroupMember,
-  type DelphiStudy,
-  type InsertDelphiStudy,
-  type Alternative,
-  type InsertAlternative,
-  type Criteria,
-  type InsertCriteria,
-  type Response,
-  type InsertResponse,
-  type Justification,
-  type InsertJustification,
-  type AggregatedScore,
   type Evaluation,
   type InsertEvaluation,
-  type BestPractice,
+  type BestPractice, 
   type InsertBestPractice,
   type PracticeRecommendation,
   type InsertPracticeRecommendation,
+  type ScrapingConfig,
+  type InsertScrapingConfig,
+  type ExternalApi,
+  type InsertExternalApi,
+  type ScrapingSession
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
+import { IStorage } from "./storage";
 
-export interface IExtendedStorage {
-  // User management
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
-  updateUserLastLogin(id: number): Promise<void>;
-  getUsersByRole(role: string): Promise<User[]>;
+export interface IExtendedStorage extends IStorage {
+  // Best Practices - Database methods
+  bulkCreateBestPractices(practices: InsertBestPractice[]): Promise<BestPractice[]>;
+  getBestPracticesByCountry(country: string): Promise<BestPractice[]>;
+  getBestPracticesByInstitution(institution: string): Promise<BestPractice[]>;
+  searchBestPractices(query: string): Promise<BestPractice[]>;
+  markPracticesAsOld(): Promise<void>;
   
-  // Group management
-  getGroup(id: number): Promise<Group | undefined>;
-  getGroupByCode(code: string): Promise<Group | undefined>;
-  getAllGroups(): Promise<Group[]>;
-  createGroup(group: InsertGroup): Promise<Group>;
-  updateGroup(id: number, group: Partial<InsertGroup>): Promise<Group | undefined>;
-  deleteGroup(id: number): Promise<boolean>;
-  getGroupsByCoordinator(coordinatorId: number): Promise<Group[]>;
+  // Scraping Configuration methods
+  getAllScrapingConfigs(): Promise<ScrapingConfig[]>;
+  getActiveScrapingConfigs(): Promise<ScrapingConfig[]>;
+  createScrapingConfig(config: InsertScrapingConfig): Promise<ScrapingConfig>;
+  updateScrapingConfig(id: number, config: Partial<InsertScrapingConfig>): Promise<ScrapingConfig | undefined>;
+  deleteScrapingConfig(id: number): Promise<boolean>;
+  updateScrapingStats(id: number, success: boolean): Promise<void>;
   
-  // Group membership
-  addUserToGroup(userId: number, groupId: number): Promise<GroupMember>;
-  removeUserFromGroup(userId: number, groupId: number): Promise<boolean>;
-  getGroupMembers(groupId: number): Promise<(GroupMember & { user: User })[]>;
-  getUserGroups(userId: number): Promise<(GroupMember & { group: Group })[]>;
-  hasGroupAccess(userId: number, groupId: number): Promise<boolean>;
+  // External API methods
+  getAllExternalApis(): Promise<ExternalApi[]>;
+  getActiveExternalApis(): Promise<ExternalApi[]>;
+  createExternalApi(api: InsertExternalApi): Promise<ExternalApi>;
+  updateExternalApi(id: number, api: Partial<InsertExternalApi>): Promise<ExternalApi | undefined>;
+  deleteExternalApi(id: number): Promise<boolean>;
+  updateApiStats(id: number, success: boolean): Promise<void>;
   
-  // Delphi studies
-  getDelphiStudy(id: number): Promise<DelphiStudy | undefined>;
-  createDelphiStudy(study: InsertDelphiStudy): Promise<DelphiStudy>;
-  updateDelphiStudy(id: number, study: Partial<InsertDelphiStudy>): Promise<DelphiStudy | undefined>;
-  deleteDelphiStudy(id: number): Promise<boolean>;
-  getStudiesByGroup(groupId: number): Promise<DelphiStudy[]>;
-  getStudiesByCreator(creatorId: number): Promise<DelphiStudy[]>;
-  hasStudyAccess(userId: number, studyId: number): Promise<boolean>;
-  
-  // Alternatives and Criteria
-  getAlternativesByStudy(studyId: number): Promise<Alternative[]>;
-  createAlternative(alternative: InsertAlternative): Promise<Alternative>;
-  updateAlternative(id: number, alternative: Partial<InsertAlternative>): Promise<Alternative | undefined>;
-  deleteAlternative(id: number): Promise<boolean>;
-  
-  getCriteriaByStudy(studyId: number): Promise<Criteria[]>;
-  createCriteria(criteria: InsertCriteria): Promise<Criteria>;
-  updateCriteria(id: number, criteria: Partial<InsertCriteria>): Promise<Criteria | undefined>;
-  deleteCriteria(id: number): Promise<boolean>;
-  
-  // Responses and justifications
-  getResponse(userId: number, studyId: number, alternativeId: number, criteriaId: number, round: number): Promise<Response | undefined>;
-  createOrUpdateResponse(response: InsertResponse): Promise<Response>;
-  getResponsesByUser(userId: number, studyId: number, round?: number): Promise<Response[]>;
-  getResponsesByStudy(studyId: number, round?: number): Promise<Response[]>;
-  
-  createJustification(justification: InsertJustification): Promise<Justification>;
-  getJustificationsByCell(studyId: number, alternativeId: number, criteriaId: number, round: number): Promise<(Justification & { user: User })[]>;
-  getJustificationsByUser(userId: number, studyId: number, round?: number): Promise<Justification[]>;
-  
-  // Aggregated scores
-  updateAggregatedScores(studyId: number, round: number): Promise<void>;
-  getAggregatedScores(studyId: number, round: number): Promise<AggregatedScore[]>;
-  
-  // Legacy evaluation system
-  getEvaluation(id: number): Promise<Evaluation | undefined>;
-  getAllEvaluations(): Promise<Evaluation[]>;
-  createEvaluation(evaluation: InsertEvaluation): Promise<Evaluation>;
-  updateEvaluation(id: number, evaluation: Partial<InsertEvaluation>): Promise<Evaluation | undefined>;
-  deleteEvaluation(id: number): Promise<boolean>;
-  
-  // Best practices
-  getAllBestPractices(): Promise<BestPractice[]>;
-  getBestPracticesByCriteria(criteria: string[]): Promise<BestPractice[]>;
-  createBestPractice(practice: InsertBestPractice): Promise<BestPractice>;
-  updateBestPractice(id: number, practice: Partial<InsertBestPractice>): Promise<BestPractice | undefined>;
-  deleteBestPractice(id: number): Promise<boolean>;
-  
-  // Practice recommendations
-  getRecommendationsByPractice(practiceId: number): Promise<PracticeRecommendation[]>;
-  getRecommendationsByCriterion(criterionName: string): Promise<PracticeRecommendation[]>;
-  createPracticeRecommendation(recommendation: InsertPracticeRecommendation): Promise<PracticeRecommendation>;
+  // Scraping Session methods
+  createScrapingSession(configId: number): Promise<ScrapingSession>;
+  updateScrapingSession(sessionId: number, data: Partial<ScrapingSession>): Promise<void>;
+  getRecentScrapingSessions(limit?: number): Promise<ScrapingSession[]>;
 }
 
 export class DatabaseStorage implements IExtendedStorage {
-  // User management
+  // Implement base IStorage methods (delegated to existing implementation)
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -128,610 +66,248 @@ export class DatabaseStorage implements IExtendedStorage {
     return user;
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await db.select({
-      id: users.id,
-      username: users.username,
-      email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      role: users.role,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-      lastLoginAt: users.lastLoginAt,
-    }).from(users);
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return (result.rowCount || 0) > 0;
-  }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
-    return newUser;
-  }
-
-  async updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined> {
-    const [updatedUser] = await db
-      .update(users)
-      .set({ ...user, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser;
-  }
-
-  async updateUserLastLogin(id: number): Promise<void> {
-    await db
-      .update(users)
-      .set({ lastLoginAt: new Date() })
-      .where(eq(users.id, id));
-  }
-
-  async getUsersByRole(role: string): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.role, role));
-  }
-
-  // Group management
-  async getGroup(id: number): Promise<Group | undefined> {
-    const [group] = await db.select().from(groups).where(eq(groups.id, id));
-    return group;
-  }
-
-  async getGroupByCode(code: string): Promise<Group | undefined> {
-    const [group] = await db.select().from(groups).where(eq(groups.code, code));
-    return group;
-  }
-
-  async getAllGroups(): Promise<Group[]> {
-    return await db.select().from(groups).where(eq(groups.isActive, true));
-  }
-
-  async createGroup(group: InsertGroup): Promise<Group> {
-    const [newGroup] = await db.insert(groups).values(group).returning();
-    return newGroup;
-  }
-
-  async updateGroup(id: number, group: Partial<InsertGroup>): Promise<Group | undefined> {
-    const [updatedGroup] = await db
-      .update(groups)
-      .set({ ...group, updatedAt: new Date() })
-      .where(eq(groups.id, id))
-      .returning();
-    return updatedGroup;
-  }
-
-  async deleteGroup(id: number): Promise<boolean> {
-    const result = await db.delete(groups).where(eq(groups.id, id));
-    return (result.rowCount || 0) > 0;
-  }
-
-  async getGroupsByCoordinator(coordinatorId: number): Promise<Group[]> {
-    return await db.select().from(groups).where(eq(groups.coordinatorId, coordinatorId));
-  }
-
-  // Group membership  
-  async addGroupMember(data: { groupId: number; userId: number; role?: string }): Promise<GroupMember> {
-    const [member] = await db
-      .insert(groupMembers)
-      .values({
-        groupId: data.groupId,
-        userId: data.userId,
-        joinedAt: new Date(),
-      })
-      .returning();
-    return member;
-  }
-
-  async addUserToGroup(userId: number, groupId: number): Promise<GroupMember> {
-    return this.addGroupMember({ groupId, userId });
-  }
-
-  async getGroupMember(groupId: number, userId: number): Promise<GroupMember | undefined> {
-    const [member] = await db
-      .select()
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)));
-    return member;
-  }
-
-  async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember | undefined> {
-    const [member] = await db
-      .update(groupMembers)
-      .set({ joinedAt: new Date() })
-      .where(eq(groupMembers.id, memberId))
-      .returning();
-    return member;
-  }
-
-  async removeGroupMember(memberId: number): Promise<boolean> {
-    const result = await db
-      .delete(groupMembers)
-      .where(eq(groupMembers.id, memberId));
-    return (result.rowCount || 0) > 0;
-  }
-
-  async removeUserFromGroup(userId: number, groupId: number): Promise<boolean> {
-    const result = await db
-      .delete(groupMembers)
-      .where(and(eq(groupMembers.userId, userId), eq(groupMembers.groupId, groupId)));
-    return (result.rowCount || 0) > 0;
-  }
-
-  async getGroupMembers(groupId: number): Promise<any[]> {
-    const results = await db
-      .select({
-        id: groupMembers.id,
-        groupId: groupMembers.groupId,
-        userId: groupMembers.userId,
-        joinedAt: groupMembers.joinedAt,
-        user: {
-          id: users.id,
-          username: users.username,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          role: users.role,
-        }
-      })
-      .from(groupMembers)
-      .innerJoin(users, eq(groupMembers.userId, users.id))
-      .where(eq(groupMembers.groupId, groupId));
-    return results;
-  }
-
-  async getUserGroups(userId: number): Promise<(GroupMember & { group: Group })[]> {
-    const results = await db
-      .select({
-        // GroupMember fields
-        id: groupMembers.id,
-        groupId: groupMembers.groupId,
-        userId: groupMembers.userId,
-        joinedAt: groupMembers.joinedAt,
-        // Group fields nested
-        group: {
-          id: groups.id,
-          name: groups.name,
-          description: groups.description,
-          code: groups.code,
-          coordinatorId: groups.coordinatorId,
-          isActive: groups.isActive,
-          createdAt: groups.createdAt,
-          updatedAt: groups.updatedAt,
-        }
-      })
-      .from(groupMembers)
-      .innerJoin(groups, eq(groupMembers.groupId, groups.id))
-      .where(eq(groupMembers.userId, userId));
-    
-    return results as (GroupMember & { group: Group })[];
-  }
-
-  async hasGroupAccess(userId: number, groupId: number): Promise<boolean> {
-    // Check if user is coordinator of the group
-    const [coordinatorGroup] = await db
-      .select()
-      .from(groups)
-      .where(and(eq(groups.id, groupId), eq(groups.coordinatorId, userId)));
-    
-    if (coordinatorGroup) return true;
-
-    // Check if user is a member of the group
-    const [membership] = await db
-      .select()
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)));
-    
-    return !!membership;
-  }
-
-  // Delphi studies
-  async getDelphiStudy(id: number): Promise<DelphiStudy | undefined> {
-    const [study] = await db.select().from(delphiStudies).where(eq(delphiStudies.id, id));
-    return study;
-  }
-
-  async createDelphiStudy(study: InsertDelphiStudy): Promise<DelphiStudy> {
-    const [newStudy] = await db.insert(delphiStudies).values(study).returning();
-    return newStudy;
-  }
-
-  async updateDelphiStudy(id: number, study: Partial<InsertDelphiStudy>): Promise<DelphiStudy | undefined> {
-    const [updatedStudy] = await db
-      .update(delphiStudies)
-      .set({ ...study, updatedAt: new Date() })
-      .where(eq(delphiStudies.id, id))
-      .returning();
-    return updatedStudy;
-  }
-
-  async deleteDelphiStudy(id: number): Promise<boolean> {
-    const result = await db.delete(delphiStudies).where(eq(delphiStudies.id, id));
-    return result.rowCount > 0;
-  }
-
-  async getStudiesByGroup(groupId: number): Promise<DelphiStudy[]> {
-    return await db.select().from(delphiStudies).where(eq(delphiStudies.groupId, groupId));
-  }
-
-  async getStudiesByCreator(creatorId: number): Promise<DelphiStudy[]> {
-    return await db.select().from(delphiStudies).where(eq(delphiStudies.createdBy, creatorId));
-  }
-
-  async hasStudyAccess(userId: number, studyId: number): Promise<boolean> {
-    // Get the study and check group access
-    const [study] = await db.select().from(delphiStudies).where(eq(delphiStudies.id, studyId));
-    if (!study) return false;
-
-    return await this.hasGroupAccess(userId, study.groupId);
-  }
-
-  // Alternatives and Criteria
-  async getAlternativesByStudy(studyId: number): Promise<Alternative[]> {
-    return await db
-      .select()
-      .from(alternatives)
-      .where(and(eq(alternatives.studyId, studyId), eq(alternatives.isActive, true)))
-      .orderBy(alternatives.order);
-  }
-
-  async createAlternative(alternative: InsertAlternative): Promise<Alternative> {
-    const [newAlternative] = await db.insert(alternatives).values(alternative).returning();
-    return newAlternative;
-  }
-
-  async updateAlternative(id: number, alternative: Partial<InsertAlternative>): Promise<Alternative | undefined> {
-    const [updatedAlternative] = await db
-      .update(alternatives)
-      .set(alternative)
-      .where(eq(alternatives.id, id))
-      .returning();
-    return updatedAlternative;
-  }
-
-  async deleteAlternative(id: number): Promise<boolean> {
-    const [updated] = await db
-      .update(alternatives)
-      .set({ isActive: false })
-      .where(eq(alternatives.id, id))
-      .returning();
-    return !!updated;
-  }
-
-  async getCriteriaByStudy(studyId: number): Promise<Criteria[]> {
-    return await db
-      .select()
-      .from(criteria)
-      .where(and(eq(criteria.studyId, studyId), eq(criteria.isActive, true)))
-      .orderBy(criteria.order);
-  }
-
-  async createCriteria(criteriaData: InsertCriteria): Promise<Criteria> {
-    const [newCriteria] = await db.insert(criteria).values(criteriaData).returning();
-    return newCriteria;
-  }
-
-  async updateCriteria(id: number, criteriaData: Partial<InsertCriteria>): Promise<Criteria | undefined> {
-    const [updatedCriteria] = await db
-      .update(criteria)
-      .set(criteriaData)
-      .where(eq(criteria.id, id))
-      .returning();
-    return updatedCriteria;
-  }
-
-  async deleteCriteria(id: number): Promise<boolean> {
-    const [updated] = await db
-      .update(criteria)
-      .set({ isActive: false })
-      .where(eq(criteria.id, id))
-      .returning();
-    return !!updated;
-  }
-
-  // Responses and justifications
-  async getResponse(userId: number, studyId: number, alternativeId: number, criteriaId: number, round: number): Promise<Response | undefined> {
-    const [response] = await db
-      .select()
-      .from(responses)
-      .where(and(
-        eq(responses.userId, userId),
-        eq(responses.studyId, studyId),
-        eq(responses.alternativeId, alternativeId),
-        eq(responses.criteriaId, criteriaId),
-        eq(responses.round, round)
-      ));
-    return response;
-  }
-
-  async createOrUpdateResponse(response: InsertResponse): Promise<Response> {
-    const existing = await this.getResponse(
-      response.userId,
-      response.studyId,
-      response.alternativeId,
-      response.criteriaId,
-      response.round
-    );
-
-    if (existing) {
-      const [updated] = await db
-        .update(responses)
-        .set({ 
-          score: response.score, 
-          confidence: response.confidence,
-          updatedAt: new Date() 
-        })
-        .where(eq(responses.id, existing.id))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db.insert(responses).values(response).returning();
-      return created;
-    }
-  }
-
-  async getResponsesByUser(userId: number, studyId: number, round?: number): Promise<Response[]> {
-    const conditions = [
-      eq(responses.userId, userId),
-      eq(responses.studyId, studyId)
-    ];
-    
-    if (round !== undefined) {
-      conditions.push(eq(responses.round, round));
-    }
-
-    return await db.select().from(responses).where(and(...conditions));
-  }
-
-  async getResponsesByStudy(studyId: number, round?: number): Promise<Response[]> {
-    const conditions = [eq(responses.studyId, studyId)];
-    
-    if (round !== undefined) {
-      conditions.push(eq(responses.round, round));
-    }
-
-    return await db.select().from(responses).where(and(...conditions));
-  }
-
-  async createJustification(justification: InsertJustification): Promise<Justification> {
-    const [newJustification] = await db.insert(justifications).values(justification).returning();
-    return newJustification;
-  }
-
-  async getJustificationsByCell(studyId: number, alternativeId: number, criteriaId: number, round: number): Promise<(Justification & { user: User })[]> {
-    return await db
-      .select()
-      .from(justifications)
-      .innerJoin(users, eq(justifications.userId, users.id))
-      .where(and(
-        eq(justifications.studyId, studyId),
-        eq(justifications.alternativeId, alternativeId),
-        eq(justifications.criteriaId, criteriaId),
-        eq(justifications.round, round),
-        eq(justifications.isVisible, true)
-      ));
-  }
-
-  async getJustificationsByUser(userId: number, studyId: number, round?: number): Promise<Justification[]> {
-    const conditions = [
-      eq(justifications.userId, userId),
-      eq(justifications.studyId, studyId)
-    ];
-    
-    if (round !== undefined) {
-      conditions.push(eq(justifications.round, round));
-    }
-
-    return await db.select().from(justifications).where(and(...conditions));
-  }
-
-  // Aggregated scores
-  async updateAggregatedScores(studyId: number, round: number): Promise<void> {
-    // Get all alternatives and criteria for this study
-    const studyAlternatives = await this.getAlternativesByStudy(studyId);
-    const studyCriteria = await this.getCriteriaByStudy(studyId);
-
-    for (const alternative of studyAlternatives) {
-      for (const criteriaItem of studyCriteria) {
-        // Get all responses for this combination
-        const cellResponses = await db
-          .select()
-          .from(responses)
-          .where(and(
-            eq(responses.studyId, studyId),
-            eq(responses.alternativeId, alternative.id),
-            eq(responses.criteriaId, criteriaItem.id),
-            eq(responses.round, round)
-          ));
-
-        if (cellResponses.length > 0) {
-          const scores = cellResponses.map(r => parseFloat(r.score));
-          const average = scores.reduce((a, b) => a + b, 0) / scores.length;
-          const sortedScores = scores.sort((a, b) => a - b);
-          const median = sortedScores.length % 2 === 0
-            ? (sortedScores[sortedScores.length / 2 - 1] + sortedScores[sortedScores.length / 2]) / 2
-            : sortedScores[Math.floor(sortedScores.length / 2)];
-          
-          const variance = scores.reduce((acc, score) => acc + Math.pow(score - average, 2), 0) / scores.length;
-          const standardDeviation = Math.sqrt(variance);
-
-          // Upsert aggregated score
-          await db
-            .insert(aggregatedScores)
-            .values({
-              studyId,
-              alternativeId: alternative.id,
-              criteriaId: criteriaItem.id,
-              average: average.toString(),
-              median: median.toString(),
-              standardDeviation: standardDeviation.toString(),
-              responseCount: cellResponses.length,
-              round,
-            })
-            .onConflictDoUpdate({
-              target: [aggregatedScores.studyId, aggregatedScores.alternativeId, aggregatedScores.criteriaId, aggregatedScores.round],
-              set: {
-                average: average.toString(),
-                median: median.toString(),
-                standardDeviation: standardDeviation.toString(),
-                responseCount: cellResponses.length,
-                updatedAt: new Date(),
-              },
-            });
-        }
-      }
-    }
-  }
-
-  async getAggregatedScores(studyId: number, round: number): Promise<AggregatedScore[]> {
-    return await db
-      .select()
-      .from(aggregatedScores)
-      .where(and(eq(aggregatedScores.studyId, studyId), eq(aggregatedScores.round, round)));
-  }
-
-  // Legacy evaluation system - keeping existing methods
   async getEvaluation(id: number): Promise<Evaluation | undefined> {
     const [evaluation] = await db.select().from(evaluations).where(eq(evaluations.id, id));
     return evaluation;
   }
 
   async getAllEvaluations(): Promise<Evaluation[]> {
-    return await db.select().from(evaluations).orderBy(desc(evaluations.createdAt));
+    return await db.select().from(evaluations).orderBy(desc(evaluations.updatedAt));
   }
 
-  async createEvaluation(evaluation: InsertEvaluation): Promise<Evaluation> {
-    const [newEvaluation] = await db.insert(evaluations).values(evaluation).returning();
-    return newEvaluation;
+  async createEvaluation(insertEvaluation: InsertEvaluation): Promise<Evaluation> {
+    const [evaluation] = await db.insert(evaluations).values(insertEvaluation).returning();
+    return evaluation;
   }
 
-  async updateEvaluation(id: number, evaluation: Partial<InsertEvaluation>): Promise<Evaluation | undefined> {
-    const [updatedEvaluation] = await db
+  async updateEvaluation(id: number, updateData: Partial<InsertEvaluation>): Promise<Evaluation | undefined> {
+    const [evaluation] = await db
       .update(evaluations)
-      .set({ ...evaluation, updatedAt: new Date() })
+      .set({ ...updateData, updatedAt: new Date() })
       .where(eq(evaluations.id, id))
       .returning();
-    return updatedEvaluation;
+    return evaluation;
   }
 
   async deleteEvaluation(id: number): Promise<boolean> {
     const result = await db.delete(evaluations).where(eq(evaluations.id, id));
-    return result.rowCount > 0;
+    return result.rowCount! > 0;
   }
 
-  // Best practices - keeping existing methods
+  // Best Practices - Database implementation
   async getAllBestPractices(): Promise<BestPractice[]> {
-    return await db.select().from(bestPractices).where(eq(bestPractices.isActive, true));
+    return await db.select().from(bestPractices)
+      .where(eq(bestPractices.isActive, true))
+      .orderBy(desc(bestPractices.incorporatedAt));
   }
 
-  async getBestPracticesByCriteria(criteriaList: string[]): Promise<BestPractice[]> {
-    return await db
-      .select()
-      .from(bestPractices)
-      .where(and(
-        eq(bestPractices.isActive, true),
-        sql`${bestPractices.targetCriteria} && ${criteriaList}`
-      ));
+  async getBestPracticesByCriteria(criteria: string[]): Promise<BestPractice[]> {
+    // This needs to be implemented with proper JSON querying
+    // For now, get all practices and filter in memory
+    const allPractices = await this.getAllBestPractices();
+    return allPractices.filter(practice => 
+      criteria.some(criterion => 
+        practice.targetCriteria.some(target => 
+          target.toLowerCase().includes(criterion.toLowerCase())
+        )
+      )
+    );
   }
 
   async createBestPractice(practice: InsertBestPractice): Promise<BestPractice> {
-    const [newPractice] = await db.insert(bestPractices).values(practice).returning();
-    return newPractice;
+    const [created] = await db.insert(bestPractices).values(practice).returning();
+    return created;
   }
 
   async updateBestPractice(id: number, practice: Partial<InsertBestPractice>): Promise<BestPractice | undefined> {
-    const [updatedPractice] = await db
+    const [updated] = await db
       .update(bestPractices)
       .set({ ...practice, updatedAt: new Date() })
       .where(eq(bestPractices.id, id))
       .returning();
-    return updatedPractice;
+    return updated;
   }
 
   async deleteBestPractice(id: number): Promise<boolean> {
-    const [updated] = await db
-      .update(bestPractices)
-      .set({ isActive: false })
-      .where(eq(bestPractices.id, id))
-      .returning();
-    return !!updated;
+    const result = await db.delete(bestPractices).where(eq(bestPractices.id, id));
+    return result.rowCount > 0;
   }
 
-  // Practice recommendations - keeping existing methods
+  async bulkCreateBestPractices(practices: InsertBestPractice[]): Promise<BestPractice[]> {
+    if (practices.length === 0) return [];
+    const created = await db.insert(bestPractices).values(practices).returning();
+    return created;
+  }
+
+  async getBestPracticesByCountry(country: string): Promise<BestPractice[]> {
+    return await db.select().from(bestPractices)
+      .where(and(
+        eq(bestPractices.country, country),
+        eq(bestPractices.isActive, true)
+      ));
+  }
+
+  async getBestPracticesByInstitution(institution: string): Promise<BestPractice[]> {
+    return await db.select().from(bestPractices)
+      .where(and(
+        eq(bestPractices.institution, institution),
+        eq(bestPractices.isActive, true)
+      ));
+  }
+
+  async searchBestPractices(query: string): Promise<BestPractice[]> {
+    // This would need full-text search implementation
+    // For now, basic ILIKE search on title and description
+    const allPractices = await this.getAllBestPractices();
+    const lowerQuery = query.toLowerCase();
+    return allPractices.filter(practice => 
+      practice.title.toLowerCase().includes(lowerQuery) ||
+      practice.description.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  async markPracticesAsOld(): Promise<void> {
+    await db.update(bestPractices)
+      .set({ isNew: false })
+      .where(eq(bestPractices.isNew, true));
+  }
+
+  // Scraping Configuration methods
+  async getAllScrapingConfigs(): Promise<ScrapingConfig[]> {
+    return await db.select().from(scrapingConfigs).orderBy(desc(scrapingConfigs.createdAt));
+  }
+
+  async getActiveScrapingConfigs(): Promise<ScrapingConfig[]> {
+    return await db.select().from(scrapingConfigs)
+      .where(eq(scrapingConfigs.isActive, true));
+  }
+
+  async createScrapingConfig(config: InsertScrapingConfig): Promise<ScrapingConfig> {
+    const [created] = await db.insert(scrapingConfigs).values(config).returning();
+    return created;
+  }
+
+  async updateScrapingConfig(id: number, config: Partial<InsertScrapingConfig>): Promise<ScrapingConfig | undefined> {
+    const [updated] = await db
+      .update(scrapingConfigs)
+      .set({ ...config, updatedAt: new Date() })
+      .where(eq(scrapingConfigs.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteScrapingConfig(id: number): Promise<boolean> {
+    const result = await db.delete(scrapingConfigs).where(eq(scrapingConfigs.id, id));
+    return result.rowCount > 0;
+  }
+
+  async updateScrapingStats(id: number, success: boolean): Promise<void> {
+    const config = await db.select().from(scrapingConfigs).where(eq(scrapingConfigs.id, id));
+    if (!config[0]) return;
+
+    if (success) {
+      await db.update(scrapingConfigs)
+        .set({ 
+          successCount: (config[0].successCount || 0) + 1,
+          lastScrapedAt: new Date()
+        })
+        .where(eq(scrapingConfigs.id, id));
+    } else {
+      await db.update(scrapingConfigs)
+        .set({ errorCount: (config[0].errorCount || 0) + 1 })
+        .where(eq(scrapingConfigs.id, id));
+    }
+  }
+
+  // External API methods
+  async getAllExternalApis(): Promise<ExternalApi[]> {
+    return await db.select().from(externalApis).orderBy(desc(externalApis.createdAt));
+  }
+
+  async getActiveExternalApis(): Promise<ExternalApi[]> {
+    return await db.select().from(externalApis)
+      .where(eq(externalApis.isActive, true));
+  }
+
+  async createExternalApi(api: InsertExternalApi): Promise<ExternalApi> {
+    const [created] = await db.insert(externalApis).values(api).returning();
+    return created;
+  }
+
+  async updateExternalApi(id: number, api: Partial<InsertExternalApi>): Promise<ExternalApi | undefined> {
+    const [updated] = await db
+      .update(externalApis)
+      .set({ ...api, updatedAt: new Date() })
+      .where(eq(externalApis.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteExternalApi(id: number): Promise<boolean> {
+    const result = await db.delete(externalApis).where(eq(externalApis.id, id));
+    return result.rowCount > 0;
+  }
+
+  async updateApiStats(id: number, success: boolean): Promise<void> {
+    const api = await db.select().from(externalApis).where(eq(externalApis.id, id));
+    if (!api[0]) return;
+
+    if (success) {
+      await db.update(externalApis)
+        .set({ 
+          successCount: (api[0].successCount || 0) + 1,
+          lastUsedAt: new Date()
+        })
+        .where(eq(externalApis.id, id));
+    } else {
+      await db.update(externalApis)
+        .set({ errorCount: (api[0].errorCount || 0) + 1 })
+        .where(eq(externalApis.id, id));
+    }
+  }
+
+  // Scraping Session methods
+  async createScrapingSession(configId: number): Promise<ScrapingSession> {
+    const [session] = await db.insert(scrapingSessions)
+      .values({ configId })
+      .returning();
+    return session;
+  }
+
+  async updateScrapingSession(sessionId: number, data: Partial<ScrapingSession>): Promise<void> {
+    await db.update(scrapingSessions)
+      .set(data)
+      .where(eq(scrapingSessions.id, sessionId));
+  }
+
+  async getRecentScrapingSessions(limit: number = 10): Promise<ScrapingSession[]> {
+    return await db.select().from(scrapingSessions)
+      .orderBy(desc(scrapingSessions.startedAt))
+      .limit(limit);
+  }
+
+  // Practice Recommendations methods (from base interface)
   async getRecommendationsByPractice(practiceId: number): Promise<PracticeRecommendation[]> {
-    return await db.select().from(practiceRecommendations).where(eq(practiceRecommendations.practiceId, practiceId));
+    return await db.select().from(practiceRecommendations)
+      .where(eq(practiceRecommendations.practiceId, practiceId));
   }
 
   async getRecommendationsByCriterion(criterionName: string): Promise<PracticeRecommendation[]> {
-    return await db.select().from(practiceRecommendations).where(eq(practiceRecommendations.criterionName, criterionName));
+    return await db.select().from(practiceRecommendations)
+      .where(eq(practiceRecommendations.criterionName, criterionName));
   }
 
   async createPracticeRecommendation(recommendation: InsertPracticeRecommendation): Promise<PracticeRecommendation> {
-    const [newRecommendation] = await db.insert(practiceRecommendations).values(recommendation).returning();
-    return newRecommendation;
-  }
-
-  // Additional member management functions
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
-  }
-
-  async getGroupMember(groupId: number, userId: number): Promise<GroupMember | undefined> {
-    const [member] = await db.select()
-      .from(groupMembers)
-      .where(and(
-        eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, userId)
-      ));
-    
-    return member;
-  }
-
-  async addGroupMember(member: { groupId: number; userId: number; role: string }): Promise<GroupMember> {
-    const [newMember] = await db.insert(groupMembers).values({
-      groupId: member.groupId,
-      userId: member.userId,
-      joinedAt: new Date()
-    }).returning();
-    return newMember;
-  }
-
-  async updateGroupMemberRole(memberId: number, role: string): Promise<GroupMember> {
-    // Since role field doesn't exist in groupMembers, we just return the member
-    const [member] = await db.select().from(groupMembers).where(eq(groupMembers.id, memberId));
-    return member;
-  }
-
-  async removeGroupMember(memberId: number): Promise<void> {
-    await db.delete(groupMembers).where(eq(groupMembers.id, memberId));
-  }
-
-  // Admin user management functions
-  async getAllUsers(): Promise<User[]> {
-    return await db.select({
-      id: users.id,
-      username: users.username,
-      email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      role: users.role,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-      lastLoginAt: users.lastLoginAt,
-    }).from(users);
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return result.rowCount > 0;
+    const [created] = await db.insert(practiceRecommendations)
+      .values(recommendation).returning();
+    return created;
   }
 }
 
-// Export the storage instance
+// Export singleton instance
 export const storage = new DatabaseStorage();

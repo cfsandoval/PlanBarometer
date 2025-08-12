@@ -137,6 +137,9 @@ Preferred communication style: Simple, everyday language.
 25. **Route Resolution**: Fixed 404 errors for study URLs (/delphi/studies/:id) with proper frontend routing and authentication handling
 26. **Personalized Expert Feedback Mechanism**: Advanced feedback system providing individualized performance analysis, deviation patterns (aligned/optimistic/conservative/outlier), personalized learning insights, skill development recommendations, and expert progression tracking with achievement levels
 27. **TOPP-Focused Scraping Module**: Specialized web scraping system targeting institutional capacity building practices with classification by Technical, Operational, Political, and Prospective dimensions from 6 regional repositories including CEPAL, BID, and national modernization agencies
+28. **Persistent Database Storage for Best Practices**: Complete migration from in-memory storage to PostgreSQL database ensuring data persistence across sessions with new tables for scraping configurations, external APIs, and session tracking
+29. **Configurable Scraping System**: Advanced scraping configuration interface allowing users to define custom CSS selectors, manage external repository connections, and configure automated data extraction parameters
+30. **External API Integration Framework**: Comprehensive API management system supporting OpenAI, Perplexity, and custom endpoints with authentication, rate limiting, and usage statistics tracking for enhanced data enrichment capabilities
 
 ### Key Architectural Decisions
 

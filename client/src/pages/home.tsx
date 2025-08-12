@@ -432,6 +432,9 @@ export default function Home() {
                 <a href="/best-practices" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
                   Buenas Prácticas
                 </a>
+                <a href="/scraping-config" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
+                  Configuración
+                </a>
                 <a href="/delphi" className="text-white hover:text-blue-200 text-sm font-medium transition-colors">
                   Sistema RT Delphi
                 </a>
