@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage-extended";
 import { insertEvaluationSchema, insertBestPracticeSchema, insertPracticeRecommendationSchema } from "@shared/schema";
 import { z } from "zod";
 import { WebSocketServer, WebSocket } from 'ws';

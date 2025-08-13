@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import session from 'express-session';
 import connectPg from 'connect-pg-simple';
 import type { Express, Request, Response, NextFunction } from 'express';
-import { storage } from './storage';
+import { storage } from './storage-extended';
 import type { User } from '@shared/schema';
 
 // Extend Express Request to include user

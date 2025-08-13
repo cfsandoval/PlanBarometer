@@ -103,7 +103,7 @@ export class DatabaseStorage implements IExtendedStorage {
   async getAllBestPractices(): Promise<BestPractice[]> {
     return await db.select().from(bestPractices)
       .where(eq(bestPractices.isActive, true))
-      .orderBy(desc(bestPractices.createdAt));
+      .orderBy(desc(bestPractices.incorporatedAt));
   }
 
   async getBestPracticesByCriteria(criteria: string[]): Promise<BestPractice[]> {
@@ -172,9 +172,9 @@ export class DatabaseStorage implements IExtendedStorage {
   }
 
   async markPracticesAsOld(): Promise<void> {
-    // Mark practices as old by updating their updated_at timestamp
     await db.update(bestPractices)
-      .set({ updatedAt: new Date() });
+      .set({ isNew: false })
+      .where(eq(bestPractices.isNew, true));
   }
 
   // Scraping Configuration methods
@@ -309,4 +309,5 @@ export class DatabaseStorage implements IExtendedStorage {
   }
 }
 
-// No export here to avoid conflicts - use the main storage.ts export
+// Export singleton instance
+export const storage = new DatabaseStorage();
