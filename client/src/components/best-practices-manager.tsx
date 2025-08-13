@@ -6,13 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe, Terminal, Sparkles, Calendar, FileText } from 'lucide-react';
+import { Plus, ExternalLink, Edit, Trash2, BookOpen, Filter, Search, Download, Globe, Terminal, Sparkles, Calendar } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import type { BestPractice } from '@shared/schema';
 import TerminalWindow from "./terminal-window";
@@ -42,44 +41,14 @@ interface TerminalEntry {
   status: 'running' | 'success' | 'error';
 }
 
-interface ExportOptions {
-  title: boolean;
-  description: boolean;
-  country: boolean;
-  institution: boolean;
-  year: boolean;
-  sourceType: boolean;
-  targetCriteria: boolean;
-  results: boolean;
-  keyLessons: boolean;
-  tags: boolean;
-  sourceUrl: boolean;
-  incorporatedAt: boolean;
-}
-
 export default function BestPracticesManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterCountry, setFilterCountry] = useState<string>('all');
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [toppFilters, setToppFilters] = useState<any>({});
-  const [exportOptions, setExportOptions] = useState<ExportOptions>({
-    title: true,
-    description: false,
-    country: true,
-    institution: true,
-    year: true,
-    sourceType: false,
-    targetCriteria: false,
-    results: false,
-    keyLessons: false,
-    tags: false,
-    sourceUrl: true,
-    incorporatedAt: true,
-  });
   const queryClient = useQueryClient();
 
   const { data: practices = [], isLoading, error } = useQuery<BestPractice[]>({
@@ -248,100 +217,6 @@ export default function BestPracticesManager() {
     addTerminalEntry('clear-filters', 'Filtros TOPP limpiados. Mostrando todas las prácticas.', 'success');
   };
 
-  const exportLinksToTxt = () => {
-    const practicesWithLinks = filteredPractices.filter(practice => practice.sourceUrl);
-    
-    if (practicesWithLinks.length === 0) {
-      alert('No hay prácticas con enlaces para exportar en los resultados filtrados.');
-      return;
-    }
-
-    const selectedFields = Object.entries(exportOptions).filter(([, value]) => value).map(([key]) => key);
-    
-    const txtContent = [
-      '# Enlaces del Banco de Buenas Prácticas ILPES-CEPAL',
-      `# Exportado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}`,
-      `# Total de prácticas: ${practicesWithLinks.length}`,
-      `# Campos exportados: ${selectedFields.join(', ')}`,
-      '',
-      ...practicesWithLinks.map((practice, index) => {
-        const lines = [`${index + 1}. ${exportOptions.title ? practice.title : `Práctica ${index + 1}`}`];
-        
-        if (exportOptions.description && practice.description) {
-          lines.push(`   Descripción: ${practice.description}`);
-        }
-        if (exportOptions.country) {
-          lines.push(`   País: ${practice.country}`);
-        }
-        if (exportOptions.institution && practice.institution) {
-          lines.push(`   Institución: ${practice.institution}`);
-        }
-        if (exportOptions.year && practice.year) {
-          lines.push(`   Año: ${practice.year}`);
-        }
-        if (exportOptions.sourceType) {
-          lines.push(`   Tipo de fuente: ${practice.sourceType}`);
-        }
-        if (exportOptions.targetCriteria && practice.targetCriteria?.length) {
-          lines.push(`   Criterios objetivo: ${practice.targetCriteria.join(', ')}`);
-        }
-        if (exportOptions.results && practice.results) {
-          lines.push(`   Resultados: ${practice.results}`);
-        }
-        if (exportOptions.keyLessons && practice.keyLessons?.length) {
-          lines.push(`   Lecciones clave: ${practice.keyLessons.join('; ')}`);
-        }
-        if (exportOptions.tags && practice.tags?.length) {
-          lines.push(`   Etiquetas: ${practice.tags.join(', ')}`);
-        }
-        if (exportOptions.sourceUrl && practice.sourceUrl) {
-          lines.push(`   Enlace: ${practice.sourceUrl}`);
-        }
-        if (exportOptions.incorporatedAt && practice.incorporatedAt) {
-          lines.push(`   Incorporada: ${new Date(practice.incorporatedAt).toLocaleDateString('es-ES')}`);
-        }
-        
-        lines.push('');
-        return lines;
-      }).flat()
-    ].join('\n');
-
-    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `buenas-practicas-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    addTerminalEntry(
-      'export-practices --format=txt --fields=' + selectedFields.length,
-      `✓ Prácticas exportadas exitosamente\n✓ ${practicesWithLinks.length} prácticas exportadas\n✓ ${selectedFields.length} campos incluidos\n✓ Archivo: buenas-practicas-${new Date().toISOString().split('T')[0]}.txt`,
-      'success'
-    );
-    
-    setIsExportDialogOpen(false);
-  };
-
-  const toggleAllExportOptions = (checked: boolean) => {
-    setExportOptions({
-      title: checked,
-      description: checked,
-      country: checked,
-      institution: checked,
-      year: checked,
-      sourceType: checked,
-      targetCriteria: checked,
-      results: checked,
-      keyLessons: checked,
-      tags: checked,
-      sourceUrl: checked,
-      incorporatedAt: checked,
-    });
-  };
-
   const uniqueCountries = Array.from(new Set((practices as BestPractice[]).map(p => p.country))).sort();
 
   if (isLoading) {
@@ -393,80 +268,6 @@ export default function BestPracticesManager() {
             <Terminal className="h-4 w-4 mr-2" />
             Terminal TOPP
           </Button>
-          
-          <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="border-blue-300 hover:bg-blue-50"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Exportar TXT
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Configurar Exportación</DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground">
-                  Selecciona los campos a incluir en el archivo TXT:
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="select-all"
-                    checked={Object.values(exportOptions).every(v => v)}
-                    onCheckedChange={toggleAllExportOptions}
-                  />
-                  <label htmlFor="select-all" className="text-sm font-medium">
-                    Seleccionar todo
-                  </label>
-                </div>
-                
-                <div className="border-t pt-3 space-y-3">
-                  {[
-                    { key: 'title', label: 'Título' },
-                    { key: 'description', label: 'Descripción' },
-                    { key: 'country', label: 'País' },
-                    { key: 'institution', label: 'Institución' },
-                    { key: 'year', label: 'Año' },
-                    { key: 'sourceType', label: 'Tipo de fuente' },
-                    { key: 'targetCriteria', label: 'Criterios objetivo' },
-                    { key: 'results', label: 'Resultados' },
-                    { key: 'keyLessons', label: 'Lecciones clave' },
-                    { key: 'tags', label: 'Etiquetas' },
-                    { key: 'sourceUrl', label: 'Enlace URL' },
-                    { key: 'incorporatedAt', label: 'Fecha de incorporación' },
-                  ].map(({ key, label }) => (
-                    <div key={key} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={key}
-                        checked={exportOptions[key as keyof ExportOptions]}
-                        onCheckedChange={(checked) => 
-                          setExportOptions(prev => ({ ...prev, [key]: checked }))
-                        }
-                      />
-                      <label htmlFor={key} className="text-sm">
-                        {label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex gap-2 pt-4">
-                  <Button onClick={exportLinksToTxt} className="flex-1">
-                    <Download className="h-4 w-4 mr-2" />
-                    Exportar ({filteredPractices.filter(p => p.sourceUrl).length} prácticas)
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsExportDialogOpen(false)}>
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -647,11 +448,6 @@ export default function BestPracticesManager() {
       <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
         <span>
           Mostrando {filteredPractices.length} de {(practices as BestPractice[]).length} prácticas
-          {filteredPractices.filter(p => p.sourceUrl).length > 0 && (
-            <span className="ml-2 text-blue-600">
-              ({filteredPractices.filter(p => p.sourceUrl).length} con enlaces)
-            </span>
-          )}
         </span>
         <span className="font-medium flex items-center gap-1">
           <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full"></span>

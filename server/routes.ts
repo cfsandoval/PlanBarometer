@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage-extended";
+import { storage } from "./storage";
 import { insertEvaluationSchema, insertBestPracticeSchema, insertPracticeRecommendationSchema } from "@shared/schema";
 import { z } from "zod";
 import { WebSocketServer, WebSocket } from 'ws';
@@ -204,100 +204,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Best practice deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Error deleting best practice" });
-    }
-  });
-
-  // Scraping configuration routes
-  app.get('/api/scraping-configs', async (req, res) => {
-    try {
-      const configs = await storage.getAllScrapingConfigs();
-      res.json(configs);
-    } catch (error) {
-      console.error("Error fetching scraping configs:", error);
-      res.status(500).json({ message: "Failed to fetch scraping configs" });
-    }
-  });
-
-  app.post('/api/scraping-configs', async (req, res) => {
-    try {
-      const config = await storage.createScrapingConfig(req.body);
-      res.json(config);
-    } catch (error) {
-      console.error("Error creating scraping config:", error);
-      res.status(500).json({ message: "Failed to create scraping config" });
-    }
-  });
-
-  app.put('/api/scraping-configs/:id', async (req, res) => {
-    try {
-      const config = await storage.updateScrapingConfig(parseInt(req.params.id), req.body);
-      if (!config) {
-        return res.status(404).json({ message: "Scraping config not found" });
-      }
-      res.json(config);
-    } catch (error) {
-      console.error("Error updating scraping config:", error);
-      res.status(500).json({ message: "Failed to update scraping config" });
-    }
-  });
-
-  app.delete('/api/scraping-configs/:id', async (req, res) => {
-    try {
-      const deleted = await storage.deleteScrapingConfig(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ message: "Scraping config not found" });
-      }
-      res.json({ message: "Scraping config deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting scraping config:", error);
-      res.status(500).json({ message: "Failed to delete scraping config" });
-    }
-  });
-
-  // External API routes
-  app.get('/api/external-apis', async (req, res) => {
-    try {
-      const apis = await storage.getAllExternalApis();
-      res.json(apis);
-    } catch (error) {
-      console.error("Error fetching external APIs:", error);
-      res.status(500).json({ message: "Failed to fetch external APIs" });
-    }
-  });
-
-  app.post('/api/external-apis', async (req, res) => {
-    try {
-      const api = await storage.createExternalApi(req.body);
-      res.json(api);
-    } catch (error) {
-      console.error("Error creating external API:", error);
-      res.status(500).json({ message: "Failed to create external API" });
-    }
-  });
-
-  app.put('/api/external-apis/:id', async (req, res) => {
-    try {
-      const api = await storage.updateExternalApi(parseInt(req.params.id), req.body);
-      if (!api) {
-        return res.status(404).json({ message: "External API not found" });
-      }
-      res.json(api);
-    } catch (error) {
-      console.error("Error updating external API:", error);
-      res.status(500).json({ message: "Failed to update external API" });
-    }
-  });
-
-  app.delete('/api/external-apis/:id', async (req, res) => {
-    try {
-      const deleted = await storage.deleteExternalApi(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ message: "External API not found" });
-      }
-      res.json({ message: "External API deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting external API:", error);
-      res.status(500).json({ message: "Failed to delete external API" });
     }
   });
 

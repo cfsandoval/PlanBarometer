@@ -366,56 +366,6 @@ export const bestPractices = pgTable("best_practices", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
-// Scraping configuration table
-export const scrapingConfigs = pgTable("scraping_configs", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  baseUrl: text("base_url").notNull(),
-  selectors: json("selectors").$type<{
-    titleSelector: string;
-    descriptionSelector: string;
-    linkSelector?: string;
-    categorySelector?: string;
-    dateSelector?: string;
-  }>().notNull(),
-  isActive: boolean("is_active").default(true),
-  lastScrapedAt: timestamp("last_scraped_at"),
-  successCount: integer("success_count").default(0),
-  errorCount: integer("error_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// External API configurations
-export const externalApis = pgTable("external_apis", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  endpoint: text("endpoint").notNull(),
-  apiType: text("api_type").notNull(), // "openai", "perplexity", "custom"
-  authType: text("auth_type").notNull(), // "bearer", "api_key", "basic", "none"
-  headers: json("headers").$type<Record<string, string>>(),
-  rateLimitPerMinute: integer("rate_limit_per_minute").default(60),
-  isActive: boolean("is_active").default(true),
-  lastUsedAt: timestamp("last_used_at"),
-  successCount: integer("success_count").default(0),
-  errorCount: integer("error_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Scraping sessions for tracking
-export const scrapingSessions = pgTable("scraping_sessions", {
-  id: serial("id").primaryKey(),
-  configId: integer("config_id").references(() => scrapingConfigs.id),
-  startedAt: timestamp("started_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
-  status: text("status").notNull().default("running"), // "running", "completed", "failed"
-  practicesFound: integer("practices_found").default(0),
-  practicesCreated: integer("practices_created").default(0),
-  errorMessage: text("error_message"),
-  logs: json("logs").$type<string[]>().default([]),
-});
-
 export const practiceRecommendations = pgTable("practice_recommendations", {
   id: serial("id").primaryKey(),
   practiceId: integer("practice_id").references(() => bestPractices.id),
@@ -456,21 +406,6 @@ export const insertBestPracticeSchema = createInsertSchema(bestPractices).pick({
   tags: true,
 });
 
-export const insertScrapingConfigSchema = createInsertSchema(scrapingConfigs).pick({
-  name: true,
-  baseUrl: true,
-  selectors: true,
-});
-
-export const insertExternalApiSchema = createInsertSchema(externalApis).pick({
-  name: true,
-  endpoint: true,
-  apiType: true,
-  authType: true,
-  headers: true,
-  rateLimitPerMinute: true,
-});
-
 export const insertPracticeRecommendationSchema = createInsertSchema(practiceRecommendations).pick({
   practiceId: true,
   criterionName: true,
@@ -489,8 +424,3 @@ export type InsertBestPractice = z.infer<typeof insertBestPracticeSchema>;
 export type BestPractice = typeof bestPractices.$inferSelect;
 export type InsertPracticeRecommendation = z.infer<typeof insertPracticeRecommendationSchema>;
 export type PracticeRecommendation = typeof practiceRecommendations.$inferSelect;
-export type InsertScrapingConfig = z.infer<typeof insertScrapingConfigSchema>;
-export type ScrapingConfig = typeof scrapingConfigs.$inferSelect;
-export type InsertExternalApi = z.infer<typeof insertExternalApiSchema>;
-export type ExternalApi = typeof externalApis.$inferSelect;
-export type ScrapingSession = typeof scrapingSessions.$inferSelect;
