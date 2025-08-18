@@ -1,0 +1,58 @@
+# Docker Compose para desarrollo local - Planbarómetro CEPAL
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: planbarometro-db
+    environment:
+      POSTGRES_USER: planbarometro
+      POSTGRES_PASSWORD: planbarometro_password
+      POSTGRES_DB: planbarometro
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planbarometro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación web
+  app:
+    build: .
+    container_name: planbarometro-app
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://planbarometro:planbarometro_password@postgres:5432/planbarometro
+      SESSION_SECRET: desarrollo-session-secret-muy-larga-y-segura
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npm run dev
+
+  # Admin de base de datos (opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: planbarometro-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@planbarometro.org
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    profiles:
+      - admin
+
+volumes:
+  postgres_data:

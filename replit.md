@@ -137,6 +137,7 @@ Preferred communication style: Simple, everyday language.
 25. **Route Resolution**: Fixed 404 errors for study URLs (/delphi/studies/:id) with proper frontend routing and authentication handling
 26. **Personalized Expert Feedback Mechanism**: Advanced feedback system providing individualized performance analysis, deviation patterns (aligned/optimistic/conservative/outlier), personalized learning insights, skill development recommendations, and expert progression tracking with achievement levels
 27. **TOPP-Focused Scraping Module**: Specialized web scraping system targeting institutional capacity building practices with classification by Technical, Operational, Political, and Prospective dimensions from 6 regional repositories including CEPAL, BID, and national modernization agencies
+28. **Professional Installation System**: Complete deployment infrastructure with automated installers for GitHub/Vercel, Docker containerization, CI/CD workflows, comprehensive documentation (INSTALL.md, DEPLOYMENT.md), environment templates, and one-click setup scripts for local development and production deployment
 
 ### Key Architectural Decisions
 

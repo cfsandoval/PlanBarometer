@@ -1,93 +1,152 @@
-# Guía de Deployment - Planbarómetro
+# 🚀 Guía de Despliegue - Planbarómetro ILPES-CEPAL
 
-Esta guía proporciona instrucciones detalladas para desplegar Planbarómetro en diferentes entornos de producción.
+Esta guía cubre todas las opciones de despliegue para la aplicación Planbarómetro.
 
-## 📋 Tabla de Contenidos
+## 🎯 Opciones de Despliegue
 
-- [Preparación para Producción](#preparación-para-producción)
-- [Replit Deployment](#replit-deployment)
-- [Vercel](#vercel)
-- [Heroku](#heroku)
-- [Railway](#railway)
-- [DigitalOcean App Platform](#digitalocean-app-platform)
-- [AWS](#aws)
-- [Docker](#docker)
-- [Servidor Propio (VPS)](#servidor-propio-vps)
-- [Configuración de Base de Datos](#configuración-de-base-de-datos)
-- [Variables de Entorno](#variables-de-entorno)
-- [Monitoreo y Logs](#monitoreo-y-logs)
+### 1. 🌐 Vercel (Recomendado)
+**Mejor para**: Aplicaciones web con tráfico variable, fácil escalabilidad
 
-## 🚀 Preparación para Producción
+**Ventajas**:
+- Despliegue automático desde GitHub
+- CDN global integrado
+- Escalabilidad automática
+- SSL/HTTPS automático
+- Dominio personalizado gratuito
 
-### 1. Build del Proyecto
-
+**Instalador automático**:
 ```bash
-# Instalar dependencias
-npm ci
-
-# Ejecutar tests
-npm test
-
-# Build para producción
-npm run build
-
-# Verificar que el build funciona
-npm start
+bash install-vercel.sh
 ```
 
-### 2. Configuración de Seguridad
+### 2. 🐙 GitHub + Vercel
+**Mejor para**: Desarrollo colaborativo con CI/CD
 
+**Ventajas**:
+- Control de versiones integrado
+- Pull requests y revisiones de código
+- Actions para testing automático
+- Despliegue continuo
+
+**Instalador automático**:
+```bash
+bash install-github.sh
+```
+
+### 3. ☁️ Otras Plataformas Cloud
+
+#### Netlify
+```bash
+# netlify.toml
+[build]
+  command = "npm run build"
+  publish = "dist/public"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+```
+
+#### Railway
+```bash
+# railway.json
+{
+  "build": {
+    "builder": "nixpacks"
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "healthcheckPath": "/api/health"
+  }
+}
+```
+
+#### Render
+```bash
+# render.yaml
+services:
+  - type: web
+    name: planbarometro
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+```
+
+## 🗄️ Configuración de Base de Datos
+
+### Opciones de PostgreSQL
+
+#### 1. Neon Database (Recomendado)
+```bash
+# Crear cuenta en neon.tech
+# Crear nueva base de datos
+# Copiar connection string
+
+DATABASE_URL="postgresql://usuario:password@host.neon.tech:5432/planbarometro?sslmode=require"
+```
+
+#### 2. Supabase
+```bash
+# Crear proyecto en supabase.com
+# Ir a Settings > Database
+# Copiar connection string
+
+DATABASE_URL="postgresql://postgres:password@db.host.supabase.co:5432/postgres"
+```
+
+#### 3. Railway
+```bash
+# Crear servicio PostgreSQL en railway.app
+# Obtener variables de conexión
+
+DATABASE_URL="postgresql://postgres:password@host.railway.app:5432/railway"
+```
+
+#### 4. PlanetScale (MySQL compatible)
+```bash
+# Crear base de datos en planetscale.com
+# Configurar branch principal
+# Obtener connection string
+
+DATABASE_URL="mysql://usuario:password@host.planetscale.com/planbarometro?sslmode=require"
+```
+
+## 🔐 Variables de Entorno
+
+### Variables Obligatorias
 ```env
-# Variables críticas para producción
-NODE_ENV=production
-SESSION_SECRET="generated-secure-random-key-minimum-32-characters"
-COOKIE_SECURE=true
-COOKIE_SAME_SITE=strict
+DATABASE_URL="postgresql://..."
+SESSION_SECRET="clave-super-secreta-larga"
+NODE_ENV="production"
 ```
 
-### 3. Optimizaciones
+### Variables Opcionales
+```env
+# OpenAI para búsqueda inteligente
+OPENAI_API_KEY="sk-..."
 
-- ✅ Minificación de assets
-- ✅ Compresión gzip habilitada
-- ✅ Cache headers configurados
-- ✅ CDN para assets estáticos (opcional)
+# Replit Auth (si se usa)
+REPL_ID="tu-repl-id"
+ISSUER_URL="https://replit.com/oidc"
+REPLIT_DOMAINS="tu-dominio.vercel.app"
 
-## 🔄 Replit Deployment (Recomendado)
+# Web scraping
+SCRAPING_DELAY="2000"
+MAX_CONCURRENT_REQUESTS="3"
+USER_AGENT="PlanbarometroCEPAL/2.0"
+```
 
-### Configuración Automática
+## 🔧 Configuración por Plataforma
 
-El proyecto está optimizado para Replit Deployments:
-
-1. **Configurar Secrets**:
-   ```
-   DATABASE_URL=postgresql://...
-   OPENAI_API_KEY=sk-...
-   SESSION_SECRET=your-secure-key
-   ```
-
-2. **Deploy**:
-   - Usar el botón "Deploy" en Replit
-   - Se asigna automáticamente dominio `.replit.app`
-   - SSL/TLS configurado automáticamente
-
-3. **Configuración Automática**:
-   - Build process: `npm run build`
-   - Start command: `npm start`
-   - Port detection: Automático
-
-### Ventajas de Replit
-- ✅ Zero-config deployment
-- ✅ SSL automático
-- ✅ Scaling automático
-- ✅ Integrated database options
-- ✅ Environment management
-
-## ☁️ Vercel
-
-### 1. Configuración del Proyecto
-
+### Vercel
 ```json
-// vercel.json
 {
   "version": 2,
   "builds": [
@@ -96,561 +155,184 @@ El proyecto está optimizado para Replit Deployments:
       "use": "@vercel/node"
     },
     {
-      "src": "client/**/*",
+      "src": "package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build:client",
-        "outputDirectory": "dist/public"
-      }
+      "config": { "distDir": "dist/public" }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/client/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+    { "src": "/api/(.*)", "dest": "/server/index.ts" },
+    { "src": "/(.*)", "dest": "/dist/public/$1" }
+  ]
 }
 ```
 
-### 2. Deployment
-
-```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Login
-vercel login
-
-# Deploy
-vercel --prod
-```
-
-### 3. Variables de Entorno
-
-Configurar en Vercel Dashboard:
-- `DATABASE_URL`
-- `OPENAI_API_KEY`
-- `SESSION_SECRET`
-
-## 🚀 Heroku
-
-### 1. Preparación
-
-```bash
-# Instalar Heroku CLI
-# macOS
-brew tap heroku/brew && brew install heroku
-
-# Crear aplicación
-heroku create planbarometro-app
-
-# Agregar PostgreSQL
-heroku addons:create heroku-postgresql:mini
-```
-
-### 2. Configuración
-
-```json
-// Procfile
-web: npm start
-```
-
-```json
-// package.json - scripts adicionales
-{
-  "scripts": {
-    "heroku-postbuild": "npm run build"
-  }
-}
-```
-
-### 3. Variables de Entorno
-
-```bash
-heroku config:set NODE_ENV=production
-heroku config:set SESSION_SECRET="your-secure-key"
-heroku config:set OPENAI_API_KEY="sk-..."
-```
-
-### 4. Deploy
-
-```bash
-git add .
-git commit -m "Deploy to Heroku"
-git push heroku main
-```
-
-## 🚂 Railway
-
-### 1. Configuración
-
+### Netlify
 ```toml
-# railway.toml
 [build]
-builder = "nixpacks"
+  command = "npm run build"
+  publish = "dist/public"
 
-[deploy]
-startCommand = "npm start"
-healthcheckPath = "/api/health"
-healthcheckTimeout = 100
-restartPolicyType = "on_failure"
+[build.environment]
+  NODE_VERSION = "18"
 
-[[deploy.environmentVariables]]
-name = "NODE_ENV"
-value = "production"
+[[functions]]
+  directory = "netlify/functions/"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 ```
 
-### 2. Deployment
-
-```bash
-# Instalar Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
-# Crear proyecto
-railway init
-
-# Deploy
-railway up
-```
-
-### 3. Base de Datos
-
-```bash
-# Agregar PostgreSQL
-railway add postgresql
-
-# La DATABASE_URL se configura automáticamente
-```
-
-## 🌊 DigitalOcean App Platform
-
-### 1. Configuración
-
+### Render
 ```yaml
-# .do/app.yaml
-name: planbarometro
 services:
-- name: web
-  source_dir: /
-  github:
-    repo: tu-usuario/planbarometro
-    branch: main
-  run_command: npm start
-  environment_slug: node-js
-  instance_count: 1
-  instance_size_slug: professional-xs
-  env:
-  - key: NODE_ENV
-    value: production
-  - key: SESSION_SECRET
-    value: ${SESSION_SECRET}
-  - key: DATABASE_URL
-    value: ${db.DATABASE_URL}
+  - type: web
+    name: planbarometro-cepal
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: planbarometro-db
+          property: connectionString
+    autoDeploy: false
 
 databases:
-- engine: PG
-  name: db
-  num_nodes: 1
-  size: db-s-dev-database
-  version: "14"
+  - name: planbarometro-db
+    databaseName: planbarometro
+    user: planbarometro
+    region: oregon
+    plan: starter
 ```
 
-### 2. Deploy
+## 🔄 CI/CD con GitHub Actions
 
-1. Conectar repositorio GitHub
-2. Configurar variables de entorno
-3. Deploy automático desde main branch
+### Configuración automática
+El archivo `.github/workflows/deploy.yml` incluye:
 
-## ☁️ AWS
+1. **Testing automático**
+   - Tests unitarios
+   - Verificación de build
+   - Validación de schema de DB
 
-### Usando AWS Amplify
+2. **Despliegue automático**
+   - Deploy a Vercel en push a main
+   - Notificaciones de estado
+   - Rollback automático en fallo
 
-```yaml
-# amplify.yml
-version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - npm ci
-        - npm run build
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm ci
-    build:
-      commands:
-        - npm run build:client
-  artifacts:
-    baseDirectory: dist/public
-    files:
-      - '**/*'
+### Secretos requeridos
+```
+VERCEL_TOKEN=tu-token-vercel
+ORG_ID=tu-org-id-vercel
+PROJECT_ID=tu-project-id-vercel
 ```
 
-### Usando Elastic Beanstalk
+## 🌍 Configuración de Dominio
 
-```json
-// .ebextensions/nodecommand.config
-option_settings:
-  aws:elasticbeanstalk:container:nodejs:
-    NodeCommand: "npm start"
-    NodeVersion: 18.x
+### Dominio personalizado en Vercel
+1. Ir a Project Settings > Domains
+2. Agregar dominio personalizado
+3. Configurar DNS según indicaciones
+4. SSL/HTTPS se configurará automáticamente
+
+### Configuración DNS típica
 ```
+# Dominio raíz
+A record: @ → 76.76.19.61
 
-## 🐳 Docker
-
-### 1. Dockerfile
-
-```dockerfile
-# Dockerfile
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-RUN npm run build
-
-FROM node:18-alpine AS production
-
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-EXPOSE 5000
-
-USER node
-
-CMD ["npm", "start"]
-```
-
-### 2. Docker Compose
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/planbarometro
-      - SESSION_SECRET=your-secure-key
-    depends_on:
-      - db
-
-  db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_DB=planbarometro
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres_data:
-```
-
-### 3. Build y Deploy
-
-```bash
-# Build
-docker build -t planbarometro .
-
-# Run con Docker Compose
-docker-compose up -d
-
-# Logs
-docker-compose logs -f app
-```
-
-## 🖥️ Servidor Propio (VPS)
-
-### 1. Preparación del Servidor
-
-```bash
-# Actualizar sistema
-sudo apt update && sudo apt upgrade -y
-
-# Instalar Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Instalar PostgreSQL
-sudo apt install postgresql postgresql-contrib
-
-# Instalar PM2
-sudo npm install -g pm2
-```
-
-### 2. Configuración de Base de Datos
-
-```bash
-# Crear usuario y base de datos
-sudo -u postgres psql
-CREATE USER planbarometro WITH PASSWORD 'secure_password';
-CREATE DATABASE planbarometro OWNER planbarometro;
-GRANT ALL PRIVILEGES ON DATABASE planbarometro TO planbarometro;
-\q
-```
-
-### 3. Deploy de la Aplicación
-
-```bash
-# Clonar repositorio
-git clone https://github.com/tu-usuario/planbarometro.git
-cd planbarometro
-
-# Instalar dependencias
-npm ci
-
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env con valores de producción
-
-# Build
-npm run build
-
-# Configurar PM2
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
-```
-
-### 4. Configuración de Nginx
-
-```nginx
-# /etc/nginx/sites-available/planbarometro
-server {
-    listen 80;
-    server_name tu-dominio.com;
-
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-### 5. SSL con Let's Encrypt
-
-```bash
-# Instalar Certbot
-sudo apt install certbot python3-certbot-nginx
-
-# Obtener certificado
-sudo certbot --nginx -d tu-dominio.com
-
-# Auto-renewal
-sudo crontab -e
-# Agregar: 0 12 * * * /usr/bin/certbot renew --quiet
-```
-
-## 🗄️ Configuración de Base de Datos
-
-### PostgreSQL en la Nube
-
-#### Supabase
-```bash
-# URL de conexión
-DATABASE_URL="postgresql://username:password@db.xxxxx.supabase.co:5432/postgres"
-```
-
-#### PlanetScale
-```bash
-# Configuración
-DATABASE_URL="mysql://username:password@host.psdb.cloud/planbarometro?sslaccept=strict"
-```
-
-#### Neon
-```bash
-# Configuración
-DATABASE_URL="postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/planbarometro?sslmode=require"
-```
-
-### Migración de Datos
-
-```bash
-# Ejecutar migraciones
-npm run db:push
-
-# Poblar datos iniciales
-npm run seed
-
-# Backup
-pg_dump $DATABASE_URL > backup.sql
-
-# Restore
-psql $DATABASE_URL < backup.sql
-```
-
-## ⚙️ Variables de Entorno por Ambiente
-
-### Desarrollo
-```env
-NODE_ENV=development
-DATABASE_URL="postgresql://localhost:5432/planbarometro_dev"
-SESSION_SECRET="dev-secret-key"
-COOKIE_SECURE=false
-DEBUG_MODE=true
-```
-
-### Staging
-```env
-NODE_ENV=staging
-DATABASE_URL="postgresql://staging-db/planbarometro_staging"
-SESSION_SECRET="staging-secure-key"
-COOKIE_SECURE=true
-DEBUG_MODE=false
-```
-
-### Producción
-```env
-NODE_ENV=production
-DATABASE_URL="postgresql://prod-db/planbarometro"
-SESSION_SECRET="production-super-secure-key"
-COOKIE_SECURE=true
-COOKIE_SAME_SITE=strict
-DEBUG_MODE=false
+# Subdominio
+CNAME: www → tu-proyecto.vercel.app
 ```
 
 ## 📊 Monitoreo y Logs
 
-### Health Check Endpoint
-
-```typescript
-// Implementado en server/routes.ts
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version,
-    environment: process.env.NODE_ENV
-  });
-});
-```
-
-### Logging en Producción
-
-```javascript
-// Configuración de logs
-const winston = require('winston');
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
-});
-```
-
-### Monitoreo de Performance
-
+### Vercel
 ```bash
-# PM2 Monitoring
-pm2 monitor
+# Ver logs en tiempo real
+vercel logs --follow
 
-# Logs en tiempo real
-pm2 logs --lines 100
-
-# Métricas
-pm2 monit
+# Logs específicos de función
+vercel logs --limit=100
 ```
 
-## 🔧 Troubleshooting
+### Error Tracking
+Integrar servicios como:
+- Sentry (errores frontend/backend)
+- LogRocket (sesiones de usuario)
+- DataDog (métricas de performance)
 
-### Problemas Comunes
+## 🔍 Troubleshooting
 
-#### Error de Conexión a Base de Datos
+### Error de Build
 ```bash
-# Verificar conectividad
-psql $DATABASE_URL -c "SELECT 1"
+# Verificar dependencias
+npm ci
+npm run build
 
-# Verificar variables
-echo $DATABASE_URL
+# Limpiar caché
+npm run clean
+npm run build
 ```
 
-#### Problemas de Memoria
+### Error de Base de Datos
 ```bash
-# Aumentar límite de memoria Node.js
-node --max-old-space-size=4096 dist/index.js
+# Verificar conexión
+npm run db:push
 
-# Configurar en PM2
-pm2 start ecosystem.config.js --node-args="--max-old-space-size=4096"
+# Reset completo
+npm run db:reset
+npm run db:push
 ```
 
-#### SSL/HTTPS Issues
+### Error de Variables de Entorno
 ```bash
-# Verificar certificados
-openssl s_client -connect tu-dominio.com:443
+# Verificar en plataforma
+vercel env ls
+netlify env:list
 
-# Renovar certificados Let's Encrypt
-sudo certbot renew
+# Testear localmente
+npm run dev
 ```
 
-### Logs de Debugging
+## 🚀 Checklist de Despliegue
 
-```bash
-# Logs de aplicación
-tail -f combined.log
+### Pre-despliegue
+- [ ] Tests pasan localmente
+- [ ] Build exitoso
+- [ ] Variables de entorno configuradas
+- [ ] Base de datos accesible
+- [ ] Dominios configurados
 
-# Logs de sistema
-sudo journalctl -f -u nginx
-sudo journalctl -f -u postgresql
-```
+### Post-despliegue
+- [ ] Aplicación carga correctamente
+- [ ] Autenticación funciona
+- [ ] Base de datos conectada
+- [ ] Scraping funcional
+- [ ] Métricas configuradas
 
-## 📈 Optimizaciones de Producción
+### Mantenimiento
+- [ ] Backups de DB configurados
+- [ ] Monitoreo de errores activo
+- [ ] SSL renovación automática
+- [ ] Updates de seguridad programadas
 
-### Performance
-- ✅ Compresión gzip
-- ✅ Cache headers
-- ✅ CDN para assets
-- ✅ Database indexing
-- ✅ Connection pooling
+## 📞 Soporte de Despliegue
 
-### Seguridad
-- ✅ HTTPS obligatorio
-- ✅ Security headers
-- ✅ Rate limiting
-- ✅ Input validation
-- ✅ Regular security updates
+**Problemas de configuración**:
+- Revisar logs de la plataforma
+- Verificar variables de entorno
+- Comprobar conectividad de DB
 
-### Escalabilidad
-- ✅ Load balancing
-- ✅ Database read replicas
-- ✅ Caching (Redis)
-- ✅ Horizontal scaling
-- ✅ Auto-scaling configurado
+**Problemas de rendimiento**:
+- Optimizar queries de DB
+- Configurar CDN
+- Implementar caché
 
----
-
-Para soporte adicional en deployment, consulta la [documentación técnica](./README.md) o abre un [issue](https://github.com/usuario/planbarometro/issues).
+**Contacto técnico**: tech@planbarometro.org
