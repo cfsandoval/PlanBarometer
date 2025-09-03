@@ -1,25 +1,32 @@
 {
   "version": 2,
   "name": "planbarometro-cepal",
-
-  // Construcción moderna
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
-
-  // Define solo Functions (sin 'builds')
-  "functions": {
-    "server/index.ts": {
-      "maxDuration": 15,
-      "memory": 512,
-      "includeFiles": ["shared/**", "server/**"]
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["shared/**", "server/**"]
+      }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/public"
+      }
     }
-  },
-
-  // Rewrites equivalentes a tus routes
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/server/index.ts" }
   ],
-
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/public/$1"
+    }
+  ],
   "env": {
     "NODE_ENV": "production"
   }
