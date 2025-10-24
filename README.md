@@ -380,19 +380,14 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 ## 📞 Soporte
 
 ### Documentación
-- **Metodología TOPP**: [ILPES-CEPAL](https://www.cepal.org/es/areas-de-trabajo/planificacion-para-el-desarrollo)
-- **Framework React**: [Documentación oficial](https://react.dev/)
-- **Base de datos**: [Drizzle ORM](https://orm.drizzle.team/)
+
 
 ### Comunidad
 - **Issues**: Reportar bugs y solicitar funcionalidades
 - **Discussions**: Preguntas y discusiones generales
 - **Wiki**: Documentación adicional y ejemplos
 
-### Contacto
-- **Email**: [tu-email@ejemplo.com]
-- **Twitter**: [@tu-usuario]
-- **LinkedIn**: [Tu Perfil]
+
 
 ---
 
